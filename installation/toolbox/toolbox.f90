@@ -524,10 +524,10 @@ contains
         !##### ROUTINE CODE #######################################################
         
         ! write error message
-        write(*,'(/a,a,a,a/)')'ERROR ',routine,': ',message
+        write(error_unit,'(/a,a,a,a/)')'ERROR in ',routine,': ',message
         
         ! stop program
-        stop
+        error stop 1
     
     end subroutine error
     
@@ -552,7 +552,7 @@ contains
         !##### ROUTINE CODE #######################################################
         
         ! write warning message
-        write(*,'(/a,a,a,a/)')'WARNING ',routine,': ',message
+        write(error_unit,'(/a,a,a,a/)')'WARNING in ',routine,': ',message
     
     end subroutine warning
 
@@ -1992,7 +1992,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    subroutine lu_solve(a, b)
+    subroutine lu_solve(a, b, stat)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -2002,6 +2002,9 @@ contains
         
         ! right side of equation and solution of the system
         real(dp), intent(inout) :: b(:)
+        
+        ! status indicator
+        integer(int32), intent(out), optional :: stat
         
         
         !##### OTHER VARIABLES ####################################################
@@ -2014,6 +2017,8 @@ contains
         
         !##### ROUTINE CODE #######################################################
         
+        if(present(stat)) stat = 0
+        
         ! assert size equality
         n = assert_eq(size(a,1), size(a,2), size(b), 'lu_solve')
         n = n
@@ -2022,7 +2027,10 @@ contains
         worka = a
         
         ! decompose matrix
-        call lu_decomp(worka, indx, d)
+        call lu_decomp(worka, indx, d, stat)
+        if(present(stat))then
+            if(stat /= 0) return
+        endif
         
         ! solve system
         call lu_back(worka, indx, b)
@@ -2086,7 +2094,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    subroutine lu_decomp(a, indx, d)
+    subroutine lu_decomp(a, indx, d, stat)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -2100,6 +2108,9 @@ contains
         ! indicates whether number of row permutations was even or odd
         real(dp), intent(out) :: d
         
+        ! status indicator
+        integer(int32), intent(out), optional :: stat
+        
         
         !##### OTHER VARIABLES ####################################################
         
@@ -2109,6 +2120,8 @@ contains
         
         
         !##### ROUTINE CODE #######################################################
+        
+        if(present(stat)) stat = 0
         
         ! check array sizes
         n = assert_eq(size(a,1), size(a,2), size(indx),'lu_decomp')
@@ -2120,7 +2133,14 @@ contains
         vv = maxval(abs(a), dim=2)
         
         ! if there is a zero row then matrix is singular
-        if (any(abs(vv) <= 1.0e-100_dp)) call error('lu_decomp', 'matrix is singular')
+        if (any(abs(vv) <= 1.0e-100_dp)) then
+            if(present(stat)) then
+                stat = 1
+                return
+            else
+                call error('lu_decomp', 'matrix is singular')
+            endif
+        endif
         
         ! invert v
         vv = 1.0_dp/vv
@@ -2142,7 +2162,14 @@ contains
             indx(j) = imax
             
             ! prevent division by 0
-            if(abs(a(j,j))  <= 1.0e-100_dp)call error('lu_decomp', 'matrix is singular')
+            if(abs(a(j,j))  <= 1.0e-100_dp) then
+                if(present(stat)) then
+                    stat = 1
+                    return
+                else
+                    call error('lu_decomp', 'matrix is singular')
+                endif
+            endif
             
             ! calculate new elements
             a(j+1:n, j) = a(j+1:n,j)/a(j,j)
@@ -2203,7 +2230,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    subroutine lu_dec(a, l, u)
+    subroutine lu_dec(a, l, u, stat)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -2217,6 +2244,9 @@ contains
         ! upper triangular martix
         real(dp), intent(out) :: u(:, :)
         
+        ! status indicator
+        integer(int32), intent(out), optional :: stat
+        
         
         !##### OTHER VARIABLES ####################################################
         
@@ -2228,6 +2258,8 @@ contains
                 
         !##### ROUTINE CODE #######################################################
         
+        if(present(stat)) stat = 0
+        
         ! check array sizes
         n = assert_eq((/size(a,1), size(a,2), size(l, 1), size(l, 2), &
         size(u, 1), size(u, 2)/), 'lu_dec')
@@ -2236,7 +2268,10 @@ contains
         Awork(:, :) = A(:, :)
         
         ! calculate decomposition
-        call lu_decomp(Awork, indx, d)
+        call lu_decomp(Awork, indx, d, stat)
+        if(present(stat))then
+            if(stat /= 0) return
+        endif
         
         ! initialize matrices
         L(:, :) = 0.0_dp
@@ -2327,7 +2362,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    subroutine cholesky(a, l)
+    subroutine cholesky(a, l, stat)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -2338,6 +2373,9 @@ contains
         ! the cholesky factor
         real(dp), intent(out) :: l(:, :)
         
+        ! status indicator
+        integer(int32), intent(out), optional :: stat
+        
         
         !##### OTHER VARIABLES ####################################################
         
@@ -2346,6 +2384,8 @@ contains
         
         
         !##### ROUTINE CODE #######################################################
+        
+        if(present(stat)) stat = 0
         
         ! assert equalities
         n = assert_eq(size(a,1), size(a,2), size(l, 1), size(l, 2), &
@@ -2357,8 +2397,14 @@ contains
         ! decompose matrix
         do i = 1, n
             summ = l(i,i)-dot_product(l(i,1:i-1), l(i,1:i-1))
-            if(summ <= 0.0_dp)call error('cholesky', &
-                'Cholesky decomposition failed')
+            if(summ <= 0.0_dp)then
+                if(present(stat)) then
+                    stat = 1
+                    return
+                else
+                    call error('cholesky', 'Cholesky decomposition failed')
+                endif
+            endif
             p(i) = sqrt(summ)
             l(i+1:n,i) = (l(i,i+1:n)-matmul(l(i+1:n,1:i-1),l(i,1:i-1)))/p(i)
         enddo
