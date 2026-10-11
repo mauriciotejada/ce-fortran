@@ -30,37 +30,57 @@ implicit none
 ! declare everything as private by default
 private
 
+!##############################################################################
+! Numerical storage size parameters for real and integer values
+!##############################################################################
+
+! Single precision real numbers, 6 digits, range 10^-37 to 10^37-1; 32 bits
+integer, parameter :: sp = selected_real_kind(6, 37)
+! Double precision real numbers, 15 digits, range 10^-307 to 10^307-1; 64 bits
+integer, parameter :: dp = selected_real_kind(15, 307)
+! Quadruple precision real numbers, 33 digits, range 10^-4931 to 10^4931-1; 128 bits
+integer, parameter :: qp = selected_real_kind(33, 4931)
+
+! Char length for integers, range -2^7 to 2^7-1; 8 bits
+integer, parameter :: int8 = selected_int_kind(2)
+! Short length for integers, range -2^15 to 2^15-1; 16 bits
+integer, parameter :: int16 = selected_int_kind(4)
+! Length of default integers, range -2^31 to 2^31-1; 32 bits
+integer, parameter :: int32 = selected_int_kind(9)
+! Long length for integers, range -2^63 to 2^63-1; 64 bits
+integer, parameter :: int64 = selected_int_kind(18)
+
 ! starting time for cpu timer
-real*8, private :: starttime_cpu
+real(dp), private :: starttime_cpu
 
 ! should the random tbox_seed be set
 logical, private :: tbox_seed = .true.
 
 ! Level of tolerance for all routines
-real*8,  private  :: tbox_gftol = 1d-8
+real(dp),  private  :: tbox_gftol = 1.0e-8_dp
 
 ! Maximum number of iterations
-integer, private  :: tbox_itermax_min = 200
+integer(int32), private  :: tbox_itermax_min = 200
 
 ! Maximum number of iterations for brent_pow
-integer, parameter, private  :: tbox_tbox_itermax_pow_b = 150
+integer(int32), parameter, private  :: tbox_tbox_itermax_pow_b = 150
 
 ! Level of tolerance for all routines
-real*8,  private  :: tbox_gftol_root = 1d-8
+real(dp),  private  :: tbox_gftol_root = 1.0e-8_dp
 
 ! Maximum number of iterations for broydn
-integer, private  :: itermax_root = 200
+integer(int32), private  :: itermax_root = 200
 
 ! control variables for gnuplot
 logical, private :: gnu_addtoplot = .false.
 logical, private :: gnu_dolegend = .false.
 logical, private :: gnu_histogram = .false.
-integer, private :: gnu_nmax, gnu_mmax
-integer, private :: gnu_plotnumber = 0
+integer(int32), private :: gnu_nmax, gnu_mmax
+integer(int32), private :: gnu_plotnumber = 0
 
 ! plot data for gnuplot
-real*8, allocatable, private :: gnu_x(:, :), gnu_y(:, :)
-real*8, allocatable, private :: gnu_x_temp(:, :), gnu_y_temp(:, :)
+real(dp), allocatable, private :: gnu_x(:, :), gnu_y(:, :)
+real(dp), allocatable, private :: gnu_x_temp(:, :), gnu_y_temp(:, :)
 
 ! style data for gnuplot
 character(LEN = 2000), dimension(1000), private :: gnu_definitions 
@@ -72,6 +92,10 @@ character(LEN = 2000), dimension(1000), private :: gnu_definitions
 ! Define public access points
 !##############################################################################
 !##############################################################################
+
+! kind parameters
+public :: sp, dp, qp
+public :: int8, int16, int32, int64
 
 ! matrix operations
 public :: lu_solve, lu_invert, lu_dec
@@ -582,13 +606,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! integers to compare for equality
-        integer, intent(in) :: n1, n2
+        integer(int32), intent(in) :: n1, n2
         
         ! routine from which error should be thrown
         character(len=*), intent(in) :: string
         
         ! return value
-        integer :: assert_eq2
+        integer(int32) :: assert_eq2
         
         
         !##### ROUTINE CODE #######################################################
@@ -621,13 +645,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! integers to compare for equality
-        integer, intent(in) :: n1, n2, n3
+        integer(int32), intent(in) :: n1, n2, n3
         
         ! routine from which error should be thrown
         character(len=*), intent(in) :: string
         
         ! return value
-        integer :: assert_eq3
+        integer(int32) :: assert_eq3
         
         
         !##### ROUTINE CODE #######################################################
@@ -660,13 +684,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! integers to compare for equality
-        integer, intent(in) :: n1, n2, n3, n4
+        integer(int32), intent(in) :: n1, n2, n3, n4
         
         ! routine from which error should be thrown
         character(len=*), intent(in) :: string
         
         ! return value
-        integer :: assert_eq4
+        integer(int32) :: assert_eq4
         
         
         !##### ROUTINE CODE #######################################################
@@ -699,13 +723,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! integers to compare for equality
-        integer, intent(in) :: n1, n2, n3, n4, n5
+        integer(int32), intent(in) :: n1, n2, n3, n4, n5
         
         ! routine from which error should be thrown
         character(len=*), intent(in) :: string
         
         ! return value
-        integer :: assert_eq5
+        integer(int32) :: assert_eq5
         
         
         !##### ROUTINE CODE #######################################################
@@ -738,13 +762,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! integers to compare for equality
-        integer, intent(in) :: nn(:)
+        integer(int32), intent(in) :: nn(:)
         
         ! routine from which error should be thrown
         character(len=*), intent(in) :: string
         
         ! return value
-        integer :: assert_eqn
+        integer(int32) :: assert_eqn
         
         
         !##### ROUTINE CODE #######################################################
@@ -812,14 +836,14 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! optional file identifier
-        integer, intent(in), optional :: file
+        integer(int32), intent(in), optional :: file
         
         
         !##### OTHER VARIABLES ####################################################
         
-        real*8 :: time
-        integer :: outfile
-        real*8 :: times(4)
+        real(dp) :: time
+        integer(int32) :: outfile
+        real(dp) :: times(4)
         
         
         !##### ROUTINE CODE #######################################################
@@ -838,16 +862,16 @@ contains
         time = time - starttime_cpu
         
         ! get number of days
-        times(1) = floor(time/(24d0*60d0*60d0))
-        time = time - times(1)*24d0*60d0*60d0
+        times(1) = floor(time/(24.0_dp*60.0_dp*60.0_dp))
+        time = time - times(1)*24.0_dp*60.0_dp*60.0_dp
         
         ! get number of hours
-        times(2) = floor(time/(60d0*60d0))
-        time = time - times(2)*60d0*60d0
+        times(2) = floor(time/(60.0_dp*60.0_dp))
+        time = time - times(2)*60.0_dp*60.0_dp
         
         ! get number of minutes
-        times(3) = floor(time/60d0)
-        time = time - times(3)*60d0
+        times(3) = floor(time/60.0_dp)
+        time = time - times(3)*60.0_dp
         
         ! get number of seconds
         times(4) = time
@@ -867,10 +891,10 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! time as integer array
-        real*8, intent(in) :: times(4)
+        real(dp), intent(in) :: times(4)
         
         ! the output file identifier
-        integer, intent(in) :: file
+        integer(int32), intent(in) :: file
         
         !##### OTHER VARIABLES ####################################################
         
@@ -884,15 +908,15 @@ contains
         output2 = output1
         
         ! write time values
-        if(times(1) > 0d0)then
+        if(times(1) > 0.0_dp)then
             write(output1, '(a,1x,i3,a)') trim(output2), int(times(1)), ' d  '
             output2 = output1
         endif
-        if(times(2) > 0d0)then
+        if(times(2) > 0.0_dp)then
             write(output1, '(a,1x,i3,a)') trim(output2), int(times(2)), ' h  '
             output2 = output1
         endif
-        if(times(3) > 0d0) then
+        if(times(3) > 0.0_dp) then
             write(output1, '(a,1x,i3,a)')trim(output2), int(times(3)), ' min  '
             output2 = output1
         endif
@@ -938,16 +962,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! the array to fill
-        real*8, intent(out) :: a(1:)
+        real(dp), intent(out) :: a(1:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h
-        integer :: j, n
+        real(dp) :: h
+        integer(int32) :: j, n
      
      
         !##### ROUTINE CODE #######################################################
@@ -960,10 +984,10 @@ contains
             'left interval point greater than right point')
      
         ! calculate distance between grid points
-        h = (right-left)/dble(n)
+        h = (right-left)/real(n, dp)
      
         ! calculate grid value
-        a = h*(/(dble(j), j=0,n)/)+left
+        a = h*(/(real(j, dp), j=0,n)/)+left
      
     end subroutine grid_Cons_Equi
      
@@ -979,16 +1003,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! the array to fill
-        real*8, intent(out) :: a(1:)
+        real(dp), intent(out) :: a(1:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: j, n
-        real*8, parameter :: pi = 3.1415926535897932d0
+        integer(int32) :: j, n
+        real(dp), parameter :: pi = 3.1415926535897932_dp
      
      
         !##### ROUTINE CODE #######################################################
@@ -1001,8 +1025,8 @@ contains
             'left interval point greater than right point')
      
         ! calculate grid value
-        a = (left+right)/2d0 + (right-left)/2d0* &
-            cos((dble(n)-(/(dble(j), j=0,n)/)+0.5d0)/dble(n+1)*pi)
+        a = (left+right)/2.0_dp + (right-left)/2.0_dp* &
+            cos((real(n, dp)-(/(real(j, dp), j=0,n)/)+0.5_dp)/real(n+1, dp)*pi)
      
     end subroutine grid_Cons_Cheb
 
@@ -1019,19 +1043,19 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! the array to fill
-        real*8, intent(out) :: a(1:)
+        real(dp), intent(out) :: a(1:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! the growth rate of the grid
-        real*8 :: growth
+        real(dp) :: growth
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h
-        integer :: j, n
+        real(dp) :: h
+        integer(int32) :: j, n
      
      
         !##### ROUTINE CODE #######################################################
@@ -1044,14 +1068,14 @@ contains
             'left interval point greater than right point')
 
         ! check for growth
-        if(growth <= 0d0)call error('grid_Cons_Grow', &
+        if(growth <= 0.0_dp)call error('grid_Cons_Grow', &
             'growth rate must be greater than zero')
 
         ! calculate factor
-        h = (right-left)/((1d0+growth)**n-1d0)
+        h = (right-left)/((1.0_dp+growth)**n-1.0_dp)
      
         ! calculate grid value
-        a = h*((1d0+growth)**(/(dble(j), j=0,n)/)-1d0)+left
+        a = h*((1.0_dp+growth)**(/(real(j, dp), j=0,n)/)-1.0_dp)+left
 
     end subroutine grid_Cons_Grow
     
@@ -1067,21 +1091,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
 
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! value at the grid point x \in [0,n]
-        real*8 :: grid_Val_Equi
+        real(dp) :: grid_Val_Equi
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h
+        real(dp) :: h
      
      
         !##### ROUTINE CODE #######################################################
@@ -1110,21 +1134,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
 
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! value at the grid point x \in [0,n]
-        real*8 :: grid_Val_Cheb
+        real(dp) :: grid_Val_Cheb
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8, parameter :: pi = 3.1415926535897932d0       
+        real(dp), parameter :: pi = 3.1415926535897932_dp       
      
      
         !##### ROUTINE CODE #######################################################
@@ -1134,8 +1158,8 @@ contains
             'left interval point greater than right point')     
      
         ! calculate grid value
-        grid_Val_Cheb = (left+right)/2d0 + (right-left)/2d0* &
-            cos((dble(n)-x+0.5d0)/dble(n+1)*pi)
+        grid_Val_Cheb = (left+right)/2.0_dp + (right-left)/2.0_dp* &
+            cos((real(n, dp)-x+0.5_dp)/real(n+1, dp)*pi)
     
     end function grid_Val_Cheb
     
@@ -1151,24 +1175,24 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right     
+        real(dp), intent(in) :: left, right     
      
         ! growth rate
-        real*8, intent(in) :: growth
+        real(dp), intent(in) :: growth
 
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! value at the grid point x \in [0,n]
-        real*8 :: grid_Val_Grow
+        real(dp) :: grid_Val_Grow
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h
+        real(dp) :: h
      
      
         !##### ROUTINE CODE #######################################################
@@ -1178,7 +1202,7 @@ contains
             'left interval point greater than right point')
 
         ! check for growth
-        if(growth <= 0d0)call error('grid_Val_Grow', &
+        if(growth <= 0.0_dp)call error('grid_Val_Grow', &
             'growth rate must be greater than zero')
      
         ! calculate factor
@@ -1201,21 +1225,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! value of the inverse of the gridpoint x \in [left, right]
-        real*8 :: grid_Inv_Equi_1
+        real(dp) :: grid_Inv_Equi_1
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h
+        real(dp) :: h
      
      
         !##### ROUTINE CODE #######################################################
@@ -1244,21 +1268,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n     
+        integer(int32), intent(in) :: n     
      
         ! value of the inverse of the gridpoint x \in [left, right]
-        real*8 :: grid_Inv_Cheb_1  
+        real(dp) :: grid_Inv_Cheb_1  
 
 
         !##### OTHER VARIABLES ####################################################
      
-        real*8, parameter :: pi = 3.1415926535897932d0 
+        real(dp), parameter :: pi = 3.1415926535897932_dp 
      
      
         !##### ROUTINE CODE #######################################################
@@ -1268,8 +1292,8 @@ contains
             'left interval point greater than right point')
      
         ! calculate grid value
-        grid_Inv_Cheb_1 = dble(n) + 0.5d0 - acos((2d0*x-(left+right)) &
-            /(right-left))*dble(n+1)/pi
+        grid_Inv_Cheb_1 = real(n, dp) + 0.5_dp - acos((2.0_dp*x-(left+right)) &
+            /(right-left))*real(n+1, dp)/pi
     
     end function grid_Inv_Cheb_1
     
@@ -1285,24 +1309,24 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
 
         ! growth rate
-        real*8, intent(in) :: growth
+        real(dp), intent(in) :: growth
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n             
+        integer(int32), intent(in) :: n             
      
         ! value of the inverse of the gridpoint x \in [left, right]
-        real*8 :: grid_Inv_Grow_1
+        real(dp) :: grid_Inv_Grow_1
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h
+        real(dp) :: h
      
      
         !##### ROUTINE CODE #######################################################
@@ -1312,14 +1336,14 @@ contains
             'left interval point greater than right point')
 
         ! check for growth
-        if(growth <= 0d0)call error('grid_Inv_Grow', &
+        if(growth <= 0.0_dp)call error('grid_Inv_Grow', &
             'growth rate must be greater than zero')
      
         ! calculate factor
-        h = (right-left)/((1+growth)**n-1d0)
+        h = (right-left)/((1+growth)**n-1.0_dp)
      
         ! calculate grid value
-        grid_Inv_Grow_1 = log((x-left)/h+1d0)/log(1d0+growth)
+        grid_Inv_Grow_1 = log((x-left)/h+1.0_dp)/log(1.0_dp+growth)
     
     end function grid_Inv_Grow_1
     
@@ -1335,21 +1359,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x(:)
+        real(dp), intent(in) :: x(:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n     
+        integer(int32), intent(in) :: n     
      
         ! value of the inverse of the gridpoint x \in [left, right]
-        real*8 :: grid_Inv_Equi_m(size(x, 1))
+        real(dp) :: grid_Inv_Equi_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h
+        real(dp) :: h
      
      
         !##### ROUTINE CODE #######################################################
@@ -1378,21 +1402,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x(:)
+        real(dp), intent(in) :: x(:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n     
+        integer(int32), intent(in) :: n     
      
         ! value of the inverse of the gridpoint x \in [left, right]
-        real*8 :: grid_Inv_Cheb_m(size(x, 1))
+        real(dp) :: grid_Inv_Cheb_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8, parameter :: pi = 3.1415926535897932d0 
+        real(dp), parameter :: pi = 3.1415926535897932_dp 
      
      
         !##### ROUTINE CODE #######################################################
@@ -1402,8 +1426,8 @@ contains
             'left interval point greater than right point')
  
         ! calculate grid value
-        grid_Inv_Cheb_m = dble(n) + 0.5d0 - acos((2d0*x-(left+right)) &
-            /(right-left))*dble(n+1)/pi
+        grid_Inv_Cheb_m = real(n, dp) + 0.5_dp - acos((2.0_dp*x-(left+right)) &
+            /(right-left))*real(n+1, dp)/pi
     
     end function grid_Inv_Cheb_m
 
@@ -1419,24 +1443,24 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x(:)
+        real(dp), intent(in) :: x(:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
 
         ! growth rate
-        real*8, intent(in) :: growth
+        real(dp), intent(in) :: growth
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! value of the inverse of the gridpoint x \in [left, right]
-        real*8 :: grid_Inv_Grow_m(size(x, 1))
+        real(dp) :: grid_Inv_Grow_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h
+        real(dp) :: h
      
      
         !##### ROUTINE CODE #######################################################
@@ -1446,14 +1470,14 @@ contains
             'left interval point greater than right point')
 
         ! check for growth
-        if(growth <= 0d0)call error('grid_Inv_Grow', &
+        if(growth <= 0.0_dp)call error('grid_Inv_Grow', &
             'growth rate must be greater than zero')
      
         ! calculate factor
-        h = (right-left)/((1d0+growth)**n-1d0)
+        h = (right-left)/((1.0_dp+growth)**n-1.0_dp)
 
         ! calculate grid value
-        grid_Inv_Grow_m = log((x-left)/h+1d0)/log(1d0+growth)
+        grid_Inv_Grow_m = log((x-left)/h+1.0_dp)/log(1.0_dp+growth)
     
     end function grid_Inv_Grow_m
 
@@ -1469,26 +1493,26 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! left interpolation point
-        integer, intent(out) :: il
+        integer(int32), intent(out) :: il
         
         ! right interpolation point
-        integer, intent(out) :: ir
+        integer(int32), intent(out) :: ir
 
         ! interpolation fraction
-        real*8, intent(out) :: phi
+        real(dp), intent(out) :: phi
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h, xinv, xl, xr
+        real(dp) :: h, xinv, xl, xr
      
      
         !##### ROUTINE CODE #######################################################
@@ -1502,8 +1526,8 @@ contains
 
         ! determine left and right gridpoint
         h  = (right-left)/n
-        xl = h*dble(il)+left
-        xr = h*dble(ir)+left
+        xl = h*real(il, dp)+left
+        xr = h*real(ir, dp)+left
 
         ! get share on the left point
         phi = (xr-x)/(xr-xl)
@@ -1522,27 +1546,27 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x(:)
+        real(dp), intent(in) :: x(:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! left interpolation point
-        integer, intent(out) :: il(:)
+        integer(int32), intent(out) :: il(:)
         
         ! right interpolation point
-        integer, intent(out) :: ir(:)
+        integer(int32), intent(out) :: ir(:)
 
         ! interpolation fraction
-        real*8, intent(out) :: phi(:)
+        real(dp), intent(out) :: phi(:)
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: m
-        real*8 :: h, xinv(size(x, 1)), xl(size(x, 1)), xr(size(x, 1))
+        integer(int32) :: m
+        real(dp) :: h, xinv(size(x, 1)), xl(size(x, 1)), xr(size(x, 1))
      
      
         !##### ROUTINE CODE #######################################################
@@ -1560,8 +1584,8 @@ contains
 
         ! determine left and right gridpoint
         h  = (right-left)/n
-        xl = h*dble(il)+left
-        xr = h*dble(ir)+left
+        xl = h*real(il, dp)+left
+        xr = h*real(ir, dp)+left
 
         ! get share on the left point
         phi = (xr-x)/(xr-xl)
@@ -1580,27 +1604,27 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! left interpolation point
-        integer, intent(out) :: il
+        integer(int32), intent(out) :: il
         
         ! right interpolation point
-        integer, intent(out) :: ir
+        integer(int32), intent(out) :: ir
 
         ! interpolation fraction
-        real*8, intent(out) :: phi
+        real(dp), intent(out) :: phi
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: xinv, xl, xr
-        real*8, parameter :: pi = 3.1415926535897932d0 
+        real(dp) :: xinv, xl, xr
+        real(dp), parameter :: pi = 3.1415926535897932_dp 
      
      
         !##### ROUTINE CODE #######################################################
@@ -1613,10 +1637,10 @@ contains
         ir = il+1
 
         ! determine left and right gridpoint        
-        xl = (left+right)/2d0 + (right-left)/2d0* &
-            cos((dble(n)-dble(il)+0.5d0)/dble(n+1)*pi)
-        xr = (left+right)/2d0 + (right-left)/2d0* &
-            cos((dble(n)-dble(ir)+0.5d0)/dble(n+1)*pi)
+        xl = (left+right)/2.0_dp + (right-left)/2.0_dp* &
+            cos((real(n, dp)-real(il, dp)+0.5_dp)/real(n+1, dp)*pi)
+        xr = (left+right)/2.0_dp + (right-left)/2.0_dp* &
+            cos((real(n, dp)-real(ir, dp)+0.5_dp)/real(n+1, dp)*pi)
 
         ! get share on the left point
         phi = (xr-x)/(xr-xl)
@@ -1635,28 +1659,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x(:)
+        real(dp), intent(in) :: x(:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! left interpolation point
-        integer, intent(out) :: il(:)
+        integer(int32), intent(out) :: il(:)
         
         ! right interpolation point
-        integer, intent(out) :: ir(:)
+        integer(int32), intent(out) :: ir(:)
 
         ! interpolation fraction
-        real*8, intent(out) :: phi(:)
+        real(dp), intent(out) :: phi(:)
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: m
-        real*8 :: xinv(size(x, 1)), xl(size(x, 1)), xr(size(x, 1))
-        real*8, parameter :: pi = 3.1415926535897932d0
+        integer(int32) :: m
+        real(dp) :: xinv(size(x, 1)), xl(size(x, 1)), xr(size(x, 1))
+        real(dp), parameter :: pi = 3.1415926535897932_dp
      
      
         !##### ROUTINE CODE #######################################################
@@ -1666,17 +1690,17 @@ contains
         m = m
      
         ! invert the grid to get point
-        xinv = grid_Inv_Cheb_m(min(max(x, left), right), -1d0, 1d0, n)
+        xinv = grid_Inv_Cheb_m(min(max(x, left), right), -1.0_dp, 1.0_dp, n)
      
         ! get left and right gridpoint
         il = min(max(floor(xinv), 0), n-1)
         ir = il+1
 
         ! determine left and right gridpoint
-        xl = (left+right)/2d0 + (right-left)/2d0* &
-            cos((dble(n)-dble(il)+0.5d0)/dble(n+1)*pi)
-        xr = (left+right)/2d0 + (right-left)/2d0* &
-            cos((dble(n)-dble(ir)+0.5d0)/dble(n+1)*pi)
+        xl = (left+right)/2.0_dp + (right-left)/2.0_dp* &
+            cos((real(n, dp)-real(il, dp)+0.5_dp)/real(n+1, dp)*pi)
+        xr = (left+right)/2.0_dp + (right-left)/2.0_dp* &
+            cos((real(n, dp)-real(ir, dp)+0.5_dp)/real(n+1, dp)*pi)
 
         ! get share on the left point
         phi = (xr-x)/(xr-xl)
@@ -1695,29 +1719,29 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
 
         ! growth rate
-        real*8, intent(in) :: growth
+        real(dp), intent(in) :: growth
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! left interpolation point
-        integer, intent(out) :: il
+        integer(int32), intent(out) :: il
         
         ! right interpolation point
-        integer, intent(out) :: ir
+        integer(int32), intent(out) :: ir
 
         ! interpolation fraction
-        real*8, intent(out) :: phi
+        real(dp), intent(out) :: phi
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: h, xinv, xl, xr
+        real(dp) :: h, xinv, xl, xr
      
      
         !##### ROUTINE CODE #######################################################
@@ -1735,8 +1759,8 @@ contains
 
         ! determine left and right gridpoint
         h = (right-left)/((1+growth)**n-1)     
-        xl = h*((1+growth)**dble(il)-1d0)+left
-        xr = h*((1+growth)**dble(ir)-1d0)+left
+        xl = h*((1+growth)**real(il, dp)-1.0_dp)+left
+        xr = h*((1+growth)**real(ir, dp)-1.0_dp)+left
 
         ! get share on the left point
         phi = (xr-x)/(xr-xl)
@@ -1755,30 +1779,30 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point that shall be calculated
-        real*8, intent(in) :: x(:)
+        real(dp), intent(in) :: x(:)
      
         ! left and right interval point
-        real*8, intent(in) :: left, right
+        real(dp), intent(in) :: left, right
 
         ! growth rate
-        real*8, intent(in) :: growth
+        real(dp), intent(in) :: growth
      
         ! last grid point: 0,1,...,n
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! left interpolation point
-        integer, intent(out) :: il(:)
+        integer(int32), intent(out) :: il(:)
         
         ! right interpolation point
-        integer, intent(out) :: ir(:)
+        integer(int32), intent(out) :: ir(:)
 
         ! interpolation fraction
-        real*8, intent(out) :: phi(:)
+        real(dp), intent(out) :: phi(:)
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: m
-        real*8 :: h, xinv(size(x, 1)), xl(size(x, 1)), xr(size(x, 1))
+        integer(int32) :: m
+        real(dp) :: h, xinv(size(x, 1)), xl(size(x, 1)), xr(size(x, 1))
      
      
         !##### ROUTINE CODE #######################################################
@@ -1800,8 +1824,8 @@ contains
 
         ! determine left and right gridpoint
         h = (right-left)/((1+growth)**n-1)     
-        xl = h*((1+growth)**dble(il)-1d0)+left
-        xr = h*((1+growth)**dble(ir)-1d0)+left
+        xl = h*((1+growth)**real(il, dp)-1.0_dp)+left
+        xr = h*((1+growth)**real(ir, dp)-1.0_dp)+left
 
         ! get share on the left point
         phi = (xr-x)/(xr-xl)
@@ -1820,26 +1844,26 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
 
         ! point where to evaluate
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
 
         ! grid on which to evaluate
-        real*8, intent(in) :: xi(0:)
+        real(dp), intent(in) :: xi(0:)
 
         ! data which to evaluate
-        real*8, intent(in) :: yi(0:)
+        real(dp), intent(in) :: yi(0:)
         
         ! (optional) point where to start
-        integer, intent(in), optional :: istart_in
+        integer(int32), intent(in), optional :: istart_in
 
         ! output value
-        real*8 :: linint_Gen
+        real(dp) :: linint_Gen
 
         
         !##### OTHER VARIABLES ####################################################
 
         ! other variables
-        integer :: ial, iar, n, istart
-        real*8 :: phi
+        integer(int32) :: ial, iar, n, istart
+        real(dp) :: phi
 
 
         !##### ROUTINE CODE #######################################################
@@ -1878,8 +1902,8 @@ contains
         endif
 
         ! linearly interpolate between the two points
-        phi = 1d0 - (x-xi(ial))/(xi(iar)-xi(ial))        
-        linint_Gen = phi*yi(ial) + (1d0-phi)*yi(iar)
+        phi = 1.0_dp - (x-xi(ial))/(xi(iar)-xi(ial))        
+        linint_Gen = phi*yi(ial) + (1.0_dp-phi)*yi(iar)
 
     end function
 
@@ -1894,28 +1918,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
 
         ! point where to evaluate
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
 
         ! grid on which to evaluate
-        real*8, intent(in) :: xi(0:)
+        real(dp), intent(in) :: xi(0:)
 
         ! left interpolation point
-        integer, intent(out) :: ial
+        integer(int32), intent(out) :: ial
 
         ! right interpolation point
-        integer, intent(out) :: iar
+        integer(int32), intent(out) :: iar
 
         ! interpolation fraction
-        real*8, intent(out) :: phi
+        real(dp), intent(out) :: phi
 
         ! (optional) point where to start
-        integer, intent(in), optional :: istart_in
+        integer(int32), intent(in), optional :: istart_in
 
 
         !##### OTHER VARIABLES ####################################################
 
         ! other variables
-        integer :: istart, n
+        integer(int32) :: istart, n
 
 
         !##### ROUTINE CODE #######################################################
@@ -1955,7 +1979,7 @@ contains
         endif
 
         ! linearly interpolate between the two points
-        phi = 1d0 - (x-xi(ial))/(xi(iar)-xi(ial))            
+        phi = 1.0_dp - (x-xi(ial))/(xi(iar)-xi(ial))            
 
     end subroutine
 
@@ -1987,18 +2011,18 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! matrix of the system
-        real*8, intent(in) :: a(:, :)
+        real(dp), intent(in) :: a(:, :)
         
         ! right side of equation and solution of the system
-        real*8, intent(inout) :: b(:)
+        real(dp), intent(inout) :: b(:)
         
         
         !##### OTHER VARIABLES ####################################################
         
-        integer :: indx(size(b))
-        real*8 :: worka(size(a, 1), size(a, 2))
-        real*8 :: d
-        integer :: n
+        integer(int32) :: indx(size(b))
+        real(dp) :: worka(size(a, 1), size(a, 2))
+        real(dp) :: d
+        integer(int32) :: n
         
         
         !##### ROUTINE CODE #######################################################
@@ -2035,15 +2059,15 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! matrix of the system
-        real*8, intent(in) :: a(:, :)
+        real(dp), intent(in) :: a(:, :)
         
         ! the inverse of the matrix
-        real*8 :: lu_invert(size(a, 1), size(a, 2))
+        real(dp) :: lu_invert(size(a, 1), size(a, 2))
         
         
         !##### OTHER VARIABLES ####################################################
         
-        integer :: j, n
+        integer(int32) :: j, n
         
         
         !##### ROUTINE CODE #######################################################
@@ -2052,9 +2076,9 @@ contains
         n = assert_eq(size(a,1), size(a,2), 'lu_invert')
         
         ! set up unity matrix
-        lu_invert = 0d0
+        lu_invert = 0.0_dp
         do j = 1, n
-            lu_invert(j, j) = 1d0
+            lu_invert(j, j) = 1.0_dp
         enddo
         
         ! succesively solve the system with unity matrix
@@ -2081,20 +2105,20 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! matrix that shall be decomposed
-        real*8, intent(inout) :: a(:, :)
+        real(dp), intent(inout) :: a(:, :)
         
         ! row permutation indicator due to pivoting
-        integer, intent(out) :: indx(:)
+        integer(int32), intent(out) :: indx(:)
         
         ! indicates whether number of row permutations was even or odd
-        real*8, intent(out) :: d
+        real(dp), intent(out) :: d
         
         
         !##### OTHER VARIABLES ####################################################
         
-        real*8 :: vv(size(a,1))
-        real*8, parameter :: tiny = 1.0e-20
-        integer :: j, n, imax
+        real(dp) :: vv(size(a,1))
+        real(dp), parameter :: tiny = 1.0e-20_dp
+        integer(int32) :: j, n, imax
         
         
         !##### ROUTINE CODE #######################################################
@@ -2103,16 +2127,16 @@ contains
         n = assert_eq(size(a,1), size(a,2), size(indx),'lu_decomp')
         
         ! initialize permutation indicator
-        d = 1d0
+        d = 1.0_dp
         
         ! get maximum value in every row
         vv = maxval(abs(a), dim=2)
         
         ! if there is a zero row then matrix is singular
-        if (any(abs(vv) <= 1d-100)) call error('lu_decomp', 'matrix is singular')
+        if (any(abs(vv) <= 1.0e-100_dp)) call error('lu_decomp', 'matrix is singular')
         
         ! invert v
-        vv = 1d0/vv
+        vv = 1.0_dp/vv
         
         ! start lu-decomposition process
         do j = 1, n
@@ -2131,7 +2155,7 @@ contains
             indx(j) = imax
             
             ! prevent division by 0
-            if(abs(a(j,j))  <= 1d-100)call error('lu_decomp', 'matrix is singular')
+            if(abs(a(j,j))  <= 1.0e-100_dp)call error('lu_decomp', 'matrix is singular')
             
             ! calculate new elements
             a(j+1:n, j) = a(j+1:n,j)/a(j,j)
@@ -2146,8 +2170,8 @@ contains
         
         function outerprod(a, b)
         
-            real*8, intent(in) :: a(:), b(:)
-            real*8 :: outerprod(size(a, 1),size(b, 1))
+            real(dp), intent(in) :: a(:), b(:)
+            real(dp) :: outerprod(size(a, 1),size(b, 1))
         
             outerprod = spread(a, dim=2, ncopies=size(b, 1)) * &
             spread(b, dim=1, ncopies=size(a, 1))
@@ -2157,8 +2181,8 @@ contains
         
         subroutine swap(a, b)
         
-            real*8, intent(inout) :: a(:), b(:)
-            real*8 :: dum(size(a))
+            real(dp), intent(inout) :: a(:), b(:)
+            real(dp) :: dum(size(a))
         
             dum = a
             a = b
@@ -2169,9 +2193,9 @@ contains
         
         function imaxloc(arr)
         
-            real*8, intent(in) :: arr(:)
-            integer :: imaxloc
-            integer :: imax(1)
+            real(dp), intent(in) :: arr(:)
+            integer(int32) :: imaxloc
+            integer(int32) :: imax(1)
         
             imax = maxloc(arr(:))
             imaxloc = imax(1)
@@ -2198,21 +2222,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! matrix that shall be decomposed
-        real*8, intent(in) :: a(:, :)
+        real(dp), intent(in) :: a(:, :)
         
         ! lower triangular matrix
-        real*8, intent(out) :: l(:, :)
+        real(dp), intent(out) :: l(:, :)
         
         ! upper triangular martix
-        real*8, intent(out) :: u(:, :)
+        real(dp), intent(out) :: u(:, :)
         
         
         !##### OTHER VARIABLES ####################################################
         
-        real*8 :: Awork(size(a,1), size(a,2))
-        integer :: indx(size(a,1))
-        real*8 :: d
-        integer :: n, j
+        real(dp) :: Awork(size(a,1), size(a,2))
+        integer(int32) :: indx(size(a,1))
+        real(dp) :: d
+        integer(int32) :: n, j
         
                 
         !##### ROUTINE CODE #######################################################
@@ -2228,14 +2252,14 @@ contains
         call lu_decomp(Awork, indx, d)
         
         ! initialize matrices
-        L(:, :) = 0d0
-        U(:, :) = 0d0
+        L(:, :) = 0.0_dp
+        U(:, :) = 0.0_dp
         
         ! set up new matrices
         do j = 1, n
         
             ! diagonal element of L
-            L(j, j) = 1d0
+            L(j, j) = 1.0_dp
             
             ! other elements of L
             L(j, 1:j-1) = Awork(j, 1:j-1)
@@ -2263,19 +2287,19 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! lu-decomposed matrix that defines system
-        real*8, intent(in) :: a(:, :)
+        real(dp), intent(in) :: a(:, :)
         
         ! row permutation indicator due to pivoting
-        integer, intent(in) :: indx(:)
+        integer(int32), intent(in) :: indx(:)
         
         ! right side of equation and solution of the system
-        real*8, intent(inout) :: b(:)
+        real(dp), intent(inout) :: b(:)
         
         
         !##### OTHER VARIABLES ####################################################
         
-        real*8 :: summ
-        integer :: i, n, ii, ll
+        real(dp) :: summ
+        integer(int32) :: i, n, ii, ll
         
         
         !##### ROUTINE CODE #######################################################
@@ -2292,7 +2316,7 @@ contains
             b(ll) = b(i)
             if(ii /= 0)then
                 summ = summ-dot_product(a(i,ii:i-1), b(ii:i-1))
-            elseif (abs(summ) >= 1d-100) then
+            elseif (abs(summ) >= 1.0e-100_dp) then
                 ii = i
             endif
             b(i)=summ
@@ -2322,16 +2346,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! the matrix that should be decomposed
-        real*8, intent(in) :: a(:, :)
+        real(dp), intent(in) :: a(:, :)
         
         ! the cholesky factor
-        real*8, intent(out) :: l(:, :)
+        real(dp), intent(out) :: l(:, :)
         
         
         !##### OTHER VARIABLES ####################################################
         
-        integer :: i, n
-        real*8 :: summ, p(size(a,1))
+        integer(int32) :: i, n
+        real(dp) :: summ, p(size(a,1))
         
         
         !##### ROUTINE CODE #######################################################
@@ -2346,7 +2370,7 @@ contains
         ! decompose matrix
         do i = 1, n
             summ = l(i,i)-dot_product(l(i,1:i-1), l(i,1:i-1))
-            if(summ <= 0d0)call error('cholesky', &
+            if(summ <= 0.0_dp)call error('cholesky', &
                 'Cholesky decomposition failed')
             p(i) = sqrt(summ)
             l(i+1:n,i) = (l(i,i+1:n)-matmul(l(i+1:n,1:i-1),l(i,1:i-1)))/p(i)
@@ -2355,7 +2379,7 @@ contains
         ! copy matrix
         do i = 1, n
             l(i, i) = p(i)
-            l(i, i+1:n) = 0d0
+            l(i, i+1:n) = 0.0_dp
         enddo
     
     end subroutine cholesky
@@ -2394,29 +2418,29 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left end of the distribution
-        real*8, optional :: a
+        real(dp), optional :: a
      
         ! right end of the distribution
-        real*8, optional :: b
+        real(dp), optional :: b
         
         ! value of the uniform density
-        real*8 :: uniformPDF
+        real(dp) :: uniformPDF
         
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: a_c, b_c
+        real(dp) :: a_c, b_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        a_c = 0d0
+        a_c = 0.0_dp
         if(present(a))a_c = a
-        b_c = 1d0
+        b_c = 1.0_dp
         if(present(b))b_c = b
         
         if(b_c < a_c)then
@@ -2424,9 +2448,9 @@ contains
         endif
      
         if(x < a_c .or. x > b_c)then
-            uniformPDF = 0d0
+            uniformPDF = 0.0_dp
         else
-            uniformPDF = 1d0/(b_c-a_c)
+            uniformPDF = 1.0_dp/(b_c-a_c)
         endif
      
     end function uniformPDF
@@ -2445,29 +2469,29 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left end of the distribution
-        real*8, optional :: a
+        real(dp), optional :: a
      
         ! right end of the distribution
-        real*8, optional :: b
+        real(dp), optional :: b
         
         ! value of the uniform distribution function
-        real*8 :: uniformCDF
+        real(dp) :: uniformCDF
         
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: a_c, b_c
+        real(dp) :: a_c, b_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        a_c = 0d0
+        a_c = 0.0_dp
         if(present(a))a_c = a
-        b_c = 1d0
+        b_c = 1.0_dp
         if(present(b))b_c = b
         
         if(b_c < a_c)then
@@ -2475,9 +2499,9 @@ contains
         endif
      
         if(x <= a_c)then
-            uniformCDF = 0d0
+            uniformCDF = 0.0_dp
         elseif(x >= b_c)then
-            uniformCDF = 1d0
+            uniformCDF = 1.0_dp
         else
             uniformCDF = (x-a_c)/(b_c-a_c)
         endif
@@ -2498,38 +2522,38 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! left end of the distribution
-        real*8, optional :: a
+        real(dp), optional :: a
      
         ! right end of the distribution
-        real*8, optional :: b
+        real(dp), optional :: b
         
         ! value of the uniform distribution function
-        real*8 :: uniformCDF_Inv
+        real(dp) :: uniformCDF_Inv
         
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: a_c, b_c
+        real(dp) :: a_c, b_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        a_c = 0d0
+        a_c = 0.0_dp
         if(present(a))a_c = a
-        b_c = 1d0
+        b_c = 1.0_dp
         if(present(b))b_c = b
         
         if(b_c < a_c)then
             call error('uniformCDF_Inv','b is smaller than a')
         endif
      
-        if(x <= 0d0)then
+        if(x <= 0.0_dp)then
             uniformCDF_Inv = a_c
-        elseif(x >= 1d0)then
+        elseif(x >= 1.0_dp)then
             uniformCDF_Inv = b_c
         else
             uniformCDF_Inv = a_c + x*(b_c-a_c)
@@ -2551,37 +2575,37 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
      
         ! value of normal density at p
-        real*8 :: normalPDF
+        real(dp) :: normalPDF
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c
-        real*8, parameter :: pi = 3.1415926535897d0
+        real(dp) :: mu_c, sigma_c
+        real(dp), parameter :: pi = 3.1415926535897_dp
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = 0d0
+        mu_c = 0.0_dp
         if(present(mu))mu_c = mu
-        sigma_c = 1d0
+        sigma_c = 1.0_dp
         if(present(sigma))sigma_c = sqrt(sigma)
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('normalCDF','sigma has zero or negative value')
         endif
      
-        normalPDF = 1d0/(sigma_c*sqrt(2d0*pi))*exp(-((x-mu_c)/sigma_c)**2/2d0)
+        normalPDF = 1.0_dp/(sigma_c*sqrt(2.0_dp*pi))*exp(-((x-mu_c)/sigma_c)**2/2.0_dp)
      
     end function normalPDF
     
@@ -2606,54 +2630,54 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
      
         ! value of the normal distribution at x
-        real*8 :: normalCDF
+        real(dp) :: normalCDF
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c, xtrans, xabs, y
-        real*8, parameter :: a0  = 0.5d0
-        real*8, parameter :: a1  = 0.398942280444d0
-        real*8, parameter :: a2  = 0.399903438504d0
-        real*8, parameter :: a3  = 5.75885480458d0
-        real*8, parameter :: a4  = 29.8213557808d0
-        real*8, parameter :: a5  = 2.62433121679d0
-        real*8, parameter :: a6  = 48.6959930692d0
-        real*8, parameter :: a7  = 5.92885724438d0
-        real*8, parameter :: b0  = 0.398942280385d0
-        real*8, parameter :: b1  = 3.8052d-8
-        real*8, parameter :: b2  = 1.00000615302d0
-        real*8, parameter :: b3  = 3.98064794d-4
-        real*8, parameter :: b4  = 1.98615381364d0
-        real*8, parameter :: b5  = 0.151679116635d0
-        real*8, parameter :: b6  = 5.29330324926d0
-        real*8, parameter :: b7  = 4.8385912808d0
-        real*8, parameter :: b8  = 15.1508972451d0
-        real*8, parameter :: b9  = 0.742380924027d0
-        real*8, parameter :: b10 = 30.789933034d0
-        real*8, parameter :: b11 = 3.99019417011d0
+        real(dp) :: mu_c, sigma_c, xtrans, xabs, y
+        real(dp), parameter :: a0  = 0.5_dp
+        real(dp), parameter :: a1  = 0.398942280444_dp
+        real(dp), parameter :: a2  = 0.399903438504_dp
+        real(dp), parameter :: a3  = 5.75885480458_dp
+        real(dp), parameter :: a4  = 29.8213557808_dp
+        real(dp), parameter :: a5  = 2.62433121679_dp
+        real(dp), parameter :: a6  = 48.6959930692_dp
+        real(dp), parameter :: a7  = 5.92885724438_dp
+        real(dp), parameter :: b0  = 0.398942280385_dp
+        real(dp), parameter :: b1  = 3.8052e-8_dp
+        real(dp), parameter :: b2  = 1.00000615302_dp
+        real(dp), parameter :: b3  = 3.98064794e-4_dp
+        real(dp), parameter :: b4  = 1.98615381364_dp
+        real(dp), parameter :: b5  = 0.151679116635_dp
+        real(dp), parameter :: b6  = 5.29330324926_dp
+        real(dp), parameter :: b7  = 4.8385912808_dp
+        real(dp), parameter :: b8  = 15.1508972451_dp
+        real(dp), parameter :: b9  = 0.742380924027_dp
+        real(dp), parameter :: b10 = 30.789933034_dp
+        real(dp), parameter :: b11 = 3.99019417011_dp
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = 0d0
+        mu_c = 0.0_dp
         if(present(mu))mu_c = mu
-        sigma_c = 1d0
+        sigma_c = 1.0_dp
         if(present(sigma))then
-            if(sigma_c > 0d0)sigma_c = sqrt(sigma)
+            if(sigma_c > 0.0_dp)sigma_c = sqrt(sigma)
         endif
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('normalCDF','sigma has zero or negative value')
         endif
      
@@ -2665,17 +2689,17 @@ contains
         y = a0*xtrans**2
         
         ! choose the right interval for calculation
-        if(xabs <= 1.28d0)then
+        if(xabs <= 1.28_dp)then
             normalCDF = a0-xabs*(a1-a2*y/(y+a3-a4/(y+a5+a6/(y+a7))))
-        elseif(xabs <= 12.7d0)then
+        elseif(xabs <= 12.7_dp)then
             normalCDF = b0*exp(-y)/(xabs-b1+b2/(xabs+b3+b4/(xabs-b5+b6/(xabs+b7-b8/ &
                     (xabs+b9+b10/(xabs+b11))))))
         else
-            normalCDF = 0d0
+            normalCDF = 0.0_dp
         endif
         
         ! transform if other side of the bell
-        if(xtrans > 0d0)normalCDF = 1d0-normalCDF
+        if(xtrans > 0.0_dp)normalCDF = 1.0_dp-normalCDF
      
     end function normalCDF
      
@@ -2701,113 +2725,113 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8 :: x
+        real(dp) :: x
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
      
         ! value of the inverse of the normal distribution at x   
-        real*8 :: normalCDF_Inv
+        real(dp) :: normalCDF_Inv
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c, q, r
-        real*8, parameter :: a(8) = (/  3.3871328727963666080d0, &
-                                        1.3314166789178437745d2, &
-                                        1.9715909503065514427d3, &
-                                        1.3731693765509461125d4, &
-                                        4.5921953931549871457d4, &
-                                        6.7265770927008700853d4, &
-                                        3.3430575583588128105d4, &
-                                        2.5090809287301226727d3 /)
-        real*8, parameter :: b(8) = (/  1.0d0, &
-                                        4.2313330701600911252d1, &
-                                        6.8718700749205790830d2, &
-                                        5.3941960214247511077d3, &
-                                        2.1213794301586595867d4, &
-                                        3.9307895800092710610d4, &
-                                        2.8729085735721942674d4, &
-                                        5.2264952788528545610d3 /)
-        real*8, parameter :: c(8) = (/  1.42343711074968357734d0, &
-                                        4.63033784615654529590d0, &
-                                        5.76949722146069140550d0, &
-                                        3.64784832476320460504d0, &
-                                        1.27045825245236838258d0, &
-                                        2.41780725177450611770d-1, &
-                                        2.27238449892691845833d-2, &
-                                        7.74545014278341407640d-4 /)
-        real*8, parameter :: const1 = 0.180625d0
-        real*8, parameter :: const2 = 1.6d0
-        real*8, parameter :: d(8) = (/  1.0d0, &
-                                        2.05319162663775882187d0, &
-                                        1.67638483018380384940d0, &
-                                        6.89767334985100004550d-1, &
-                                        1.48103976427480074590d-1, &
-                                        1.51986665636164571966d-2, &
-                                        5.47593808499534494600d-4, &
-                                        1.05075007164441684324d-9 /)
-        real*8, parameter :: e(8) = (/  6.65790464350110377720d0, &
-                                        5.46378491116411436990d0, &
-                                        1.78482653991729133580d0, &
-                                        2.96560571828504891230d-1, &
-                                        2.65321895265761230930d-2, &
-                                        1.24266094738807843860d-3, &
-                                        2.71155556874348757815d-5, &
-                                        2.01033439929228813265d-7 /)
-        real*8, parameter :: f(8) = (/   1.0d0, &
-                                        5.99832206555887937690d-1, &
-                                        1.36929880922735805310d-1, &
-                                        1.48753612908506148525d-2, &
-                                        7.86869131145613259100d-4, &
-                                        1.84631831751005468180d-5, &
-                                        1.42151175831644588870d-7, &
-                                        2.04426310338993978564d-15 /)
+        real(dp) :: mu_c, sigma_c, q, r
+        real(dp), parameter :: a(8) = (/  3.3871328727963666080_dp, &
+                                        1.3314166789178437745e2_dp, &
+                                        1.9715909503065514427e3_dp, &
+                                        1.3731693765509461125e4_dp, &
+                                        4.5921953931549871457e4_dp, &
+                                        6.7265770927008700853e4_dp, &
+                                        3.3430575583588128105e4_dp, &
+                                        2.5090809287301226727e3_dp /)
+        real(dp), parameter :: b(8) = (/  1.0_dp, &
+                                        4.2313330701600911252e1_dp, &
+                                        6.8718700749205790830e2_dp, &
+                                        5.3941960214247511077e3_dp, &
+                                        2.1213794301586595867e4_dp, &
+                                        3.9307895800092710610e4_dp, &
+                                        2.8729085735721942674e4_dp, &
+                                        5.2264952788528545610e3_dp /)
+        real(dp), parameter :: c(8) = (/  1.42343711074968357734_dp, &
+                                        4.63033784615654529590_dp, &
+                                        5.76949722146069140550_dp, &
+                                        3.64784832476320460504_dp, &
+                                        1.27045825245236838258_dp, &
+                                        2.41780725177450611770e-1_dp, &
+                                        2.27238449892691845833e-2_dp, &
+                                        7.74545014278341407640e-4_dp /)
+        real(dp), parameter :: const1 = 0.180625_dp
+        real(dp), parameter :: const2 = 1.6_dp
+        real(dp), parameter :: d(8) = (/  1.0_dp, &
+                                        2.05319162663775882187_dp, &
+                                        1.67638483018380384940_dp, &
+                                        6.89767334985100004550e-1_dp, &
+                                        1.48103976427480074590e-1_dp, &
+                                        1.51986665636164571966e-2_dp, &
+                                        5.47593808499534494600e-4_dp, &
+                                        1.05075007164441684324e-9_dp /)
+        real(dp), parameter :: e(8) = (/  6.65790464350110377720_dp, &
+                                        5.46378491116411436990_dp, &
+                                        1.78482653991729133580_dp, &
+                                        2.96560571828504891230e-1_dp, &
+                                        2.65321895265761230930e-2_dp, &
+                                        1.24266094738807843860e-3_dp, &
+                                        2.71155556874348757815e-5_dp, &
+                                        2.01033439929228813265e-7_dp /)
+        real(dp), parameter :: f(8) = (/   1.0_dp, &
+                                        5.99832206555887937690e-1_dp, &
+                                        1.36929880922735805310e-1_dp, &
+                                        1.48753612908506148525e-2_dp, &
+                                        7.86869131145613259100e-4_dp, &
+                                        1.84631831751005468180e-5_dp, &
+                                        1.42151175831644588870e-7_dp, &
+                                        2.04426310338993978564e-15_dp /)
 
-        real*8, parameter :: split1 = 0.425D+00
-        real*8, parameter :: split2 = 5.0D+00
+        real(dp), parameter :: split1 = 0.425_dp
+        real(dp), parameter :: split2 = 5.0_dp
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = 0d0
+        mu_c = 0.0_dp
         if(present(mu))mu_c = mu
-        sigma_c = 1d0
+        sigma_c = 1.0_dp
         if(present(sigma))then
-            if(sigma_c > 0d0)sigma_c = sqrt(sigma)
+            if(sigma_c > 0.0_dp)sigma_c = sqrt(sigma)
         endif
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('normalCDF_Inv','sigma has zero or negative value')
         endif
      
         ! check for very small or large values
-        if(x <= 0d0)then
+        if(x <= 0.0_dp)then
             normalcdf_Inv = - huge(x)
             return
         endif
         
-        if (x >= 1d0)then
+        if (x >= 1.0_dp)then
             normalcdf_Inv = huge(x)
             return
         endif
         
         ! calculate for reasonable values
-        q = x - 0.5d0
+        q = x - 0.5_dp
         
         if(abs(q) <= split1)then
             r = const1 - q*q
             normalcdf_inv = q*r8poly_value(8, a, r)/r8poly_value(8, b, r)
         else
         
-            if (q < 0d0) then
+            if (q < 0.0_dp) then
                 r = x
             else
-                r = 1d0 - x
+                r = 1.0_dp - x
             endif
         
             r = sqrt(-log(r))
@@ -2820,7 +2844,7 @@ contains
                 normalcdf_Inv = r8poly_value(8, e, r)/r8poly_value (8, f, r)
             endif
         
-            if(q < 0d0)then
+            if(q < 0.0_dp)then
                 normalcdf_Inv = -normalcdf_inv
             endif
         endif   
@@ -2840,26 +2864,26 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
     
             ! degree of polynomial
-            integer, intent(in) :: n
+            integer(int32), intent(in) :: n
             
             ! polynomial coefficients
-            real*8, intent(in) :: a(n)
+            real(dp), intent(in) :: a(n)
             
             ! point where to evaluate the polynomial
-            real*8, intent(in) :: x
+            real(dp), intent(in) :: x
             
             ! the value of the polynomial
-            real*8 :: r8poly_value
+            real(dp) :: r8poly_value
             
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: i
+            integer(int32) :: i
             
             
             !##### ROUTINE CODE #######################################################
         
-            r8poly_value = 0d0
+            r8poly_value = 0.0_dp
             do i = n, 1, -1
                 r8poly_value = r8poly_value * x + a(i)
             enddo
@@ -2882,51 +2906,51 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
      
         ! value of normal density at p
-        real*8 :: log_normalPDF
+        real(dp) :: log_normalPDF
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c
+        real(dp) :: mu_c, sigma_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = exp(0.5d0)
+        mu_c = exp(0.5_dp)
         if(present(mu))mu_c = mu
-        sigma_c = exp(1d0)*(exp(1d0)-1d0)
+        sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('log_normalPDF','sigma has zero or negative value')
         endif
-        if(mu_c <= 0d0)then
+        if(mu_c <= 0.0_dp)then
             call error('log_normalPDF','mu has zero or negative value')
         endif
         
-        if(x < 0d0)then
+        if(x < 0.0_dp)then
             call error('log_normalPDF','x has negative value')
         endif
      
         ! get expectation and variance
-        sigma_c = log(1d0+sigma_c/mu_c**2)
-        mu_c  = log(mu_c)-0.5d0*sigma_c
+        sigma_c = log(1.0_dp+sigma_c/mu_c**2)
+        mu_c  = log(mu_c)-0.5_dp*sigma_c
      
         ! simulate normal and convert to log_normal
-        if(x > 0d0)then
+        if(x > 0.0_dp)then
             log_normalPDF = normalPDF(log(x), mu_c, sigma_c)/x
         else
-            log_normalPDF = 0d0
+            log_normalPDF = 0.0_dp
         endif
      
     end function log_normalPDF
@@ -2945,51 +2969,51 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
      
         ! value of normal density at p
-        real*8 :: log_normalCDF
+        real(dp) :: log_normalCDF
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c
+        real(dp) :: mu_c, sigma_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = exp(0.5d0)
+        mu_c = exp(0.5_dp)
         if(present(mu))mu_c = mu
-        sigma_c = exp(1d0)*(exp(1d0)-1d0)
+        sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('log_normalCDF','sigma has zero or negative value')
         endif
-        if(mu_c <= 0d0)then
+        if(mu_c <= 0.0_dp)then
             call error('log_normalCDF','mu has zero or negative value')
         endif
         
-        if(x < 0d0)then
+        if(x < 0.0_dp)then
             call error('log_normalCDF','x has negative value')
         endif
      
         ! get expectation and variance
-        sigma_c = log(1d0+sigma_c/mu_c**2)
-        mu_c  = log(mu_c)-0.5d0*sigma_c
+        sigma_c = log(1.0_dp+sigma_c/mu_c**2)
+        mu_c  = log(mu_c)-0.5_dp*sigma_c
      
         ! simulate normal and convert to log_normal
-        if(x > 0d0)then
+        if(x > 0.0_dp)then
             log_normalCDF = normalCDF(log(x), mu_c, sigma_c)
         else
-            log_normalCDF = 0d0
+            log_normalCDF = 0.0_dp
         endif
      
     end function log_normalCDF
@@ -3008,41 +3032,41 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
      
         ! value of normal density at p
-        real*8 :: log_normalCDF_Inv
+        real(dp) :: log_normalCDF_Inv
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c
+        real(dp) :: mu_c, sigma_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = exp(0.5d0)
+        mu_c = exp(0.5_dp)
         if(present(mu))mu_c = mu
-        sigma_c = exp(1d0)*(exp(1d0)-1d0)
+        sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('log_normalCDF_Inv','sigma has zero or negative value')
         endif
-        if(mu_c <= 0d0)then
+        if(mu_c <= 0.0_dp)then
             call error('log_normalCDF_Inv','mu has zero or negative value')
         endif
         
         ! get expectation and variance
-        sigma_c = log(1d0+sigma_c/mu_c**2)
-        mu_c  = log(mu_c)-0.5d0*sigma_c
+        sigma_c = log(1.0_dp+sigma_c/mu_c**2)
+        mu_c  = log(mu_c)-0.5_dp*sigma_c
      
         ! simulate normal and convert to log_normal
         log_normalCDF_Inv = normalCDF_Inv(x, mu_c, sigma_c)
@@ -3064,44 +3088,44 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! shape parameter of the distribution
-        real*8, optional :: alpha
+        real(dp), optional :: alpha
      
         ! scale parameter of the distribution
-        real*8, optional :: beta
+        real(dp), optional :: beta
      
         ! value of Gamma density at p
-        real*8 :: gammaPDF
+        real(dp) :: gammaPDF
         
         
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: alpha_c, beta_c
+        real(dp) :: alpha_c, beta_c
      
           
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        alpha_c = 1d0
+        alpha_c = 1.0_dp
         if(present(alpha))alpha_c = alpha
-        beta_c = 1d0
+        beta_c = 1.0_dp
         if(present(beta))beta_c = beta
      
         ! check for validity of parameters
-        if(alpha_c <= 0d0)then
+        if(alpha_c <= 0.0_dp)then
             call error('GammaPDF','alpha has a non-positive value')
         endif
-        if(beta_c <= 0d0)then
+        if(beta_c <= 0.0_dp)then
             call error('GammaPDF','beta has a non-positive value')
         endif
      
-        if(x < 0d0 .or. alpha_c < 1d0 .and. x <= 0d0)then
-            GammaPDF = 0d0
+        if(x < 0.0_dp .or. alpha_c < 1.0_dp .and. x <= 0.0_dp)then
+            GammaPDF = 0.0_dp
         else
             GammaPDF = beta_c**alpha_c/gamma_function(alpha_c)* &
-                        x**(alpha_c-1d0)*exp(-beta_c*x)
+                        x**(alpha_c-1.0_dp)*exp(-beta_c*x)
         endif
      
     end function GammaPDF
@@ -3120,41 +3144,41 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! shape parameter of the distribution
-        real*8, optional :: alpha
+        real(dp), optional :: alpha
      
         ! scale parameter of the distribution
-        real*8, optional :: beta
+        real(dp), optional :: beta
      
         ! value of cumulated Gamma distribution at p
-        real*8 :: gammaCDF
+        real(dp) :: gammaCDF
         
         
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: alpha_c, beta_c
+        real(dp) :: alpha_c, beta_c
      
           
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        alpha_c = 1d0
+        alpha_c = 1.0_dp
         if(present(alpha))alpha_c = alpha
-        beta_c = 1d0
+        beta_c = 1.0_dp
         if(present(beta))beta_c = beta
      
         ! check for validity of parameters
-        if(alpha_c <= 0d0)then
+        if(alpha_c <= 0.0_dp)then
             call error('GammaCDF','alpha has a non-positive value')
         endif
-        if(beta_c <= 0d0)then
+        if(beta_c <= 0.0_dp)then
             call error('GammaCDF','beta has a non-positive value')
         endif
      
-        if(x <= 0d0)then
-            GammaCDF = 0d0
+        if(x <= 0.0_dp)then
+            GammaCDF = 0.0_dp
         else
             GammaCDF = incomplete_gamma(beta_c*x, alpha_c)
         endif
@@ -3176,44 +3200,44 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! parameter of the distribution
-        real*8, optional :: p
+        real(dp), optional :: p
      
         ! parameter of the distribution
-        real*8, optional :: q
+        real(dp), optional :: q
      
         ! value of Gamma density at p
-        real*8 :: betaPDF
+        real(dp) :: betaPDF
         
         
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: p_c, q_c, betanorm
+        real(dp) :: p_c, q_c, betanorm
      
           
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        p_c = 1d0
+        p_c = 1.0_dp
         if(present(p))p_c = p
-        q_c = 1d0
+        q_c = 1.0_dp
         if(present(q))q_c = q
      
         ! check for validity of parameters
-        if(p_c <= 0d0)then
+        if(p_c <= 0.0_dp)then
             call error('betaPDF','p has a non-positive value')
         endif
-        if(q_c <= 0d0)then
+        if(q_c <= 0.0_dp)then
             call error('betaPDF','q has a non-positive value')
         endif
      
-        if(x < 0d0 .or. x > 1d0)then
-            betaPDF = 0d0
+        if(x < 0.0_dp .or. x > 1.0_dp)then
+            betaPDF = 0.0_dp
         else
             betanorm = exp(my_log_gamma(p_c) + my_log_gamma(q_c) - my_log_gamma(p_c+q_c))
-            betaPDF = x**(p_c-1d0)*(1d0-x)**(q_c-1d0)/betanorm
+            betaPDF = x**(p_c-1.0_dp)*(1.0_dp-x)**(q_c-1.0_dp)/betanorm
         endif
      
     end function betaPDF
@@ -3240,49 +3264,49 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! parameter of the distribution
-        real*8, optional :: p_in
+        real(dp), optional :: p_in
      
         ! parameter of the distribution
-        real*8, optional :: q_in
+        real(dp), optional :: q_in
      
         ! value of Gamma density at p
-        real*8 :: betaCDF
+        real(dp) :: betaCDF
         
         
         !##### OTHER VARIABLES ####################################################
      
-        real*8, parameter :: acu = 0.1d-14
-        real*8 :: p, q, ai, beta_log, cx, pp, psq, qq, rx, temp, term, xx
-        integer :: ns
+        real(dp), parameter :: acu = 0.1e-14_dp
+        real(dp) :: p, q, ai, beta_log, cx, pp, psq, qq, rx, temp, term, xx
+        integer(int32) :: ns
         logical :: indx
      
           
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        p = 1d0
+        p = 1.0_dp
         if(present(p_in))p = p_in
-        q = 1d0
+        q = 1.0_dp
         if(present(q_in))q = q_in
      
         ! check for validity of parameters
-        if(p <= 0d0)then
+        if(p <= 0.0_dp)then
             call error('betaPDF','p has a non-positive value')
         endif
-        if(q <= 0d0)then
+        if(q <= 0.0_dp)then
             call error('betaPDF','q has a non-positive value')
         endif
      
         ! check outside of range
-        if(x <= 0d0)then
-            betaCDF = 0d0
+        if(x <= 0.0_dp)then
+            betaCDF = 0.0_dp
             return
         endif
-        if(x >= 1d0)then
-            betaCDF = 1d0
+        if(x >= 1.0_dp)then
+            betaCDF = 1.0_dp
             return
         endif
         
@@ -3290,7 +3314,7 @@ contains
         beta_log = my_log_gamma(p) + my_log_gamma(q) - my_log_gamma(p + q)
 
         psq = p + q
-        cx = 1d0 - x
+        cx = 1.0_dp - x
 
         if(p < psq*x)then
             xx = cx
@@ -3305,9 +3329,9 @@ contains
             indx = .false.
         endif
 
-        term = 1d0
-        ai = 1d0
-        betaCDF = 1d0
+        term = 1.0_dp
+        ai = 1.0_dp
+        betaCDF = 1.0_dp
         ns = int(qq + cx*psq)
 
         ! use Soper's reduction formula.
@@ -3326,16 +3350,16 @@ contains
             if(temp <= acu .and. temp <= acu*betaCDF) then
         
                 betaCDF = betaCDF*exp (pp*log(xx) &
-                    + (qq-1d0)*log(cx)-beta_log)/pp
+                    + (qq-1.0_dp)*log(cx)-beta_log)/pp
         
                 ! change if other tail
                 if(indx)then
-                    betaCDF = 1d0 - betaCDF
+                    betaCDF = 1.0_dp - betaCDF
                 endif
                 exit       
             endif
         
-            ai = ai + 1d0
+            ai = ai + 1.0_dp
             ns = ns - 1
         
             if(0 <= ns)then
@@ -3345,7 +3369,7 @@ contains
                 endif
             else
                 temp = psq
-                psq = psq + 1d0
+                psq = psq + 1.0_dp
             endif
         enddo
      
@@ -3372,65 +3396,65 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! parameter of the gamma function
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
      
         ! value of normal density at p
-        real*8 :: incomplete_gamma
+        real(dp) :: incomplete_gamma
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: a, an, arg, b, c, pn1, pn2, pn3, pn4, pn5, pn6, rn
-        real*8, parameter :: elimit = - 88d0
-        real*8, parameter :: oflo = 1d37
-        real*8, parameter :: plimit = 1000d0
-        real*8, parameter :: tol = 1d-14
-        real*8, parameter :: xbig = 1d8
+        real(dp) :: a, an, arg, b, c, pn1, pn2, pn3, pn4, pn5, pn6, rn
+        real(dp), parameter :: elimit = - 88.0_dp
+        real(dp), parameter :: oflo = 1.0e37_dp
+        real(dp), parameter :: plimit = 1000.0_dp
+        real(dp), parameter :: tol = 1.0e-14_dp
+        real(dp), parameter :: xbig = 1.0e8_dp
      
      
         !##### ROUTINE CODE #######################################################
 
-        incomplete_gamma = 0d0
+        incomplete_gamma = 0.0_dp
         
         ! check validity of inputs solution
-        if(x < 0d0)then
+        if(x < 0.0_dp)then
             call error('incomeplete_gamma','x is smaller than zero')
         endif
         
-        if(p <= 0d0)then
+        if(p <= 0.0_dp)then
             call error('incomeplete_gamma','p is not positive')
         endif
         
         ! set incomeplete_gamma = 0 if x is zero
-        if(x <= 0d0)then
-            incomplete_gamma = 0d0
+        if(x <= 0.0_dp)then
+            incomplete_gamma = 0.0_dp
             return
         endif
 
         ! normal approximation for large values of p
         if(p > plimit)then
-            pn1 = 3d0*sqrt(p)*((x/p)**(1d0/3d0) + 1d0/(9d0*p) - 1d0)
+            pn1 = 3.0_dp*sqrt(p)*((x/p)**(1.0_dp/3.0_dp) + 1.0_dp/(9.0_dp*p) - 1.0_dp)
             incomplete_gamma = normalCDF(pn1)
             return
         endif
         
         ! set incomeplete_gamma = 1 if x is large
         if(x > xbig)then
-            incomplete_gamma = 1d0
+            incomplete_gamma = 1.0_dp
         endif
         
         ! Pearson series expansion
-        if(x <= 1d0 .or. x < p)then
-            arg = p*log(x) - x - my_log_gamma(p+1d0)
-            c = 1d0
-            incomplete_gamma = 1.0D+00
+        if(x <= 1.0_dp .or. x < p)then
+            arg = p*log(x) - x - my_log_gamma(p+1.0_dp)
+            c = 1.0_dp
+            incomplete_gamma = 1.0_dp
             a = p
         
             do
-                a = a + 1d0
+                a = a + 1.0_dp
                 c = c*x/a
                 incomplete_gamma = incomplete_gamma + c
         
@@ -3445,32 +3469,32 @@ contains
             if ( elimit <= arg ) then
               incomplete_gamma = exp ( arg )
             else
-              incomplete_gamma = 0d0
+              incomplete_gamma = 0.0_dp
             endif
             
         ! Use a continued fraction expansion.
         else
         
             arg = p*log (x) - x - my_log_gamma(p)
-            a = 1d0 - p
-            b = a + x + 1d0
-            c = 0d0
-            pn1 = 1d0
+            a = 1.0_dp - p
+            b = a + x + 1.0_dp
+            c = 0.0_dp
+            pn1 = 1.0_dp
             pn2 = x
-            pn3 = x + 1d0
+            pn3 = x + 1.0_dp
             pn4 = x*b
             incomplete_gamma = pn3/pn4
         
             do
         
-                a = a + 1d0
-                b = b + 2d0
-                c = c + 1d0
+                a = a + 1.0_dp
+                b = b + 2.0_dp
+                c = c + 1.0_dp
                 an = a*c
                 pn5 = b*pn3 - an*pn1
                 pn6 = b*pn4 - an*pn2
         
-                if ( abs(pn6) > 0d0 ) then
+                if ( abs(pn6) > 0.0_dp ) then
         
                     rn = pn5 / pn6
         
@@ -3498,9 +3522,9 @@ contains
             arg = arg + log (incomplete_gamma)
         
             if (arg >= elimit) then
-              incomplete_gamma = 1d0 - exp (arg)
+              incomplete_gamma = 1.0_dp - exp (arg)
             else
-              incomplete_gamma = 1d0
+              incomplete_gamma = 1.0_dp
             endif
         endif
     
@@ -3520,17 +3544,17 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! value of log of the gamma function
-        real*8 :: gamma_function
+        real(dp) :: gamma_function
              
      
         !##### ROUTINE CODE #######################################################
 
         
         ! check validity of inputs solution
-        if(x < 0d0)then
+        if(x < 0.0_dp)then
             call error('gamma_function','x is smaller than zero')
         endif
         
@@ -3561,94 +3585,94 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real*8, intent(in) :: x_in
+        real(dp), intent(in) :: x_in
      
         ! value of log of the gamma function
-        real*8 :: my_log_gamma
+        real(dp) :: my_log_gamma
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8, parameter :: alr2pi = 9.18938533204673d-1
-        real*8, parameter :: xlge = 5.10d6 
-        real*8, parameter :: r1(9) = (/ -2.66685511495d0, &
-                                        -2.44387534237d1, &
-                                        -2.19698958928d1, & 
-                                         1.11667541262d1, &
-                                         3.13060547623d0, &
-                                         6.07771387771d-1, &
-                                         1.19400905721d1, &
-                                         3.14690115749d1, &
-                                         1.52346874070d1 /)
-        real*8, parameter :: r2(9) = (/ -7.83359299449d1, &
-                                        -1.42046296688d2, &
-                                         1.37519416416d2, & 
-                                         7.86994924154d1, &
-                                         4.16438922228d0, &
-                                         4.70668766060d1, &
-                                         3.13399215894d2, & 
-                                         2.63505074721d2, &
-                                         4.33400022514d1 /)
-        real*8, parameter :: r3(9) = (/ -2.12159572323d5, & 
-                                         2.30661510616d5, &
-                                         2.74647644705d4, &
-                                        -4.02621119975d4, &
-                                        -2.29660729780d3, &
-                                        -1.16328495004d5, &
-                                        -1.46025937511d5, &
-                                        -2.42357409629d4, &
-                                        -5.70691009324d2 /)
-        real*8, parameter :: r4(5) = (/  2.79195317918525d-1, &
-                                         4.917317610505968d-1, &
-                                         6.92910599291889d-2, &
-                                         3.350343815022304d0, &
-                                         6.012459259764103d0 /)
-        real*8 :: x, x1, x2, y
+        real(dp), parameter :: alr2pi = 9.18938533204673e-1_dp
+        real(dp), parameter :: xlge = 5.10e6_dp 
+        real(dp), parameter :: r1(9) = (/ -2.66685511495_dp, &
+                                        -2.44387534237e1_dp, &
+                                        -2.19698958928e1_dp, & 
+                                         1.11667541262e1_dp, &
+                                         3.13060547623_dp, &
+                                         6.07771387771e-1_dp, &
+                                         1.19400905721e1_dp, &
+                                         3.14690115749e1_dp, &
+                                         1.52346874070e1_dp /)
+        real(dp), parameter :: r2(9) = (/ -7.83359299449e1_dp, &
+                                        -1.42046296688e2_dp, &
+                                         1.37519416416e2_dp, & 
+                                         7.86994924154e1_dp, &
+                                         4.16438922228_dp, &
+                                         4.70668766060e1_dp, &
+                                         3.13399215894e2_dp, & 
+                                         2.63505074721e2_dp, &
+                                         4.33400022514e1_dp /)
+        real(dp), parameter :: r3(9) = (/ -2.12159572323e5_dp, & 
+                                         2.30661510616e5_dp, &
+                                         2.74647644705e4_dp, &
+                                        -4.02621119975e4_dp, &
+                                        -2.29660729780e3_dp, &
+                                        -1.16328495004e5_dp, &
+                                        -1.46025937511e5_dp, &
+                                        -2.42357409629e4_dp, &
+                                        -5.70691009324e2_dp /)
+        real(dp), parameter :: r4(5) = (/  2.79195317918525e-1_dp, &
+                                         4.917317610505968e-1_dp, &
+                                         6.92910599291889e-2_dp, &
+                                         3.350343815022304_dp, &
+                                         6.012459259764103_dp /)
+        real(dp) :: x, x1, x2, y
      
      
         !##### ROUTINE CODE #######################################################
 
 
-        my_log_gamma = 0d0
+        my_log_gamma = 0.0_dp
         x = x_in
         
         ! check validity of inputs solution
-        if(x < 0d0)then
+        if(x < 0.0_dp)then
             call error('my_log_gamma','x is smaller than zero')
         endif
         
         ! get solution for 0 < X < 0.5 and 0.5 <= x < 1.5
-        if(x < 1.5d0)then
-            if(x < 0.5d0)then
+        if(x < 1.5_dp)then
+            if(x < 0.5_dp)then
                 my_log_gamma = -log(x)
-                y = x + 1d0
+                y = x + 1.0_dp
                 
                 ! return if x is smaller than machine epsilon
-                if(y <= 1d0)return
+                if(y <= 1.0_dp)return
             else
-                my_log_gamma = 0d0
+                my_log_gamma = 0.0_dp
                 y = x
-                x = (x-0.5d0) - 0.5d0
+                x = (x-0.5_dp) - 0.5_dp
             endif
             my_log_gamma = my_log_gamma + x * ((((r1(5)*y + r1(4))*y + r1(3))*y &
                 + r1(2))*y + r1(1)) / ((((y + r1(9))*y + r1(8))*y + r1(7))*y + r1(6))
         
 
         ! get solution for 1.5 <= x < 4.0
-        elseif(x < 4.0d0)then
-            y = (x - 1d0) - 1d0
+        elseif(x < 4.0_dp)then
+            y = (x - 1.0_dp) - 1.0_dp
             my_log_gamma = y * ((((r2(5)*x + r2(4))*x + r2(3))*x + r2(2))*x &
                 + r2(1)) / ((((x + r2(9))*x + r2(8))*x + r2(7))*x + R2(6))
 
         ! get solution for 4.0 <= x < 12
-        elseif(x < 12d0)then
+        elseif(x < 12.0_dp)then
             my_log_gamma = ((((r3(5)*x + r3(4))*x + r3(3))*x + r3(2))*x + r3(1)) / &
                 ((((x + r3(9))*x + r3(8))*x + r3(7))*x + r3(6))
         else
             y = log(x)
-            my_log_gamma = x * (y -1d0) - 0.5d0*y + alr2pi
+            my_log_gamma = x * (y -1.0_dp) - 0.5_dp*y + alr2pi
             if(x <= XLGE)then
-                x1 = 1d0/x
+                x1 = 1.0_dp/x
                 x2 = x1 * x1
                 my_log_gamma = my_log_gamma + x1 * ((r4(3)*x2 + r4(2))*x2 + r4(1)) / &
                     ((x2 + r4(5))*x2 + r4(4))
@@ -3671,35 +3695,35 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! zero or 1 draw
-        integer, intent(in) :: k
+        integer(int32), intent(in) :: k
      
         ! the probability of the positive draw
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
 
         ! the probability of this to happen
-        real*8 :: bernoulliPDF
+        real(dp) :: bernoulliPDF
         
              
         !##### ROUTINE CODE #######################################################
         
         ! check for validity
-        if(p < 0d0 .or. p > 1d0)then
+        if(p < 0.0_dp .or. p > 1.0_dp)then
             call error('bernoulliPDF', 'Probability p is out of [0,1]')
         endif
         
         ! outside of range
         if(k < 0)then
-            bernoulliPDF = 0d0
+            bernoulliPDF = 0.0_dp
             return
         endif
         
         if(k > 1)then
-            bernoulliPDF = 1d0
+            bernoulliPDF = 1.0_dp
             return
         endif
         
         if(k == 0)then
-            bernoulliPDF = 1d0 - p
+            bernoulliPDF = 1.0_dp - p
         else
             bernoulliPDF = p
         endif
@@ -3720,34 +3744,34 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! zero or 1 draw
-        integer, intent(in) :: k
+        integer(int32), intent(in) :: k
      
         ! the probability of the positive draw
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
 
         ! the cumulated probability of this to happen
-        real*8 :: bernoulliCDF
+        real(dp) :: bernoulliCDF
         
              
         !##### ROUTINE CODE #######################################################
         
         ! check for validity
-        if(p < 0d0 .or. p > 1d0)then
+        if(p < 0.0_dp .or. p > 1.0_dp)then
             call error('bernoulliCDF', 'Probability p is out of [0,1]')
         endif
         
         ! outside of range
         if(k < 0)then
-            bernoulliCDF = 0d0
+            bernoulliCDF = 0.0_dp
             return
         endif
         
         if(k >= 1)then
-            bernoulliCDF = 1d0
+            bernoulliCDF = 1.0_dp
             return
         endif
         
-        bernoulliCDF = 1d0 - p
+        bernoulliCDF = 1.0_dp - p
 
     end function
     
@@ -3765,33 +3789,33 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! the number of positive draws
-        integer, intent(in) :: k
+        integer(int32), intent(in) :: k
      
         ! the total number of draws
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! the probability of a positive draw
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
 
         ! the probability of this to happen
-        real*8 :: binomialPDF
+        real(dp) :: binomialPDF
      
      
         !##### ROUTINE CODE #######################################################
         
 
         ! check for validity
-        if(p < 0d0 .or. p > 1d0)then
+        if(p < 0.0_dp .or. p > 1.0_dp)then
             call error('binomialPDF', 'Probability p is out of [0,1]')
         endif
         
         ! outside of range
         if(k < 0 .or. k > n)then
-            binomialPDF = 0d0
+            binomialPDF = 0.0_dp
             return
         endif
 
-        binomialPDF = binomial_coefficient(n, k)*p**k*(1d0-p)**(n-k)        
+        binomialPDF = binomial_coefficient(n, k)*p**k*(1.0_dp-p)**(n-k)        
 
     end function
     
@@ -3809,44 +3833,44 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! the number of positive draws
-        integer, intent(in) :: k
+        integer(int32), intent(in) :: k
      
         ! the total number of draws
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! the probability of a positive draw
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
 
         ! the cumulated probability of this to happen
-        real*8 :: binomialCDF
+        real(dp) :: binomialCDF
         
         
         !##### OTHER VARIABLES ####################################################
         
-        integer :: ii
+        integer(int32) :: ii
      
      
         !##### ROUTINE CODE #######################################################
         
         ! check for validity
-        if(p < 0d0 .or. p > 1d0)then
+        if(p < 0.0_dp .or. p > 1.0_dp)then
             call error('binomialCDF', 'Probability p is out of [0,1]')
         endif
         
         ! outside of range
         if(k < 0)then
-            binomialCDF = 0d0
+            binomialCDF = 0.0_dp
             return
         endif
         
         if(k > n)then
-            binomialCDF = 1d0
+            binomialCDF = 1.0_dp
             return
         endif
         
-        binomialCDF = 0d0
+        binomialCDF = 0.0_dp
         do ii = 0, k
-            binomialCDF = binomialCDF +  binomial_coefficient(n, ii)*p**ii*(1d0-p)**(n-ii)
+            binomialCDF = binomialCDF +  binomial_coefficient(n, ii)*p**ii*(1.0_dp-p)**(n-ii)
         enddo
 
     end function
@@ -3865,25 +3889,25 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! out of number
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
      
         ! number
-        integer, intent(in) :: k
+        integer(int32), intent(in) :: k
      
         ! the probability of this to happen
-        real*8 :: binomial_coefficient
+        real(dp) :: binomial_coefficient
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n0, k0, ii
+        integer(int32) :: n0, k0, ii
      
      
         !##### ROUTINE CODE #######################################################
         
         
         if(k == 0 .or. k == n)then
-            binomial_coefficient = 1d0
+            binomial_coefficient = 1.0_dp
         endif
         
         ! copy values
@@ -3896,10 +3920,10 @@ contains
         endif
         
         ! use factorial formula for stability
-        binomial_coefficient = 1d0
+        binomial_coefficient = 1.0_dp
         do ii = 1, k
-            binomial_coefficient = binomial_coefficient*dble(n+1-ii)
-            binomial_coefficient = binomial_coefficient/dble(ii)
+            binomial_coefficient = binomial_coefficient*real(n+1-ii, dp)
+            binomial_coefficient = binomial_coefficient/real(ii, dp)
         enddo
     
     end function
@@ -3918,9 +3942,8 @@ contains
     subroutine init_random_seed(fixed)
      
         implicit none
-        integer, allocatable :: seed(:)
-        integer :: i, n, dt(8)
-        integer, parameter :: int64 = selected_int_kind(16)
+        integer(int32), allocatable :: seed(:)
+        integer(int32) :: i, n, dt(8)
         integer(kind=int64) :: t
         logical, optional :: fixed
      
@@ -3953,7 +3976,7 @@ contains
         function lcg(s)
      
             implicit none
-            integer :: lcg
+            integer(int32) :: lcg
             integer(int64) :: s
      
             if (s == 0) then
@@ -3982,13 +4005,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x
+        real(dp), intent(out) :: x
      
         ! left end of the distribution
-        real*8, optional :: a
+        real(dp), optional :: a
      
         ! right end of the distribution
-        real*8, optional :: b
+        real(dp), optional :: b
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -3996,15 +4019,15 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: a_c, b_c
+        real(dp) :: a_c, b_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        a_c = 0d0
+        a_c = 0.0_dp
         if(present(a))a_c = a
-        b_c = 1d0
+        b_c = 1.0_dp
         if(present(b))b_c = b
      
         ! initialize the random seed
@@ -4038,13 +4061,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
      
         ! left end of the distribution
-        real*8, optional :: a
+        real(dp), optional :: a
      
         ! right end of the distribution
-        real*8, optional :: b
+        real(dp), optional :: b
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4052,15 +4075,15 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: a_c, b_c
+        real(dp) :: a_c, b_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        a_c = 0d0
+        a_c = 0.0_dp
         if(present(a))a_c = a
-        b_c = 1d0
+        b_c = 1.0_dp
         if(present(b))b_c = b
      
         ! initialize the random seed
@@ -4098,13 +4121,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x
+        real(dp), intent(out) :: x
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4112,19 +4135,19 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: uni1, uni2, mu_c, sigma_c
-        real*8 :: pi = 3.141592653589793d0
+        real(dp) :: uni1, uni2, mu_c, sigma_c
+        real(dp) :: pi = 3.141592653589793_dp
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = 0d0
+        mu_c = 0.0_dp
         if(present(mu))mu_c = mu
-        sigma_c = 1d0
+        sigma_c = 1.0_dp
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('simulate_normal','sigma has zero or negative value')
         endif
      
@@ -4138,7 +4161,7 @@ contains
         endif
      
         ! transform by Box-Muller transformation
-        x = sqrt(-2d0*log(uni1))*cos(2d0*pi*uni2)
+        x = sqrt(-2.0_dp*log(uni1))*cos(2.0_dp*pi*uni2)
      
         ! transform to mean and variance
         x = mu_c + sqrt(sigma_c)*x
@@ -4164,13 +4187,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4178,20 +4201,20 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: uni1(size(x, 1)/2), uni2(size(x, 1)/2), mu_c, sigma_c
-        integer :: n, in, n2
-        real*8 :: pi = 3.141592653589793d0
+        real(dp) :: uni1(size(x, 1)/2), uni2(size(x, 1)/2), mu_c, sigma_c
+        integer(int32) :: n, in, n2
+        real(dp) :: pi = 3.141592653589793_dp
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = 0d0
+        mu_c = 0.0_dp
         if(present(mu))mu_c = mu
-        sigma_c = 1d0
+        sigma_c = 1.0_dp
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('simulate_normal','sigma has zero or negative value')
         endif
      
@@ -4210,12 +4233,12 @@ contains
      
         ! transform by Box-Muller transformation
         do in = 1, n2
-            x(2*(in-1)+1) = sqrt(-2d0*log(uni1(in)))*cos(2d0*pi*uni2(in))
-            x(2*(in-1)+2) = sqrt(-2d0*log(uni1(in)))*sin(2d0*pi*uni2(in))
+            x(2*(in-1)+1) = sqrt(-2.0_dp*log(uni1(in)))*cos(2.0_dp*pi*uni2(in))
+            x(2*(in-1)+2) = sqrt(-2.0_dp*log(uni1(in)))*sin(2.0_dp*pi*uni2(in))
         enddo
      
         if(2*n2 /= n)then
-            call simulate_normal_1(x(n), 0d0, 1d0)
+            call simulate_normal_1(x(n), 0.0_dp, 1.0_dp)
         endif
      
         ! transform to mean and variance
@@ -4237,13 +4260,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x
+        real(dp), intent(out) :: x
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4251,27 +4274,27 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c
+        real(dp) :: mu_c, sigma_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = exp(0.5d0)
+        mu_c = exp(0.5_dp)
         if(present(mu))mu_c = mu
-        sigma_c = exp(1d0)*(exp(1d0)-1d0)
+        sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('simulate_log_normal','sigma has zero or negative value')
         endif
-        if(mu_c <= 0d0)then
+        if(mu_c <= 0.0_dp)then
             call error('simulate_log_normal','mu has zero or negative value')
         endif
         
         ! get expectation and variance
-        sigma_c = log(1d0+sigma_c/mu_c**2)
-        mu_c  = log(mu_c)-0.5d0*sigma_c
+        sigma_c = log(1.0_dp+sigma_c/mu_c**2)
+        mu_c  = log(mu_c)-0.5_dp*sigma_c
              
         ! simulate normal and convert to log_normal
         if(present(fixed))then
@@ -4299,13 +4322,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4313,27 +4336,27 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c
+        real(dp) :: mu_c, sigma_c
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = exp(0.5d0)
+        mu_c = exp(0.5_dp)
         if(present(mu))mu_c = mu
-        sigma_c = exp(1d0)*(exp(1d0)-1d0)
+        sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0d0)then
+        if(sigma_c <= 0.0_dp)then
             call error('simulate_log_normal','sigma has zero or negative value')
         endif
-        if(mu_c <= 0d0)then
+        if(mu_c <= 0.0_dp)then
             call error('simulate_log_normal','mu has zero or negative value')
         endif
         
         ! get expectation and variance
-        sigma_c = log(1d0+sigma_c/mu_c**2)
-        mu_c  = log(mu_c)-0.5d0*sigma_c   
+        sigma_c = log(1.0_dp+sigma_c/mu_c**2)
+        mu_c  = log(mu_c)-0.5_dp*sigma_c   
           
         ! simulate normal and convert to log_normal
         if(present(fixed))then
@@ -4366,13 +4389,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x
+        real(dp), intent(out) :: x
      
         ! shape parameter
-        real*8, optional :: alpha
+        real(dp), optional :: alpha
      
         ! rate parameter
-        real*8, optional :: beta
+        real(dp), optional :: beta
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4380,31 +4403,31 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: alpha_c, beta_c, d, c, uni
+        real(dp) :: alpha_c, beta_c, d, c, uni
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        alpha_c = 1d0
+        alpha_c = 1.0_dp
         if(present(alpha))alpha_c = alpha
-        beta_c = 1d0
+        beta_c = 1.0_dp
         if(present(beta))beta_c = beta
      
         ! check for validity of parameters
-        if(alpha_c <= 0d0)then
+        if(alpha_c <= 0.0_dp)then
             call error('simulate_Gamma','alpha has a non-positive value')
         endif
-        if(beta_c <= 0d0)then
+        if(beta_c <= 0.0_dp)then
             call error('simulate_Gamma','beta has a non-positive value')
         endif
      
         ! check whether alpha >= 1
-        if(alpha_c >= 1d0)then
+        if(alpha_c >= 1.0_dp)then
      
             ! calculate c and d
-            d = alpha_c - 1d0/3d0
-            c = 1d0/sqrt(9d0*d)
+            d = alpha_c - 1.0_dp/3.0_dp
+            c = 1.0_dp/sqrt(9.0_dp*d)
      
             ! simulate the gammas step by step
             if(present(fixed))then
@@ -4415,8 +4438,8 @@ contains
         else
      
             ! generate alpha+1 variables
-            d = alpha_c + 2d0/3d0
-            c = 1d0/sqrt(9d0*d)
+            d = alpha_c + 2.0_dp/3.0_dp
+            c = 1.0_dp/sqrt(9.0_dp*d)
      
             ! simulate the gammas step by step
             if(present(fixed))then
@@ -4431,7 +4454,7 @@ contains
             else
                 call simulate_uniform_1(uni)
             endif
-            x = x*uni**(1d0/alpha_c)
+            x = x*uni**(1.0_dp/alpha_c)
      
         endif
      
@@ -4460,13 +4483,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
      
         ! shape parameter
-        real*8, optional :: alpha
+        real(dp), optional :: alpha
      
         ! rate parameter
-        real*8, optional :: beta
+        real(dp), optional :: beta
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4474,20 +4497,20 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: alpha_c, beta_c, d, c, uni(size(x, 1))
-        integer :: n, in
+        real(dp) :: alpha_c, beta_c, d, c, uni(size(x, 1))
+        integer(int32) :: n, in
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        alpha_c = 1d0
+        alpha_c = 1.0_dp
         if(present(alpha))alpha_c = alpha
-        beta_c = 1d0
+        beta_c = 1.0_dp
         if(present(beta))beta_c = beta
      
         ! check for validity of beta
-        if(beta_c <= 0d0)then
+        if(beta_c <= 0.0_dp)then
             call error('simulate_Gamma','beta has a non-positive value')
         endif
      
@@ -4495,11 +4518,11 @@ contains
         n = size(x, 1)
      
         ! check whether alpha >= 1
-        if(alpha_c >= 1d0)then
+        if(alpha_c >= 1.0_dp)then
      
             ! calculate c and d
-            d = alpha_c - 1d0/3d0
-            c = 1d0/sqrt(9d0*d)
+            d = alpha_c - 1.0_dp/3.0_dp
+            c = 1.0_dp/sqrt(9.0_dp*d)
      
             ! simulate the gammas step by step
             do in = 1, n
@@ -4512,8 +4535,8 @@ contains
         else
      
             ! generate alpha+1 variables
-            d = alpha_c + 2d0/3d0
-            c = 1d0/sqrt(9d0*d)
+            d = alpha_c + 2.0_dp/3.0_dp
+            c = 1.0_dp/sqrt(9.0_dp*d)
      
             ! simulate the gammas step by step
             do in = 1, n
@@ -4530,7 +4553,7 @@ contains
             else
                 call simulate_uniform_n(uni)
             endif
-            x = x*uni**(1d0/alpha_c)
+            x = x*uni**(1.0_dp/alpha_c)
      
         endif
      
@@ -4558,21 +4581,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! c parameter
-        real*8 :: c
+        real(dp) :: c
      
         ! d parameter
-        real*8 :: d
+        real(dp) :: d
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
      
         ! a gamma realization
-        real*8 :: res
+        real(dp) :: res
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: v, x, u
+        real(dp) :: v, x, u
      
      
         !##### ROUTINE CODE #######################################################
@@ -4584,11 +4607,11 @@ contains
             else
                 call simulate_normal_1(x)
             endif
-            v = (1d0+c*x)
+            v = (1.0_dp+c*x)
             v = v*v*v
      
             ! test v
-            if(v <= 0d0)cycle
+            if(v <= 0.0_dp)cycle
      
             ! generate u
             if(present(fixed))then
@@ -4598,13 +4621,13 @@ contains
             endif
      
             ! check squeeze
-            if(u < 1d0 - 0.0331d0*(x*x)*(x*x))then
+            if(u < 1.0_dp - 0.0331_dp*(x*x)*(x*x))then
                 res = d*v
                 return
             endif
      
             ! check real condition
-            if(log(u) < 0.5d0*x*x + d*(1d0 - v + log(v)))then
+            if(log(u) < 0.5_dp*x*x + d*(1.0_dp - v + log(v)))then
                 res = d*v
                 return
             endif
@@ -4626,13 +4649,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x
+        real(dp), intent(out) :: x
      
         ! shape parameter
-        real*8, optional :: p
+        real(dp), optional :: p
      
         ! rate parameter
-        real*8, optional :: q
+        real(dp), optional :: q
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4640,22 +4663,22 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: p_c, q_c, gamma1, gamma2, bern
+        real(dp) :: p_c, q_c, gamma1, gamma2, bern
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        p_c = 1d0
+        p_c = 1.0_dp
         if(present(p))p_c = p
-        q_c = 1d0
+        q_c = 1.0_dp
         if(present(q))q_c = q
      
         ! check for validity of parameters
-        if(p_c <= 0d0)then
+        if(p_c <= 0.0_dp)then
             call error('simulate_beta','p has a non-positive value')
         endif
-        if(q_c <= 0d0)then
+        if(q_c <= 0.0_dp)then
             call error('simulate_beta','q has a non-positive value')
         endif
      
@@ -4671,7 +4694,7 @@ contains
         endif
      
         ! check whether gammas both greaters 0
-        if(gamma1 > 0d0 .or. gamma2 > 0d0)then
+        if(gamma1 > 0.0_dp .or. gamma2 > 0.0_dp)then
             x = gamma1/(gamma1+gamma2)
         else
             if(present(fixed))then
@@ -4697,13 +4720,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
      
         ! shape parameter
-        real*8, optional :: p
+        real(dp), optional :: p
      
         ! rate parameter
-        real*8, optional :: q
+        real(dp), optional :: q
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4711,23 +4734,23 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: p_c, q_c, gamma1(size(x,1)), gamma2(size(x,1)), bern
-        integer :: n, in
+        real(dp) :: p_c, q_c, gamma1(size(x,1)), gamma2(size(x,1)), bern
+        integer(int32) :: n, in
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        p_c = 1d0
+        p_c = 1.0_dp
         if(present(p))p_c = p
-        q_c = 1d0
+        q_c = 1.0_dp
         if(present(q))q_c = q
      
         ! check for validity of parameters
-        if(p_c <= 0d0)then
+        if(p_c <= 0.0_dp)then
             call error('simulate_beta','p has a non-positive value')
         endif
-        if(q_c <= 0d0)then
+        if(q_c <= 0.0_dp)then
             call error('simulate_beta','q has a non-positive value')
         endif
      
@@ -4748,7 +4771,7 @@ contains
         do in = 1, n
      
             ! check whether gammas both greaters 0
-            if(gamma1(in) > 0d0 .or. gamma2(in) > 0d0)then
+            if(gamma1(in) > 0.0_dp .or. gamma2(in) > 0.0_dp)then
                 x(in) = gamma1(in)/(gamma1(in)+gamma2(in))
             else
                 if(present(fixed))then
@@ -4775,10 +4798,10 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x
+        real(dp), intent(out) :: x
 
         ! probability to draw 1
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4786,7 +4809,7 @@ contains
      
         !##### ROUTINE CODE #######################################################
      
-        if(p < 0d0)then
+        if(p < 0.0_dp)then
             call error('simulate_bernoulli', 'p has a negative value')
         endif
      
@@ -4797,9 +4820,9 @@ contains
         endif
      
         if(x <= p)then
-            x = 1d0
+            x = 1.0_dp
         else
-            x = 0d0
+            x = 0.0_dp
         endif
      
     end subroutine simulate_bernoulli_1
@@ -4818,10 +4841,10 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
 
         ! probability to draw 1
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4829,12 +4852,12 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: ii
+        integer(int32) :: ii
      
      
         !##### ROUTINE CODE #######################################################
      
-        if(p < 0d0)then
+        if(p < 0.0_dp)then
             call error('simulate_bernoulli', 'p has a negative value')
         endif
      
@@ -4846,9 +4869,9 @@ contains
         
         do ii = 1, size(x, 1)
             if(x(ii) <= p)then
-                x(ii) = 1d0
+                x(ii) = 1.0_dp
             else
-                x(ii) = 0d0
+                x(ii) = 0.0_dp
             endif
         enddo
      
@@ -4868,13 +4891,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x
+        real(dp), intent(out) :: x
         
         ! total number of draws
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
 
         ! probability to draw 1
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4882,13 +4905,13 @@ contains
         
         !##### OTHER VARIABLES ####################################################
      
-        integer :: ii
-        real*8 :: cumprob
+        integer(int32) :: ii
+        real(dp) :: cumprob
      
      
         !##### ROUTINE CODE #######################################################
      
-        if(p < 0d0)then
+        if(p < 0.0_dp)then
             call error('simulate_binomial', 'p has a negative value')
         endif
         
@@ -4905,12 +4928,12 @@ contains
         ! derive bernoulli probability schedule
         cumprob = binomialPDF(0, n, p)
         if(x <= cumprob)then
-            x = 0d0
+            x = 0.0_dp
         else
             do ii = 1, n
                 cumprob = cumprob + binomialPDF(ii, n, p)
                 if(x <= cumprob)then
-                    x = dble(ii)
+                    x = real(ii, dp)
                     exit
                 endif
             enddo
@@ -4932,13 +4955,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point into which the draw should be saved
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
         
         ! total number of draws
-        integer, intent(in) :: n
+        integer(int32), intent(in) :: n
 
         ! probability to draw 1
-        real*8, intent(in) :: p
+        real(dp), intent(in) :: p
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -4946,13 +4969,13 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: ii, it
-        real*8 :: cumprob(0:n)
+        integer(int32) :: ii, it
+        real(dp) :: cumprob(0:n)
      
      
         !##### ROUTINE CODE #######################################################
      
-        if(p < 0d0)then
+        if(p < 0.0_dp)then
             call error('simulate_binomial', 'p has a negative value')
         endif
         
@@ -4977,7 +5000,7 @@ contains
         do it = 1, size(x, 1)
             do ii = 0, n
                 if(x(it) <= cumprob(ii))then
-                    x(it) = dble(ii)
+                    x(it) = real(ii, dp)
                     exit
                 endif
             enddo
@@ -5006,67 +5029,67 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! discrete points of normal distribution
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
      
         ! probability weights
-        real*8, intent(out) :: prob(:)
+        real(dp), intent(out) :: prob(:)
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c, pim4, z, z1, p1, p2, p3, pp
-        integer :: n, m, i, j, its
-        integer, parameter :: maxit = 200
-        real*8, parameter :: pi = 3.1415926535897932d0
+        real(dp) :: mu_c, sigma_c, pim4, z, z1, p1, p2, p3, pp
+        integer(int32) :: n, m, i, j, its
+        integer(int32), parameter :: maxit = 200
+        real(dp), parameter :: pi = 3.1415926535897932_dp
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters        
-        mu_c = 0d0
+        mu_c = 0.0_dp
         if(present(mu))mu_c = mu
-        sigma_c = 1d0
+        sigma_c = 1.0_dp
         if(present(sigma))sigma_c = sqrt(sigma)
         
-        if(sigma_c < 0d0)then
+        if(sigma_c < 0.0_dp)then
             call error('normal_discrete','sigma has negative value')
         endif
         
-        z = 0d0
+        z = 0.0_dp
      
         ! check for right array sizes
         n = assert_eq(size(x,1), size(prob,1), 'normal_discrete')
      
         ! calculate 1/pi^0.25
-        pim4 = 1d0/pi**0.25d0
+        pim4 = 1.0_dp/pi**0.25_dp
      
         ! get number of points
         m = (n+1)/2
      
         ! initialize x and prob
-        x = 0d0
-        prob = 0d0
+        x = 0.0_dp
+        prob = 0.0_dp
      
         ! start iteration
         do i = 1, m
      
             ! set reasonable starting values
             if(i == 1)then
-                z = sqrt(dble(2*n+1))-1.85575d0*(dble(2*n+1)**(-1d0/6d0))
+                z = sqrt(real(2*n+1, dp))-1.85575_dp*(real(2*n+1, dp)**(-1.0_dp/6.0_dp))
             elseif(i == 2)then
-                z = z - 1.14d0*(dble(n)**0.426d0)/z
+                z = z - 1.14_dp*(real(n, dp)**0.426_dp)/z
             elseif(i == 3)then
-                z = 1.86d0*z+0.86d0*x(1)
+                z = 1.86_dp*z+0.86_dp*x(1)
             elseif(i == 4)then
-                z = 1.91d0*z+0.91d0*x(2);
+                z = 1.91_dp*z+0.91_dp*x(2);
             else
-                z = 2d0*z+x(i-2);
+                z = 2.0_dp*z+x(i-2);
             endif
      
             ! root finding iterations
@@ -5074,16 +5097,16 @@ contains
             do while(its < maxit)
                 its = its+1
                 p1 = pim4
-                p2 = 0d0
+                p2 = 0.0_dp
                 do j = 1, n
                     p3 = p2
                     p2 = p1
-                    p1 = z*sqrt(2d0/dble(j))*p2-sqrt(dble(j-1)/dble(j))*p3
+                    p1 = z*sqrt(2.0_dp/real(j, dp))*p2-sqrt(real(j-1, dp)/real(j, dp))*p3
                 enddo
-                pp = sqrt(2d0*dble(n))*p2
+                pp = sqrt(2.0_dp*real(n, dp))*p2
                 z1 = z
                 z  = z1-p1/pp
-                if(abs(z-z1) < 1e-14)exit
+                if(abs(z-z1) < 1.0e-14_dp)exit
             enddo
             if(its >= maxit)then
                 call error('normal_discrete', &
@@ -5091,13 +5114,13 @@ contains
             endif
             x(n+1-i) = z
             x(i) = -z
-            prob(i) = 2d0/pp**2
+            prob(i) = 2.0_dp/pp**2
             prob(n+1-i) = prob(i)
         enddo
      
         ! set output data
         prob = prob/sqrt(pi)
-        x = x*sqrt(2d0)*sigma_c + mu_c
+        x = x*sqrt(2.0_dp)*sigma_c + mu_c
      
     end subroutine normal_discrete_1
      
@@ -5123,39 +5146,39 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! number of points in every direction
-        integer, intent(in) :: n(2)
+        integer(int32), intent(in) :: n(2)
      
         ! discrete points of normal distribution
-        real*8, intent(out) :: x(:, :)
+        real(dp), intent(out) :: x(:, :)
      
         ! probability weights
-        real*8, intent(out) :: prob(:)
+        real(dp), intent(out) :: prob(:)
      
         ! expectation of distribution
-        real*8, optional :: mu(2)
+        real(dp), optional :: mu(2)
      
         ! variance of distribution
-        real*8, optional :: sigma(2)
+        real(dp), optional :: sigma(2)
      
         ! correlation of distribution
-        real*8, optional :: rho
+        real(dp), optional :: rho
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c(2), sig_c(2), rho_c, sigma_c(2,2), l(2,2)
-        real*8 :: x1(n(1)), x2(n(2)), p1(n(1)), p2(n(2))
-        integer :: m, j, k
+        real(dp) :: mu_c(2), sig_c(2), rho_c, sigma_c(2,2), l(2,2)
+        real(dp) :: x1(n(1)), x2(n(2)), p1(n(1)), p2(n(2))
+        integer(int32) :: m, j, k
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = 0d0
+        mu_c = 0.0_dp
         if(present(mu))mu_c = mu
-        sig_c(1) = 1d0
+        sig_c = 1.0_dp
         if(present(sigma))sig_c = sigma
-        rho_c = 0d0
+        rho_c = 0.0_dp
         if(present(rho))rho_c = rho
      
         ! set up variance covariance matrix
@@ -5169,13 +5192,13 @@ contains
         m = assert_eq(size(x,2), 2, 'normal_discrete')
      
         ! check whether sigma is symmetric
-        if(any(abs(transpose(sigma_c) - sigma_c) > 1d-20)) &
+        if(any(abs(transpose(sigma_c) - sigma_c) > 1.0e-20_dp)) &
             call error('normal_discrete', &
             'Variance-Covariance matrix is not symmetric')
      
         ! get standard normal distributed random variables
-        call normal_discrete(x1, p1, 0d0, 1d0)
-        call normal_discrete(x2, p2, 0d0, 1d0)
+        call normal_discrete(x1, p1, 0.0_dp, 1.0_dp)
+        call normal_discrete(x2, p2, 0.0_dp, 1.0_dp)
      
         ! get joint distribution
         m = 1
@@ -5188,10 +5211,10 @@ contains
         enddo
      
         ! decompose var-cov matrix
-        if(.not.any(abs(sig_c)  <= 1d-100))then
+        if(.not.any(abs(sig_c)  <= 1.0e-100_dp))then
             call cholesky(sigma_c, l)
         else
-            l = 0d0
+            l = 0.0_dp
             l(1,1) = sqrt(sig_c(1))
             l(2,2) = sqrt(sig_c(2))
         endif
@@ -5220,41 +5243,41 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! discrete points of normal distribution
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
      
         ! probability weights
-        real*8, intent(out) :: prob(:)
+        real(dp), intent(out) :: prob(:)
      
         ! expectation of distribution
-        real*8, optional :: mu
+        real(dp), optional :: mu
      
         ! variance of distribution
-        real*8, optional :: sigma
+        real(dp), optional :: sigma
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c, sigma_c
-        integer :: n
+        real(dp) :: mu_c, sigma_c
+        integer(int32) :: n
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = exp(0.5d0)
+        mu_c = exp(0.5_dp)
         if(present(mu))mu_c = mu
-        sigma_c = exp(1d0)*(exp(1d0)-1d0)
+        sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c < 0d0)then
+        if(sigma_c < 0.0_dp)then
             call error('log_normal_discrete','sigma has negative value')
         endif
-        if(mu_c <= 0d0)then
+        if(mu_c <= 0.0_dp)then
             call error('log_normal_discrete','mu has zero or negative value')
         endif
         
         ! get expectation and variance
-        sigma_c = log(1d0+sigma_c/mu_c**2)
-        mu_c  = log(mu_c)-0.5d0*sigma_c
+        sigma_c = log(1.0_dp+sigma_c/mu_c**2)
+        mu_c  = log(mu_c)-0.5_dp*sigma_c
      
         ! check for right array sizes
         n = assert_eq(size(x,1), size(prob,1), 'normal_discrete')
@@ -5284,60 +5307,60 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! number of points in every direction
-        integer, intent(in) :: n(2)
+        integer(int32), intent(in) :: n(2)
      
         ! discrete points of normal distribution
-        real*8, intent(out) :: x(:, :)
+        real(dp), intent(out) :: x(:, :)
      
         ! probability weights
-        real*8, intent(out) :: prob(:)
+        real(dp), intent(out) :: prob(:)
      
         ! expectation of distribution
-        real*8, optional :: mu(2)
+        real(dp), optional :: mu(2)
      
         ! variance of distribution
-        real*8, optional :: sigma(2)
+        real(dp), optional :: sigma(2)
      
         ! correlation of distribution
-        real*8, optional :: rho
+        real(dp), optional :: rho
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: mu_c(2), sig_c(2), rho_c, sigma_c(2,2), l(2,2)
-        real*8 :: x1(n(1)), x2(n(2)), p1(n(1)), p2(n(2))
-        integer :: m, j, k
+        real(dp) :: mu_c(2), sig_c(2), rho_c, sigma_c(2,2), l(2,2)
+        real(dp) :: x1(n(1)), x2(n(2)), p1(n(1)), p2(n(2))
+        integer(int32) :: m, j, k
      
      
         !##### ROUTINE CODE #######################################################
      
         ! initialize parameters
-        mu_c = exp(0.5d0)
+        mu_c = exp(0.5_dp)
         if(present(mu))mu_c = mu
-        sig_c = exp(1d0)*(exp(1d0)-1d0)
+        sig_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sig_c = sigma
-        rho_c = 0d0
+        rho_c = 0.0_dp
         if(present(rho))rho_c = rho
         
-        if(any(sig_c < 0d0))then
+        if(any(sig_c < 0.0_dp))then
             call error('log_normal_discrete','sigma has negative value')
         endif
-        if(any(mu_c <= 0d0))then
+        if(any(mu_c <= 0.0_dp))then
             call error('log_normal_discrete','mu has zero or negative value')
         endif
-        if(rho_c < -1d0 .or. rho_c > 1d0)then
+        if(rho_c < -1.0_dp .or. rho_c > 1.0_dp)then
             call error('log_normal_discrete','rho is outside -1 to 1')
         endif
         
         ! get expectation and variance
-        sig_c = log(1d0+sig_c/mu_c**2)
-        mu_c  = log(mu_c)-0.5d0*sig_c
+        sig_c = log(1.0_dp+sig_c/mu_c**2)
+        mu_c  = log(mu_c)-0.5_dp*sig_c
         
         ! set up covariance matrix
         sigma_c(1, 1) = sig_c(1)
         sigma_c(2, 2) = sig_c(2)
-        sigma_c(1, 2) = log(rho_c*sqrt(exp(sig_c(1))-1d0)* &
-            sqrt(exp(sig_c(2))-1d0)+1d0)
+        sigma_c(1, 2) = log(rho_c*sqrt(exp(sig_c(1))-1.0_dp)* &
+            sqrt(exp(sig_c(2))-1.0_dp)+1.0_dp)
         sigma_c(2, 1) = sigma_c(1, 2)
      
         ! check for right array sizes
@@ -5345,13 +5368,13 @@ contains
         m = assert_eq(size(x,2), 2, 'normal_discrete')
      
         ! check whether sigma is symmetric
-        if(any(abs(transpose(sigma_c) - sigma_c) > 1d-20)) &
+        if(any(abs(transpose(sigma_c) - sigma_c) > 1.0e-20_dp)) &
             call error('normal_discrete', &
             'Variance-Covariance matrix is not symmetric')
      
         ! get standard normal distributed random variables
-        call normal_discrete(x1, p1, 0d0, 1d0)
-        call normal_discrete(x2, p2, 0d0, 1d0)
+        call normal_discrete(x1, p1, 0.0_dp, 1.0_dp)
+        call normal_discrete(x2, p2, 0.0_dp, 1.0_dp)
      
         ! get joint distribution
         m = 1
@@ -5364,10 +5387,10 @@ contains
         enddo
      
         ! decompose var-cov matrix
-        if(.not.any(abs(sig_c) <= 1d-100))then
+        if(.not.any(abs(sig_c) <= 1.0e-100_dp))then
             call cholesky(sigma_c, l)
         else
-            l = 0d0
+            l = 0.0_dp
             l(1,1) = sqrt(sig_c(1))
             l(2,2) = sqrt(sig_c(2))
         endif
@@ -5411,22 +5434,22 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate polynomial
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! nodes of interpolation
-        real*8, intent(in) :: xi(0:)
+        real(dp), intent(in) :: xi(0:)
      
         ! data of interpolation
-        real*8, intent(in) :: yi(0:)
+        real(dp), intent(in) :: yi(0:)
      
         ! return value
-        real*8 :: poly_interpol_1
+        real(dp) :: poly_interpol_1
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: j, n, i
-        real*8 :: lagrange_poly(0:size(xi, 1)-1)
+        integer(int32) :: j, n, i
+        real(dp) :: lagrange_poly(0:size(xi, 1)-1)
      
         !##### ROUTINE CODE #######################################################
      
@@ -5434,7 +5457,7 @@ contains
         n = assert_eq(size(xi, 1), size(yi, 1), 'poly_interpol') - 1
      
         ! initialize lagrange basis polynomials
-        lagrange_poly(:) = 1d0
+        lagrange_poly(:) = 1.0_dp
      
         ! span polynomials
         do j = 0, n
@@ -5462,22 +5485,22 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate polynomial
-        real*8, intent(in) :: x(1:)
+        real(dp), intent(in) :: x(1:)
      
         ! nodes of interpolation
-        real*8, intent(in) :: xi(0:)
+        real(dp), intent(in) :: xi(0:)
      
         ! data of interpolation
-        real*8, intent(in) :: yi(0:)
+        real(dp), intent(in) :: yi(0:)
      
         ! return value
-        real*8 :: poly_interpol_m(size(x, 1))
+        real(dp) :: poly_interpol_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: j, n, i
-        real*8 :: lagrange_poly(size(x, 1), 0:size(xi, 1))
+        integer(int32) :: j, n, i
+        real(dp) :: lagrange_poly(size(x, 1), 0:size(xi, 1))
      
      
         !##### ROUTINE CODE #######################################################
@@ -5486,7 +5509,7 @@ contains
         n = assert_eq(size(xi, 1), size(yi, 1), 'poly_interpol') - 1
      
         ! initialize lagrange basis polynomials
-        lagrange_poly(:, :) = 1d0
+        lagrange_poly(:, :) = 1.0_dp
      
         ! span polynomials
         do j = 0, n
@@ -5538,13 +5561,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! tolerance level
-        real*8, intent(in) :: tol
+        real(dp), intent(in) :: tol
      
      
         !##### ROUTINE CODE #######################################################
     
         ! check whether tolerance level is valid
-        if(tol > 0d0)then
+        if(tol > 0.0_dp)then
             tbox_gftol = tol
         else
             call warning('settol_min', 'tolerance level is not valid')
@@ -5566,7 +5589,7 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! tolerance level
-        integer, intent(in) :: iter
+        integer(int32), intent(in) :: iter
      
      
         !##### ROUTINE CODE #######################################################
@@ -5599,23 +5622,23 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! minimum value found
-        real*8, intent(inout) :: xmin
+        real(dp), intent(inout) :: xmin
         
         ! function value at minimum
-        real*8, intent(out) :: fret
+        real(dp), intent(out) :: fret
         
         ! left, middle and right interval points
-        real*8, intent(in) :: minimum, maximum
+        real(dp), intent(in) :: minimum, maximum
         
         
         !##### OTHER VARIABLES ####################################################
         
-        real*8 :: tol
-        real*8, parameter :: cgold = 0.3819660d0
-        real*8, parameter :: zeps = 1.0e-3*epsilon(xmin)
-        real*8 :: a, b, d, e, etemp, fu, fv, fw, fx, p, q, r, tol1, tol2, &
+        real(dp) :: tol
+        real(dp), parameter :: cgold = 0.3819660_dp
+        real(dp), parameter :: zeps = 1.0e-3_dp*epsilon(xmin)
+        real(dp) :: a, b, d, e, etemp, fu, fv, fw, fx, p, q, r, tol1, tol2, &
             u, v, w, x, xm, ax, bx, cx
-        integer :: iter
+        integer(int32) :: iter
         
         
         !##### INTERFACES #########################################################
@@ -5623,9 +5646,10 @@ contains
         ! interface for the function
         interface
             function func(p)
+                import :: dp
                 implicit none
-                real*8, intent(in) :: p
-                real*8 :: func
+                real(dp), intent(in) :: p
+                real(dp) :: func
             end function func        
         end interface
         
@@ -5636,10 +5660,10 @@ contains
         tol =  tbox_gftol
         
         ! define a, b, d, e to zero
-        a = 0d0
-        b = 0d0
-        d = 0d0
-        e = 0d0
+        a = 0.0_dp
+        b = 0.0_dp
+        d = 0.0_dp
+        e = 0.0_dp
         
         ! set ax, bx and cx
         ax = minimum
@@ -5648,30 +5672,30 @@ contains
         a = min(ax, cx)
         b = max(ax, cx)
         
-        if(abs(xmin-a) <= 1d-6)then
-            bx = a + 1d-6
-        elseif(abs(xmin-b) <= 1d-6)then
-            bx = b - 1d-6
+        if(abs(xmin-a) <= 1.0e-6_dp)then
+            bx = a + 1.0e-6_dp
+        elseif(abs(xmin-b) <= 1.0e-6_dp)then
+            bx = b - 1.0e-6_dp
         elseif(xmin > a .and. xmin < b)then
             bx = xmin
         else
-            bx = (ax+cx)/2d0
+            bx = (ax+cx)/2.0_dp
         endif
         
         v = bx
         w = v
         x = v
-        e = 0d0
+        e = 0.0_dp
         fx = func(x)
         fv = fx
         fw = fx
         
         do iter = 1,tbox_itermax_min
-            xm = 0.5d0*(a+b)
+            xm = 0.5_dp*(a+b)
             tol1 = tol*abs(x)+zeps
-            tol2 = 2.0d0*tol1
+            tol2 = 2.0_dp*tol1
         
-            if(abs(x-xm) <= (tol2-0.5d0*(b-a)))then
+            if(abs(x-xm) <= (tol2-0.5_dp*(b-a)))then
                 xmin = x
                 fret = fx
                 return
@@ -5681,12 +5705,12 @@ contains
                 r = (x-w)*(fx-fv)
                 q = (x-v)*(fx-fw)
                 p = (x-v)*q-(x-w)*r
-                q = 2.0d0*(q-r)
-                if (q > 0.0d0) p = -p
+                q = 2.0_dp*(q-r)
+                if (q > 0.0_dp) p = -p
                 q = abs(q)
                 etemp = e
                 e = d
-                if(abs(p) >= abs(0.5d0*q*etemp) .or. &
+                if(abs(p) >= abs(0.5_dp*q*etemp) .or. &
                         p <= q*(a-x) .or. p >= q*(b-x))then
                     e = merge(a-x, b-x, x >= xm )
                     d = CGOLD*e
@@ -5717,12 +5741,12 @@ contains
                 else
                     b = u
                 endif
-                if(fu <= fw .or. abs(w-x)  <= 1d-100)then
+                if(fu <= fw .or. abs(w-x)  <= 1.0e-100_dp)then
                     v = w
                     fv = fw
                     w = u
                     fw = fu
-                elseif(fu <= fv .or. abs(v-x) <= 1d-100 .or. abs(v-w) <= 1d-100)then
+                elseif(fu <= fv .or. abs(v-x) <= 1.0e-100_dp .or. abs(v-w) <= 1.0e-100_dp)then
                     v = u
                     fv = fu
                 endif
@@ -5749,9 +5773,9 @@ contains
  
             !##### INPUT/OUTPUT VARIABLES #########################################
  
-            real*8, intent(out)   :: a
-            real*8, intent(inout) :: b, c
-            real*8, intent(in   ) :: d
+            real(dp), intent(out)   :: a
+            real(dp), intent(inout) :: b, c
+            real(dp), intent(in   ) :: d
  
  
             !##### ROUTINE CODE ###################################################
@@ -5782,27 +5806,27 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
     
         ! starting and ending point
-        real*8, intent(inout) :: p(:)
+        real(dp), intent(inout) :: p(:)
     
         ! value of function in minimum
-        real*8, intent(out) :: fret
+        real(dp), intent(out) :: fret
     
         ! minimum optimization interval point
-        real*8, intent(in) :: minimum(:)
+        real(dp), intent(in) :: minimum(:)
     
         ! maximum optimization interval point
-        real*8, intent(in) :: maximum(:)
+        real(dp), intent(in) :: maximum(:)
     
     
         !##### OTHER VARIABLES ####################################################
     
-        real*8 :: xi(size(p, 1), size(p, 1))
-        real*8 :: ftol
-        real*8, parameter :: tiny = 1.0e-25
-        integer :: i, ibig, n, iter
-        real*8 :: del, fp, fptt, t
-        real*8, dimension(size(p)) :: pt, ptt, xit
-        real*8 :: xicom(size(p,1))
+        real(dp) :: xi(size(p, 1), size(p, 1))
+        real(dp) :: ftol
+        real(dp), parameter :: tiny = 1.0e-25_dp
+        integer(int32) :: i, ibig, n, iter
+        real(dp) :: del, fp, fptt, t
+        real(dp), dimension(size(p)) :: pt, ptt, xit
+        real(dp) :: xicom(size(p,1))
     
         
         !##### INTERFACES #########################################################
@@ -5810,9 +5834,10 @@ contains
         ! interface for the function
         interface
             function func(p)
+                import :: dp
                 implicit none
-                real*8, intent(in) :: p(:)
-                real*8 :: func
+                real(dp), intent(in) :: p(:)
+                real(dp) :: func
             end function func
         end interface
     
@@ -5826,9 +5851,9 @@ contains
         n = assert_eq(size(p), size(minimum, 1), size(maximum,1), 'fminsearch')
         
         ! initialize direction set
-        xi = 0d0
+        xi = 0.0_dp
         do i = 1, n
-            xi(i, i) = 1d0
+            xi(i, i) = 1.0_dp
         enddo
         
         ! calculate function value
@@ -5848,7 +5873,7 @@ contains
             
             ! ibig will be direction of steepest decline
             ibig = 0
-            del = 0.0d0
+            del = 0.0_dp
             
             ! iterate over all dimensions
             do i = 1, n
@@ -5868,7 +5893,7 @@ contains
             enddo
             
             ! termination criterion
-            if (2d0*(fp - fret) <= ftol*(abs(fp) + abs(fret)) + tiny) return
+            if (2.0_dp*(fp - fret) <= ftol*(abs(fp) + abs(fret)) + tiny) return
             
             ! quit if maximum iterations reached
             if(iter == tbox_itermax_min)then
@@ -5876,7 +5901,7 @@ contains
             endif
             
             ! construct extrapolated point
-            ptt(:) = 2d0*p(:) - pt(:)
+            ptt(:) = 2.0_dp*p(:) - pt(:)
             xit(:) = p(:) - pt(:)
             pt(:) = p(:)
             
@@ -5888,11 +5913,11 @@ contains
             if (fptt >= fp) cycle
             
             ! calculate t
-            t = 2d0*(fp - 2d0*fret + fptt) * (fp - fret - del)**2 &
+            t = 2.0_dp*(fp - 2.0_dp*fret + fptt) * (fp - fret - del)**2 &
                 - del*(fp - fptt)**2
             
             ! if t > 0 -> no change of directions
-            if (t >= 0d0) cycle
+            if (t >= 0.0_dp) cycle
             
             ! else minimize along new direction and start new iteration
             call linmin(p, xit, n, fret, func)
@@ -5919,22 +5944,22 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! point where to start and minimum if minimization is done
-            real*8, intent(inout) :: p(n)
+            real(dp), intent(inout) :: p(n)
      
             ! direction in which to optimize
-            real*8, intent(inout) :: xi(n)
+            real(dp), intent(inout) :: xi(n)
      
             ! number of dimensions
-            integer, intent(in) :: n
+            integer(int32), intent(in) :: n
      
             ! value of function at minimum
-            real*8, intent(out)  :: fret
+            real(dp), intent(out)  :: fret
      
      
             !##### OTHER VARIABLES ################################################
      
-            real*8 :: tol
-            real*8  :: ax, bx, cx, xmin
+            real(dp) :: tol
+            real(dp)  :: ax, bx, cx, xmin
      
      
             !##### INTERFACES #####################################################
@@ -5942,9 +5967,10 @@ contains
                 ! interface for the function
             interface
                 function func(p)
+                    import :: dp
                     implicit none
-                    real*8, intent(in) :: p(:)
-                    real*8 :: func
+                    real(dp), intent(in) :: p(:)
+                    real(dp) :: func
                 end function func
             end interface
      
@@ -5982,41 +6008,41 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! left, middle and right interval point
-            real*8, intent(out) :: ax, bx, cx
+            real(dp), intent(out) :: ax, bx, cx
      
      
             !##### OTHER VARIABLES ################################################
      
-            integer :: i
-            real*8  :: w(0:1,n)
+            integer(int32) :: i
+            real(dp)  :: w(0:1,n)
      
      
             !##### ROUTINE CODE ###################################################
      
             ! calculate right interval point
-            cx = -1.e20
+            cx = -1.e20_dp
             do i = 1, n
-                if(abs(xicom(i)) >= 1d-100)then
+                if(abs(xicom(i)) >= 1.0e-100_dp)then
                     w(0,i) = (extr(i, 0, xicom(i))-p(i))/xicom(i)
                 else
-                    w(0,i) = -1.e20
+                    w(0,i) = -1.e20_dp
                 endif
                 if(w(0,i) > cx)cx = w(0, i)
             enddo
      
             ! calculate left interval point
-            ax = 1.e20
+            ax = 1.e20_dp
             do i=1, n
-                if(abs(xicom(i)) >= 1d-100)then
+                if(abs(xicom(i)) >= 1.0e-100_dp)then
                     w(1,i) = (extr(i, 1, xicom(i))-p(i))/xicom(i)
                 else
-                    w(1,i) = 1.e20
+                    w(1,i) = 1.e20_dp
                 endif
                 if(w(1,i) < ax)ax = w(1,i)
             enddo
      
             ! calculate point in between [ax, cx]
-            bx = 0d0
+            bx = 0.0_dp
      
         end subroutine getintervall
      
@@ -6026,7 +6052,7 @@ contains
         !
         ! Calculates interval endpoint in a given dimension.
         !##########################################################################
-        real*8 function extr(dim, maxxx, richt)
+        real(dp) function extr(dim, maxxx, richt)
      
             implicit none
      
@@ -6034,18 +6060,18 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! dimension in which to search
-            integer, intent(in) :: dim
+            integer(int32), intent(in) :: dim
      
             ! do you want the maximum or minimum endpoint
-            integer, intent(in) :: maxxx
+            integer(int32), intent(in) :: maxxx
      
             ! what is the optimization direction
-            real*8 :: richt
+            real(dp) :: richt
      
      
             !##### ROUTINE CODE ###################################################
      
-            if(richt > 0d0 .and. maxxx == 1 .or. richt < 0d0 .and. maxxx == 0)then
+            if(richt > 0.0_dp .and. maxxx == 1 .or. richt < 0.0_dp .and. maxxx == 0)then
                 extr = maximum(dim)
             else
                 extr = minimum(dim)
@@ -6068,15 +6094,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! point where to evaluate the multidimensional function
-            real*8, intent(in)  :: x
+            real(dp), intent(in)  :: x
      
             ! function value
-            real*8 :: f1dim
+            real(dp) :: f1dim
      
      
             !##### OTHER VARIABLES ################################################
      
-            real*8 :: xt(n)
+            real(dp) :: xt(n)
      
      
             !##### INTERFACES #####################################################
@@ -6084,9 +6110,10 @@ contains
             ! interface for the function
             interface
                 function func(p)
+                    import :: dp
                     implicit none
-                    real*8, intent(in) :: p(:)
-                    real*8 :: func
+                    real(dp), intent(in) :: p(:)
+                    real(dp) :: func
                 end function func
             end interface
      
@@ -6115,25 +6142,25 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! left, middle and right interval points
-            real*8, intent(in) :: ax, bx, cx
+            real(dp), intent(in) :: ax, bx, cx
      
             ! level of tolerance
-            real*8, intent(in) :: tol
+            real(dp), intent(in) :: tol
      
             ! minimum value found
-            real*8, intent(out) :: xmin
+            real(dp), intent(out) :: xmin
      
             ! function value at minimum
-            real*8 :: brent_pow
+            real(dp) :: brent_pow
      
      
             !##### OTHER VARIABLES ################################################
      
-            real*8, parameter :: cgold = 0.3819660d0
-            real*8, parameter :: zeps=1.0e-3*epsilon(ax)
-            integer :: iter
-            real*8 :: a, b, d, e, etemp
-            real*8 :: fu, fv, fw, fx, p, q, r, tol1, tol2, &
+            real(dp), parameter :: cgold = 0.3819660_dp
+            real(dp), parameter :: zeps=1.0e-3_dp*epsilon(ax)
+            integer(int32) :: iter
+            real(dp) :: a, b, d, e, etemp
+            real(dp) :: fu, fv, fw, fx, p, q, r, tol1, tol2, &
                 u, v, w, x, xm
      
      
@@ -6142,9 +6169,10 @@ contains
             ! interface for the function
             interface
                 function func(p)
+                    import :: dp
                     implicit none
-                    real*8, intent(in) :: p(:)
-                    real*8 :: func
+                    real(dp), intent(in) :: p(:)
+                    real(dp) :: func
                 end function func
             end interface
      
@@ -6152,11 +6180,11 @@ contains
             !##### ROUTINE CODE ###################################################
 
             ! set a, b, d, e, etemp to zero
-            a = 0d0
-            b = 0d0
-            d = 0d0
-            e = 0d0
-            etemp = 0d0
+            a = 0.0_dp
+            b = 0.0_dp
+            d = 0.0_dp
+            e = 0.0_dp
+            etemp = 0.0_dp
      
             ! start algorithm
             a = min(ax, cx)
@@ -6164,18 +6192,18 @@ contains
             v = bx
             w = v
             x = v
-            e = 0d0
+            e = 0.0_dp
             fx = f1dim(x, func)
             fv = fx
             fw = fx
      
             do iter = 1,tbox_tbox_itermax_pow_b
             
-                xm = 0.5d0*(a+b)
+                xm = 0.5_dp*(a+b)
                 tol1 = tol*abs(x)+zeps
-                tol2 = 2.0d0*tol1
+                tol2 = 2.0_dp*tol1
 
-                if(abs(x-xm) <= (tol2-0.5d0*(b-a)))then
+                if(abs(x-xm) <= (tol2-0.5_dp*(b-a)))then
                     xmin = x
                     brent_pow = fx
                     return
@@ -6185,12 +6213,12 @@ contains
                     r = (x-w)*(fx-fv)
                     q = (x-v)*(fx-fw)
                     p = (x-v)*q-(x-w)*r
-                    q = 2.0d0*(q-r)
-                    if (q > 0.0d0) p = -p
+                    q = 2.0_dp*(q-r)
+                    if (q > 0.0_dp) p = -p
                     q = abs(q)
                     etemp = e
                     e = d
-                    if(abs(p) >= abs(0.5d0*q*etemp ) .or. &
+                    if(abs(p) >= abs(0.5_dp*q*etemp ) .or. &
                             p <= q*(a-x) .or. p >= q*(b-x))then
                         e = merge(a-x, b-x, x >= xm )
                         d = CGOLD*e
@@ -6220,12 +6248,12 @@ contains
                     else
                         b = u
                     endif
-                    if(fu <= fw .or. abs(w-x) <= 1d-100)then
+                    if(fu <= fw .or. abs(w-x) <= 1.0e-100_dp)then
                         v = w
                         fv = fw
                         w = u
                         fw = fu
-                    elseif(fu <= fv .or. abs(v-x) <= 1d-100 .or. abs(v-w) <= 1d-100)then
+                    elseif(fu <= fv .or. abs(v-x) <= 1.0e-100_dp .or. abs(v-w) <= 1.0e-100_dp)then
                         v = u
                         fv = fu
                     endif
@@ -6251,9 +6279,9 @@ contains
  
             !##### INPUT/OUTPUT VARIABLES #########################################
  
-            real*8, intent(out)   :: a
-            real*8, intent(inout) :: b, c
-            real*8, intent(in   ) :: d
+            real(dp), intent(out)   :: a
+            real(dp), intent(inout) :: b, c
+            real(dp), intent(in   ) :: d
  
  
             !##### ROUTINE CODE ###################################################
@@ -6299,34 +6327,34 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! solution of the linear program
-        real*8, intent(inout) :: x(:)
+        real(dp), intent(inout) :: x(:)
      
         ! coefficients in the function to minimize
-        real*8, intent(in) :: c(:)
+        real(dp), intent(in) :: c(:)
      
         ! constraint matrix 
-        real*8, intent(in) :: A(:, :)
+        real(dp), intent(in) :: A(:, :)
      
         ! target vectors of constraint
-        real*8, intent(in) :: b(:)
+        real(dp), intent(in) :: b(:)
      
         ! number of lower equal constraints
-        integer, intent(in) :: numle
+        integer(int32), intent(in) :: numle
      
         ! number of greater equal constraints
-        integer, intent(in) :: numge
+        integer(int32), intent(in) :: numge
      
         ! number of equality constraints
-        integer, intent(in) :: numeq
+        integer(int32), intent(in) :: numeq
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: m, n, i1
-        real*8 :: A_h(size(A, 1), size(A, 2)+numle+numge)
-        real*8 :: c_h(size(c, 1)+numle+numge), b_h(size(b, 1))
-        real*8 :: x_h(size(x, 1)+numle+numge)
-        real*8 :: newA(size(A, 1), size(A, 2)+numle+numge)
+        integer(int32) :: m, n, i1
+        real(dp) :: A_h(size(A, 1), size(A, 2)+numle+numge)
+        real(dp) :: c_h(size(c, 1)+numle+numge), b_h(size(b, 1))
+        real(dp) :: x_h(size(x, 1)+numle+numge)
+        real(dp) :: newA(size(A, 1), size(A, 2)+numle+numge)
      
      
         !##### ROUTINE CODE #######################################################
@@ -6350,26 +6378,26 @@ contains
         endif
     
         ! set up optimization problem
-        A_h = 0d0
+        A_h = 0.0_dp
         A_h(1:m, 1:n) = A(:, :)
         do i1 = 1, numle
-            A_h(i1, n+i1) = 1d0
+            A_h(i1, n+i1) = 1.0_dp
         enddo
         do i1 = 1, numge
-            A_h(numle+i1, n+numle+i1) = -1d0
+            A_h(numle+i1, n+numle+i1) = -1.0_dp
         enddo
      
         ! check for negative bs
         b_h = b
         do i1 = 1, m
-            if(b(i1) < 0d0)then
+            if(b(i1) < 0.0_dp)then
                 A_h(i1, :) = -A_h(i1, :)
                 b_h(i1) = -b_h(i1)
             endif
         enddo
      
         ! initialize c
-        c_h = 0d0
+        c_h = 0.0_dp
         c_h(1:n) = c(:)
      
         call get_starting_value(x_h, A_h, b_h, newA)
@@ -6394,23 +6422,23 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
      
             ! starting value of the linear program
-            real*8, intent(out) :: x0(:)
+            real(dp), intent(out) :: x0(:)
      
             ! constraint matrix
-            real*8, intent(in) :: A(:, :)
+            real(dp), intent(in) :: A(:, :)
      
             ! target vectors of constraint
-            real*8, intent(in) :: b(:)
+            real(dp), intent(in) :: b(:)
      
             ! new matrix for simplex
-            real*8, intent(out) :: newA(:, :)
+            real(dp), intent(out) :: newA(:, :)
      
      
             !##### OTHER VARIABLES ####################################################
      
-            integer :: m, n, j
-            real*8 :: Astart(size(A,1), size(A,1)+size(A,2))
-            real*8 :: cstart(size(A,1)+size(A,2)), xstart(size(A,1)+size(A,2))
+            integer(int32) :: m, n, j
+            real(dp) :: Astart(size(A,1), size(A,1)+size(A,2))
+            real(dp) :: cstart(size(A,1)+size(A,2)), xstart(size(A,1)+size(A,2))
      
             !##### ROUTINE CODE #######################################################
      
@@ -6419,18 +6447,18 @@ contains
             m = size(A, 1)
      
             ! set up help problem
-            cstart(1:n) = 0d0
-            cstart(n+1:n+m) = 1d0
+            cstart(1:n) = 0.0_dp
+            cstart(n+1:n+m) = 1.0_dp
      
             ! set up help matrix
             Astart(1:m, 1:n) = A
-            Astart(1:m, n+1:n+m) = 0d0
+            Astart(1:m, n+1:n+m) = 0.0_dp
             do j = 1, m
-                Astart(j,n+j) = 1d0
+                Astart(j,n+j) = 1.0_dp
             enddo
      
             ! get initial guess
-            xstart(1:n) = 0d0
+            xstart(1:n) = 0.0_dp
             xstart(n+1:n+m) = b
      
             ! solve linear program
@@ -6455,25 +6483,25 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
      
             ! starting value of the linear program and result
-            real*8, intent(inout) :: x(:)
+            real(dp), intent(inout) :: x(:)
      
             ! coefficients of the program
-            real*8, intent(in) :: c(:)
+            real(dp), intent(in) :: c(:)
      
             ! constraint matrix
-            real*8, intent(in) :: A(:, :)
+            real(dp), intent(in) :: A(:, :)
      
             ! new tableau if starting value calculation
-            real*8, intent(out), optional :: newA(:, :)
+            real(dp), intent(out), optional :: newA(:, :)
      
      
             !##### OTHER VARIABLES ####################################################
      
-            integer :: k, m, n, j, ibas, inot, piv(2), ihelp, i1, i2, n1, bhelp
-            integer :: bas(size(A, 1)), nbas(size(A, 2)-size(A, 1))
-            real*8 :: alpha(size(A, 1), size(A,2)-size(A, 1))
-            real*8 :: gamma(size(A, 2)-size(A,1)), x0(size(A, 1))
-            real*8 :: pivcheck(size(A,1)), phelp, alpha_h(size(alpha, 2))
+            integer(int32) :: k, m, n, j, ibas, inot, piv(2), ihelp, i1, i2, n1, bhelp
+            integer(int32) :: bas(size(A, 1)), nbas(size(A, 2)-size(A, 1))
+            real(dp) :: alpha(size(A, 1), size(A,2)-size(A, 1))
+            real(dp) :: gamma(size(A, 2)-size(A,1)), x0(size(A, 1))
+            real(dp) :: pivcheck(size(A,1)), phelp, alpha_h(size(alpha, 2))
      
             !##### ROUTINE CODE #######################################################
      
@@ -6486,7 +6514,7 @@ contains
             ibas = 1
             inot = 1
             do j = 1, n
-                if(abs(x(j)) >= 1d-100)then
+                if(abs(x(j)) >= 1.0e-100_dp)then
                     bas(ibas) = j
                     ibas = ibas + 1
                 else
@@ -6507,7 +6535,7 @@ contains
      
             ! set up gammas
             do inot = 1, k
-                gamma(inot) = 0d0
+                gamma(inot) = 0.0_dp
                 do ibas = 1, m
                     gamma(inot) = gamma(inot) + alpha(ibas, inot)*c(bas(ibas))
                 enddo
@@ -6520,7 +6548,7 @@ contains
                 ! choose pivot column
                 piv = 0
                 do inot = 1, k
-                    if(gamma(inot) < 0d0)then
+                    if(gamma(inot) < 0.0_dp)then
                         piv(2) = inot
                         exit
                     endif
@@ -6531,15 +6559,15 @@ contains
      
                 ! else choose pivot row
                 do ibas = 1, m
-                    if(abs(alpha(ibas, piv(2))) >= 1d-100)then
+                    if(abs(alpha(ibas, piv(2))) >= 1.0e-100_dp)then
                         pivcheck(ibas) = x0(ibas)/alpha(ibas, piv(2))
                     else
-                        pivcheck(ibas) = -1d300
+                        pivcheck(ibas) = -1.0e300_dp
                     endif
                 enddo
-                phelp = -1d300
+                phelp = -1.0e300_dp
                 do ibas = 1, m
-                    if(alpha(ibas, piv(2)) < 0d0 .and. pivcheck(ibas) > phelp)then
+                    if(alpha(ibas, piv(2)) < 0.0_dp .and. pivcheck(ibas) > phelp)then
                         phelp = pivcheck(ibas)
                         piv(1) = ibas
                     endif
@@ -6556,7 +6584,7 @@ contains
                 bas(piv(1)) = Ihelp
      
                 ! change pivot element
-                alpha(piv(1), piv(2)) = 1d0/alpha(piv(1), piv(2))
+                alpha(piv(1), piv(2)) = 1.0_dp/alpha(piv(1), piv(2))
      
                 ! change pivot column
                 do ibas = 1, m
@@ -6606,7 +6634,7 @@ contains
             enddo
      
             ! get solution
-            x = 0d0
+            x = 0.0_dp
             do ibas = 1, m
                 x(bas(ibas)) = x0(ibas)
             enddo
@@ -6617,12 +6645,12 @@ contains
                 ! check for existence of a solution
                 n1 = 1
                 do i1 = 1, n
-                    if(c(i1) > 0d0)then
+                    if(c(i1) > 0.0_dp)then
                         n1 = i1
                         exit
                     endif
                 enddo
-                if(any(x(n1:n) > 0d0))then
+                if(any(x(n1:n) > 0.0_dp))then
                     call error('solve_lin', &
                         'Linear Program does not have a solution')
                 endif
@@ -6643,7 +6671,7 @@ contains
                 enddo
      
                 ! get new matrix
-                newA = 0d0
+                newA = 0.0_dp
                 do i1 = 1, k
                     if(nbas(i1) <= n1-1)then
                         newA(:, nbas(i1)) = -alpha(:, i1)
@@ -6689,13 +6717,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
     
         ! tolerance level
-        real*8, intent(in) :: tol
+        real(dp), intent(in) :: tol
     
     
         !##### ROUTINE CODE #######################################################
  
         ! check whether tolerance level is valid
-        if(tol > 0d0)then
+        if(tol > 0.0_dp)then
             tbox_gftol_root = tol
         else
             call warning('settol_root', 'tolerance level is not valid')
@@ -6717,7 +6745,7 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
     
         ! number of iterations
-        integer, intent(in) :: iter
+        integer(int32), intent(in) :: iter
     
     
         !##### ROUTINE CODE #######################################################
@@ -6745,7 +6773,7 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! initial guess and root of the function
-        real*8, intent(inout) :: x
+        real(dp), intent(inout) :: x
      
         ! check is true if newton_interpol converged to local minimum or can make no
         !     further progress
@@ -6753,12 +6781,12 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8, parameter :: eps = epsilon(x)
-        real*8 :: tolf, tolmin
-        real*8, parameter :: tolx = eps
-        real*8, parameter :: stpmx = 100d0
-        real*8 :: x1, x2, f1, f2, xnew, fnew, h
-        integer :: its
+        real(dp), parameter :: eps = epsilon(x)
+        real(dp) :: tolf, tolmin
+        real(dp), parameter :: tolx = eps
+        real(dp), parameter :: stpmx = 100.0_dp
+        real(dp) :: x1, x2, f1, f2, xnew, fnew, h
+        integer(int32) :: its
      
      
         !##### INTERFACES #########################################################
@@ -6766,9 +6794,10 @@ contains
         ! interface for the function
         interface
             function funcv(p)
+                import :: dp
                 implicit none
-                real*8, intent(in) :: p
-                real*8 :: funcv
+                real(dp), intent(in) :: p
+                real(dp) :: funcv
             end function funcv
         end interface
      
@@ -6782,7 +6811,7 @@ contains
      
         ! initialize values
         x1 = x
-        h = 1d-6*max(abs(x), 0.01d0)
+        h = 1.0e-6_dp*max(abs(x), 0.01_dp)
         x2 = x + h
      
         ! calculate function values at x1, x2
@@ -6790,20 +6819,20 @@ contains
         f2 = funcv(x2)
      
         ! check if already in zero
-        if(abs(f1) < 0.01d0*tolf)then
+        if(abs(f1) < 0.01_dp*tolf)then
             x = x1
             if(present(check_return))check_return = .false.
             return
         endif
      
-        if(abs(f2) < 0.01d0*tolf)then
+        if(abs(f2) < 0.01_dp*tolf)then
             x = x2
             if(present(check_return))check_return = .false.
             return
         endif
         
-        if(abs((1d0-f1/f2)/(x2-x1)) < tolmin .or. &
-            abs((1d0-f1/f2)) < epsilon(1d0))then
+        if(abs((1.0_dp-f1/f2)/(x2-x1)) < tolmin .or. &
+            abs((1.0_dp-f1/f2)) < epsilon(1.0_dp))then
             x = x1
             if(present(check_return))check_return = .true.
             return
@@ -6813,7 +6842,7 @@ contains
         do its = 1, itermax_root
      
             ! calculate new point xnew
-            xnew = x2 - (x2-x1)/(1d0-f1/f2)
+            xnew = x2 - (x2-x1)/(1.0_dp-f1/f2)
      
             ! calculate new function value
             fnew = funcv(xnew)
@@ -6826,7 +6855,7 @@ contains
             endif
      
             ! check whether you are in a minimum or cannot proceed further
-            if(2d0*abs(xnew-x2) < tolx*abs(xnew+x2))then
+            if(2.0_dp*abs(xnew-x2) < tolx*abs(xnew+x2))then
                 x = x2
                 if(present(check_return))check_return = .true.
                 return
@@ -6838,8 +6867,8 @@ contains
             x2 = xnew
             f2 = fnew
 
-            if(abs((1d0-f1/f2)/(x2-x1)) < tolmin .or. &
-               abs((1d0-f1/f2)) < epsilon(1d0))then
+            if(abs((1.0_dp-f1/f2)/(x2-x1)) < tolmin .or. &
+               abs((1.0_dp-f1/f2)) < epsilon(1.0_dp))then
                 x = x1
                 if(present(check_return))check_return = .true.
                 return
@@ -6872,7 +6901,7 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! initial guess and root of the function
-        real*8, intent(inout) :: x(:)
+        real(dp), intent(inout) :: x(:)
      
         ! check is true if broydn converged to local minimum or can make no
         !     further progress
@@ -6881,16 +6910,16 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8, parameter :: eps = epsilon(x)
-        real*8 :: tolf, tolmin
-        real*8, parameter :: tolx = eps
-        real*8, parameter :: stpmx = 100d0
-        integer :: i, j, k, its, n
-        real*8 :: f, fold, stpmax
-        real*8, dimension(size(x)) :: c, d, fvcold, g, p, s, t, w, xold
-        real*8, dimension(size(x),size(x)) :: qt, r
+        real(dp), parameter :: eps = epsilon(x)
+        real(dp) :: tolf, tolmin
+        real(dp), parameter :: tolx = eps
+        real(dp), parameter :: stpmx = 100.0_dp
+        integer(int32) :: i, j, k, its, n
+        real(dp) :: f, fold, stpmax
+        real(dp), dimension(size(x)) :: c, d, fvcold, g, p, s, t, w, xold
+        real(dp), dimension(size(x),size(x)) :: qt, r
         logical :: restrt, sing, check
-        real*8 :: fvec(size(x,1))
+        real(dp) :: fvec(size(x,1))
      
      
         !##### INTERFACES #########################################################
@@ -6898,9 +6927,10 @@ contains
         ! interface for the function
         interface
             function funcv(p)
+                import :: dp
                 implicit none
-                real*8, intent(in) :: p(:)
-                real*8 :: funcv(size(p, 1))
+                real(dp), intent(in) :: p(:)
+                real(dp) :: funcv(size(p, 1))
             end function funcv
         end interface
      
@@ -6919,12 +6949,12 @@ contains
         f = fmin(x, funcv)
      
         ! check if root has been found
-        if (maxval(abs(fvec(:))) < 0.01d0*tolf) then
+        if (maxval(abs(fvec(:))) < 0.01_dp*tolf) then
             if(present(check_return))check_return = .false.
             return
         endif
      
-        stpmax = stpmx*max(sqrt(dot_product(x(:),x(:))),dble(n))
+        stpmax = stpmx*max(sqrt(dot_product(x(:),x(:))),real(n, dp))
         restrt = .true.
      
         ! iterate broydn steps
@@ -6947,19 +6977,19 @@ contains
                 endif
      
                 ! create unity matrix
-                qt(:,:) = 0d0
+                qt(:,:) = 0.0_dp
                     do j = 1, n
-                            qt(j, j) = 1d0
+                            qt(j, j) = 1.0_dp
                     enddo
      
                 ! for Q^T explicitly
                 do k = 1, n-1
-                    if (abs(c(k)) >= 1d-100) then
+                    if (abs(c(k)) >= 1.0e-100_dp) then
                         qt(k:n,:) = qt(k:n, :)-outerprod(r(k:n, k), &
                             matmul(r(k:n, k), qt(k:n, :)))/c(k)
                     endif
                 enddo
-                where(lower_triangle(n,n))r(:, :) = 0d0
+                where(lower_triangle(n,n))r(:, :) = 0.0_dp
      
                 ! puts diagonal elements of R matrix to r
                 do j = 1, n
@@ -6981,10 +7011,10 @@ contains
                 w(:) = fvec(:)-fvcold(:)-matmul(t(:), qt(:,:))
      
                 ! if w entries are small enough, set them to zero
-                where(abs(w(:)) < EPS*(abs(fvec(:))+abs(fvcold(:)))) w(:) = 0d0
+                where(abs(w(:)) < EPS*(abs(fvec(:))+abs(fvcold(:)))) w(:) = 0.0_dp
      
                 ! update for non-noisy components of w
-                if(any(abs(w(:)) >= 1d-100))then
+                if(any(abs(w(:)) >= 1.0e-100_dp))then
      
                     ! update t and s
                     t(:) = matmul(qt(:,:),w(:))
@@ -6999,7 +7029,7 @@ contains
                     enddo
      
                     ! if any diagonal value of r is 0, then jacobian is singular
-                    if(any(abs(d(:)) <= 1d-100))then
+                    if(any(abs(d(:)) <= 1.0e-100_dp))then
                         call warning('fzero', 'singular jacobian')
                         if(present(check_return))check_return = .true.
                         return  
@@ -7035,7 +7065,7 @@ contains
      
                 ! check if improvement can be made, if not, return
                 if(restrt .or. maxval(abs(g(:))*max(abs(x(:)), &
-                        1d0)/max(f, 0.5d0*n)) < tolmin)then
+                        1.0_dp)/max(f, 0.5_dp*n)) < tolmin)then
                     if(present(check_return))check_return = check
                     return
                 endif
@@ -7051,7 +7081,7 @@ contains
      
                 ! check for convergence
                 if (maxval((abs(x(:)-xold(:)))/max(abs(x(:)), &
-                    1.0d0)) < tolx)then
+                    1.0_dp)) < tolx)then
                     if(present(check_return))check_return = check
                     return
                 endif
@@ -7080,20 +7110,20 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! value where to calculate finite difference jacobian
-            real*8, intent(inout) :: x(:)
+            real(dp), intent(inout) :: x(:)
      
             ! function value at x
-            real*8, intent(in) :: fvec(:)
+            real(dp), intent(in) :: fvec(:)
      
             ! resulting finite difference jacobian
-            real*8, intent(out) :: df(:, :)
+            real(dp), intent(out) :: df(:, :)
      
      
             !##### OTHER VARIABLES ################################################
      
-            real*8, parameter :: eps = 1.0e-6
-            integer :: j, n
-            real*8, dimension(size(x)) :: xsav, xph, h
+            real(dp), parameter :: eps = 1.0e-6_dp
+            integer(int32) :: j, n
+            real(dp), dimension(size(x)) :: xsav, xph, h
      
      
             !##### INTERFACES #####################################################
@@ -7101,9 +7131,10 @@ contains
             ! interface for the function
             interface
                 function funcv(p)
+                    import :: dp
                     implicit none
-                    real*8, intent(in) :: p(:)
-                    real*8 :: funcv(size(p, 1))
+                    real(dp), intent(in) :: p(:)
+                    real(dp) :: funcv(size(p, 1))
                 end function funcv
             end interface
      
@@ -7118,7 +7149,7 @@ contains
      
             ! calculate difference
             h = eps*abs(xsav)
-            where(abs(h) <= 1d-100)h = EPS
+            where(abs(h) <= 1.0e-100_dp)h = EPS
      
             ! calculate x + h
             xph = xsav + h
@@ -7148,26 +7179,26 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! point where to start line search
-            real*8, intent(in) :: xold(:)
+            real(dp), intent(in) :: xold(:)
      
             ! the old function value
-            real*8, intent(in) :: fold
+            real(dp), intent(in) :: fold
      
             ! gradient at this point
-            real*8, intent(in) :: g(:)
+            real(dp), intent(in) :: g(:)
      
             ! a line search direction
-            real*8, intent(inout) :: p(:)
+            real(dp), intent(inout) :: p(:)
      
             ! new value along the search line
-            real*8, intent(out) :: x(:)
+            real(dp), intent(out) :: x(:)
      
             ! function value at new x
-            real*8, intent(out) :: f
+            real(dp), intent(out) :: f
      
             ! maximum size of steps such that lnsrch does not search un undefined
             !     areas
-            real*8, intent(in) :: stpmax
+            real(dp), intent(in) :: stpmax
      
             ! is true if x is too close at xold
             logical, intent(out) :: check
@@ -7175,10 +7206,10 @@ contains
      
             !##### OTHER VARIABLES ################################################
      
-            real*8, parameter :: alf = 1.0e-4
-            real*8, parameter :: tolx = epsilon(x)
-            integer :: ndum
-            real*8 :: a, alam, alam2, alamin, b, disc, f2, pabs, rhs1, rhs2, &
+            real(dp), parameter :: alf = 1.0e-4_dp
+            real(dp), parameter :: tolx = epsilon(x)
+            integer(int32) :: ndum
+            real(dp) :: a, alam, alam2, alamin, b, disc, f2, pabs, rhs1, rhs2, &
                 slope, tmplam
      
      
@@ -7187,9 +7218,10 @@ contains
             ! interface for the function
             interface
                 function funcv(p)
+                    import :: dp
                     implicit none
-                    real*8, intent(in) :: p(:)
-                    real*8 :: funcv(size(p, 1))
+                    real(dp), intent(in) :: p(:)
+                    real(dp) :: funcv(size(p, 1))
                 end function funcv
             end interface
      
@@ -7197,8 +7229,8 @@ contains
             !##### ROUTINE CODE ###################################################
             
             ! set variables to zero
-            alam2 = 0d0
-            f2 = 0d0
+            alam2 = 0.0_dp
+            f2 = 0.0_dp
             
      
             ! assert sizes or arrays
@@ -7218,14 +7250,14 @@ contains
             slope = dot_product(g, p)
      
             ! throw error if you would go uphill
-            if(slope >= 0d0)then
+            if(slope >= 0.0_dp)then
                 call warning('lnsrch', 'roundoff problem, I cannot go uphill')
                 return
             endif
      
             ! calculate newton stepsize
-            alamin = tolx/maxval(abs(p(:))/max(abs(xold(:)),1d0))
-            alam = 1d0
+            alamin = tolx/maxval(abs(p(:))/max(abs(xold(:)),1.0_dp))
+            alam = 1.0_dp
      
             ! start iteration
             do
@@ -7247,31 +7279,31 @@ contains
      
                 ! else do backtracking
                 else
-                    if(abs(alam -1d0) <= 1d-100)then
-                        tmplam = -slope/(2d0*(f-fold-slope))
+                    if(abs(alam -1.0_dp) <= 1.0e-100_dp)then
+                        tmplam = -slope/(2.0_dp*(f-fold-slope))
                     else
                         rhs1 = f-fold-alam*slope
                         rhs2 = f2-fold-alam2*slope
                         a = (rhs1/alam**2-rhs2/alam2**2)/(alam-alam2)
                         b = (-alam2*rhs1/alam**2+alam*rhs2/alam2**2)/(alam-alam2)
-                        if(abs(a) <= 1d-100)then
-                            tmplam = -slope/(2d0*b)
+                        if(abs(a) <= 1.0e-100_dp)then
+                            tmplam = -slope/(2.0_dp*b)
                         else
-                            disc = b*b-3d0*a*slope
-                            if(disc < 0d0)then
-                                tmplam = 0.5d0*alam
-                            elseif(b <= 0d0)then
-                                tmplam = (-b+sqrt(disc))/(3d0*a)
+                            disc = b*b-3.0_dp*a*slope
+                            if(disc < 0.0_dp)then
+                                tmplam = 0.5_dp*alam
+                            elseif(b <= 0.0_dp)then
+                                tmplam = (-b+sqrt(disc))/(3.0_dp*a)
                             else
                                 tmplam = -slope/(b+sqrt(disc))
                             endif
                         endif
-                        if(tmplam > 0.5d0*alam)tmplam = 0.5d0*alam
+                        if(tmplam > 0.5_dp*alam)tmplam = 0.5_dp*alam
                     endif
                 endif
                 alam2 = alam
                 f2 = f
-                alam = max(tmplam,0.1d0*alam)
+                alam = max(tmplam,0.1_dp*alam)
             enddo
      
         end subroutine lnsrch
@@ -7290,10 +7322,10 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! value where to evaluate function
-            real*8, intent(in) :: x(:)
+            real(dp), intent(in) :: x(:)
      
             ! euklidean square norm of function at x
-            real*8 :: fmin
+            real(dp) :: fmin
      
      
             !##### INTERFACES #####################################################
@@ -7301,9 +7333,10 @@ contains
             ! interface for the function
             interface
                 function funcv(p)
+                    import :: dp
                     implicit none
-                    real*8, intent(in) :: p(:)
-                    real*8 :: funcv(size(p, 1))
+                    real(dp), intent(in) :: p(:)
+                    real(dp) :: funcv(size(p, 1))
                 end function funcv
             end interface
      
@@ -7311,7 +7344,7 @@ contains
             fvec = funcv(x)
      
             ! calculate squared norm
-            fmin = 0.5d0*dot_product(fvec, fvec)
+            fmin = 0.5_dp*dot_product(fvec, fvec)
      
         end function fmin
      
@@ -7325,20 +7358,20 @@ contains
      
             implicit none
      
-            real*8, intent(inout) :: a(:, :)
-            real*8, intent(out) :: c(:), d(:)
+            real(dp), intent(inout) :: a(:, :)
+            real(dp), intent(out) :: c(:), d(:)
             logical, intent(out) :: sing
-            integer :: k, n
-            real*8 :: scale, sigma
+            integer(int32) :: k, n
+            real(dp) :: scale, sigma
      
             n = assert_eq(size(a,1), size(a,2), size(c), size(d), 'qrdcmp')
             sing = .false.
             do k = 1, n-1
                 scale = maxval(abs(a(k:n, k)))
-                if(abs(scale) <= 1d-100)then
+                if(abs(scale) <= 1.0e-100_dp)then
                         sing = .true.
-                        c(k) = 0d0
-                        d(k) = 0d0
+                        c(k) = 0.0_dp
+                        d(k) = 0.0_dp
                 else
                         a(k:n, k) = a(k:n, k)/scale
                         sigma = sign(sqrt(dot_product(a(k:n, k),a(k:n, k))),a(k, k))
@@ -7350,7 +7383,7 @@ contains
                 endif
             enddo
             d(n) = a(n, n)
-            if (abs(d(n)) <= 1d-100) sing = .true.
+            if (abs(d(n)) <= 1.0e-100_dp) sing = .true.
      
         end subroutine qrdcmp
      
@@ -7364,14 +7397,14 @@ contains
      
             implicit none
      
-            real*8, intent(inout) :: r(:, :), qt(:, :)
-            real*8, intent(inout) :: u(:)
-            real*8, intent(in) :: v(:)
-            integer :: i, k, n
+            real(dp), intent(inout) :: r(:, :), qt(:, :)
+            real(dp), intent(inout) :: u(:)
+            real(dp), intent(in) :: v(:)
+            integer(int32) :: i, k, n
      
             n = assert_eq((/ size(r,1), size(r,2), size(qt,1), size(qt,2), &
                 size(u), size(v)/), 'qrupdt')
-            k = n+1-ifirstloc(abs(u(n:1:-1)) >= 1d-100)
+            k = n+1-ifirstloc(abs(u(n:1:-1)) >= 1.0e-100_dp)
             if(k < 1)k=1
             do i = k-1, 1, -1
                 call rotate(r,qt,i,u(i),-u(i+1))
@@ -7392,9 +7425,9 @@ contains
      
             implicit none
      
-            real*8, intent(in) :: a(:, :), d(:)
-            real*8, intent(inout) :: b(:)
-            integer :: i, n
+            real(dp), intent(in) :: a(:, :), d(:)
+            real(dp), intent(inout) :: b(:)
+            integer(int32) :: i, n
      
             n = assert_eq(size(a,1), size(a,2), size(b), size(d), 'rsolv')
             b(n) = b(n)/d(n)
@@ -7409,23 +7442,23 @@ contains
      
             implicit none
      
-            real*8, intent(inout) :: r(:, :), qt(:, :)
-            integer, intent(in) :: i
-            real*8, intent(in) :: a, b
-            integer :: n
-            real*8 :: c, fact, s, temp(size(r,1))
+            real(dp), intent(inout) :: r(:, :), qt(:, :)
+            integer(int32), intent(in) :: i
+            real(dp), intent(in) :: a, b
+            integer(int32) :: n
+            real(dp) :: c, fact, s, temp(size(r,1))
      
             n = assert_eq(size(r,1), size(r,2), size(qt,1), size(qt,2), 'rotate')
-            if(abs(a) <= 1d-100)then
-                c = 0d0
-                s = sign(1d0, b)
+            if(abs(a) <= 1.0e-100_dp)then
+                c = 0.0_dp
+                s = sign(1.0_dp, b)
             elseif(abs(a) > abs(b))then
                 fact = b/a
-                c = sign(1d0/sqrt(1d0+fact**2), a)
+                c = sign(1.0_dp/sqrt(1.0_dp+fact**2), a)
                 s = fact*c
             else
                 fact = a/b
-                s = sign(1d0/sqrt(1d0+fact**2), b)
+                s = sign(1.0_dp/sqrt(1.0_dp+fact**2), b)
                 c=fact*s
             endif
             temp(i:n) = r(i, i:n)
@@ -7442,19 +7475,19 @@ contains
      
             implicit none
      
-            real*8, intent(in) :: a, b
-            real*8 :: pythag
-            real*8 :: absa, absb
+            real(dp), intent(in) :: a, b
+            real(dp) :: pythag
+            real(dp) :: absa, absb
      
             absa = abs(a)
             absb = abs(b)
             if(absa > absb)then
-                pythag = absa*sqrt(1d0+(absb/absa)**2)
+                pythag = absa*sqrt(1.0_dp+(absb/absa)**2)
             else
-                if(abs(absb) <= 1d-100)then
-                    pythag = 0d0
+                if(abs(absb) <= 1.0e-100_dp)then
+                    pythag = 0.0_dp
                 else
-                    pythag = absb*sqrt(1d0+(absa/absb)**2)
+                    pythag = absb*sqrt(1.0_dp+(absa/absb)**2)
                 endif
             endif
      
@@ -7464,7 +7497,7 @@ contains
         function ifirstloc(mask)
      
             logical, intent(in) :: mask(:)
-            integer :: ifirstloc, loca(1)
+            integer(int32) :: ifirstloc, loca(1)
      
             loca = maxloc(merge(1, 0, mask))
             ifirstloc = loca(1)
@@ -7475,10 +7508,10 @@ contains
      
         function lower_triangle(j, k, extra)
      
-            integer, intent(in) :: j, k
-            integer, intent(in), optional :: extra
+            integer(int32), intent(in) :: j, k
+            integer(int32), intent(in), optional :: extra
             logical :: lower_triangle(j, k)
-            integer :: n
+            integer(int32) :: n
      
             n = 0
             if(present(extra))n = extra
@@ -7490,8 +7523,8 @@ contains
      
         function outerdiff(a, b)
      
-            integer, intent(in) :: a(:), b(:)
-            integer :: outerdiff(size(a, 1),size(b, 1))
+            integer(int32), intent(in) :: a(:), b(:)
+            integer(int32) :: outerdiff(size(a, 1),size(b, 1))
      
             outerdiff = spread(a, dim=2, ncopies=size(b, 1)) - &
                 spread(b, dim=1, ncopies=size(a, 1))
@@ -7501,8 +7534,8 @@ contains
      
         function outerprod(a, b)
      
-            real*8, intent(in) :: a(:), b(:)
-            real*8 :: outerprod(size(a, 1),size(b, 1))
+            real(dp), intent(in) :: a(:), b(:)
+            real(dp) :: outerprod(size(a, 1),size(b, 1))
      
             outerprod = spread(a, dim=2, ncopies=size(b, 1)) * &
                 spread(b, dim=1, ncopies=size(a, 1))
@@ -7512,11 +7545,11 @@ contains
      
         function arth_i(first, increment, n)
      
-            integer, intent(in) :: first, increment, n
-            integer, parameter :: npar_arth = 16
-            integer, parameter :: npar2_arth = 8
-            integer :: arth_i(n)
-            integer :: k, k2, temp
+            integer(int32), intent(in) :: first, increment, n
+            integer(int32), parameter :: npar_arth = 16
+            integer(int32), parameter :: npar2_arth = 8
+            integer(int32) :: arth_i(n)
+            integer(int32) :: k, k2, temp
      
             if(n > 0)arth_i(1) = first
             if(n <= npar_arth) then
@@ -7573,16 +7606,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! interpolation data
-        real*8, intent(in) :: yi(0:)
+        real(dp), intent(in) :: yi(0:)
      
         ! coefficients for spline interpolation
-        real*8, intent(out) :: c(1:)
+        real(dp), intent(out) :: c(1:)
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j
-        real*8, allocatable :: r(:), d(:)
+        integer(int32) :: n, j
+        real(dp), allocatable :: r(:), d(:)
      
      
         !##### ROUTINE CODE #######################################################
@@ -7602,22 +7635,22 @@ contains
         n = n-3
      
         ! calculate numerical derivatives at end points
-        r(1) = (2d0*yi(0)-5d0*yi(1)+4d0*yi(2)-yi(3))/6d0
-        r(n+3) = (2d0*yi(n)-5d0*yi(n-1)+4d0*yi(n-2)-yi(n-3))/6d0
+        r(1) = (2.0_dp*yi(0)-5.0_dp*yi(1)+4.0_dp*yi(2)-yi(3))/6.0_dp
+        r(n+3) = (2.0_dp*yi(n)-5.0_dp*yi(n-1)+4.0_dp*yi(n-2)-yi(n-3))/6.0_dp
      
         ! set rest of right side of equation system
         r(2:n+2) = yi(0:n)
      
         ! solve the spline interpolation equation system
-        c(2) = (yi(0)-r(1))/6d0
-        c(n+2) = (yi(n)-r(n+3))/6d0
+        c(2) = (yi(0)-r(1))/6.0_dp
+        c(n+2) = (yi(n)-r(n+3))/6.0_dp
      
-        d(3) = 4d0
+        d(3) = 4.0_dp
         r(3) = yi(1)-c(2)
         r(n+1) = yi(n-1)-c(n+2)
      
         do j = 4, n+1
-            d(j) = 4d0-1d0/d(j-1)
+            d(j) = 4.0_dp-1.0_dp/d(j-1)
             r(j) = r(j)-r(j-1)/d(j-1)
         enddo
      
@@ -7627,8 +7660,8 @@ contains
             c(j) = (r(j)-c(j+1))/d(j)
         enddo
      
-        c(1) = r(1)+2d0*c(2)-c(3)
-        c(n+3) = r(n+3)+2d0*c(n+2)-c(n+1)
+        c(1) = r(1)+2.0_dp*c(2)-c(3)
+        c(n+3) = r(n+3)+2.0_dp*c(n+2)-c(n+1)
     
     end subroutine spline_interp1
     
@@ -7644,16 +7677,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! interpolation data
-        real*8, intent(in) :: yi(0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:)
      
         ! coefficients for spline interpolation
-        real*8, intent(out) :: c(1:, 1:)
+        real(dp), intent(out) :: c(1:, 1:)
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n(2), j
-        real*8, allocatable :: tempc(:, :)
+        integer(int32) :: n(2), j
+        real(dp), allocatable :: tempc(:, :)
      
      
         !##### ROUTINE CODE #######################################################
@@ -7696,16 +7729,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! interpolation data
-        real*8, intent(in) :: yi(0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:)
      
         ! coefficients for spline interpolation
-        real*8, intent(out) :: c(1:, 1:, 1:)
+        real(dp), intent(out) :: c(1:, 1:, 1:)
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n(3), j, j2
-        real*8, allocatable :: tempc(:, :, :)
+        integer(int32) :: n(3), j, j2
+        real(dp), allocatable :: tempc(:, :, :)
      
      
         !##### ROUTINE CODE #######################################################
@@ -7750,16 +7783,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! interpolation data
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:)
      
         ! coefficients for spline interpolation
-        real*8, intent(out) :: c(1:, 1:, 1:, 1:)
+        real(dp), intent(out) :: c(1:, 1:, 1:, 1:)
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n(4), j, j2, j3
-        real*8, allocatable :: tempc(:, :, :, :)
+        integer(int32) :: n(4), j, j2, j3
+        real(dp), allocatable :: tempc(:, :, :, :)
      
      
         !##### ROUTINE CODE #######################################################
@@ -7806,16 +7839,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! interpolation data
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:)
      
         ! coefficients for spline interpolation
-        real*8, intent(out) :: c(1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(out) :: c(1:, 1:, 1:, 1:, 1:)
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n(5), j, j2, j3, j4
-        real*8, allocatable :: tempc(:, :, :, :, :)
+        integer(int32) :: n(5), j, j2, j3, j4
+        real(dp), allocatable :: tempc(:, :, :, :, :)
      
      
         !##### ROUTINE CODE #######################################################
@@ -7865,16 +7898,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! interpolation data
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:)
      
         ! coefficients for spline interpolation
-        real*8, intent(out) :: c(1:, 1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(out) :: c(1:, 1:, 1:, 1:, 1:, 1:)
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n(6), j, j2, j3, j4, j5
-        real*8, allocatable :: tempc(:, :, :, :, :, :)
+        integer(int32) :: n(6), j, j2, j3, j4, j5
+        real(dp), allocatable :: tempc(:, :, :, :, :, :)
      
      
         !##### ROUTINE CODE #######################################################
@@ -7926,16 +7959,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! interpolation data
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:, 0:)
      
         ! coefficients for spline interpolation
-        real*8, intent(out) :: c(1:, 1:, 1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(out) :: c(1:, 1:, 1:, 1:, 1:, 1:, 1:)
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n(7), j, j2, j3, j4, j5, j6
-        real*8, allocatable :: tempc(:, :, :, :, :, :, :)
+        integer(int32) :: n(7), j, j2, j3, j4, j5, j6
+        real(dp), allocatable :: tempc(:, :, :, :, :, :, :)
      
      
         !##### ROUTINE CODE #######################################################
@@ -7989,19 +8022,19 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:)
+        real(dp), intent(in) :: c(1:)
      
         ! value of spline function
-        real*8 :: spline1
+        real(dp) :: spline1
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n1, j1, p1, q1
-        real*8 :: phi1, xtemp1
+        integer(int32) :: n1, j1, p1, q1
+        real(dp) :: phi1, xtemp1
      
      
         !##### ROUTINE CODE #######################################################
@@ -8013,7 +8046,7 @@ contains
         p1 = max(floor(x)+1, 1)
         q1 = min(p1+3, n1)
      
-        spline1 = 0d0
+        spline1 = 0.0_dp
      
         do j1 = p1, q1
      
@@ -8021,12 +8054,12 @@ contains
             xtemp1 = abs(x-j1+2)
      
             ! calculate basis function
-            if(xtemp1 <= 1d0)then
-                phi1 = 4d0+xtemp1**2*(3d0*xtemp1-6d0)
-            elseif(xtemp1 <= 2d0)then
-                phi1 = (2d0-xtemp1)**3
+            if(xtemp1 <= 1.0_dp)then
+                phi1 = 4.0_dp+xtemp1**2*(3.0_dp*xtemp1-6.0_dp)
+            elseif(xtemp1 <= 2.0_dp)then
+                phi1 = (2.0_dp-xtemp1)**3
             else
-                phi1 = 0d0
+                phi1 = 0.0_dp
             endif
      
             ! calculate spline value
@@ -8047,28 +8080,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:)
+        real(dp), intent(in) :: c(1:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left
+        real(dp), intent(in) :: left
      
         ! right interval endpoint
-        real*8, intent(in) :: right
+        real(dp), intent(in) :: right
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth
+        real(dp), intent(in), optional :: growth
      
         ! value of spline function
-        real*8 :: spline1_grid
+        real(dp) :: spline1_grid
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n
-        real*8 :: xtemp
+        integer(int32) :: n
+        real(dp) :: xtemp
      
      
         !##### ROUTINE CODE #######################################################
@@ -8101,27 +8134,27 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x
+        real(dp), intent(in) :: x
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:)
+        real(dp), intent(in) :: yi(0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left
+        real(dp), intent(in) :: left
      
         ! right interval endpoint
-        real*8, intent(in) :: right
+        real(dp), intent(in) :: right
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth
+        real(dp), intent(in), optional :: growth
      
         ! value of spline function
-        real*8 :: spline1_complete
+        real(dp) :: spline1_complete
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: spline_temp(1)
+        real(dp) :: spline_temp(1)
      
      
         !##### ROUTINE CODE #######################################################
@@ -8151,29 +8184,29 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(1:)
+        real(dp), intent(in) :: x(1:)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:)
+        real(dp), intent(in) :: yi(0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left
+        real(dp), intent(in) :: left
      
         ! right interval endpoint
-        real*8, intent(in) :: right
+        real(dp), intent(in) :: right
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth
+        real(dp), intent(in), optional :: growth
      
         ! value of spline function
-        real*8 :: spline1_complete_m(size(x, 1))
+        real(dp) :: spline1_complete_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: c(1:size(yi, 1)+2)
-        real*8 :: xtemp(1:size(x, 1))
-        integer :: n, m, j
+        real(dp) :: c(1:size(yi, 1)+2)
+        real(dp) :: xtemp(1:size(x, 1))
+        integer(int32) :: n, m, j
      
      
         !##### ROUTINE CODE #######################################################
@@ -8213,21 +8246,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(2)
+        real(dp), intent(in) :: x(2)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:)
      
         ! value of spline function
-        real*8 :: spline2
+        real(dp) :: spline2
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n(2), p(2), q(2)
-        integer :: j1, j2
-        real*8 :: phi1, xtemp1, phi2, xtemp2
-        real*8 :: s2
+        integer(int32) :: n(2), p(2), q(2)
+        integer(int32) :: j1, j2
+        real(dp) :: phi1, xtemp1, phi2, xtemp2
+        real(dp) :: s2
      
      
         !##### ROUTINE CODE #######################################################
@@ -8240,7 +8273,7 @@ contains
         p = max(floor(x)+1, 1)
         q = min(p+3, n)
      
-        spline2 = 0d0
+        spline2 = 0.0_dp
      
         do j1 = p(1), q(1)
      
@@ -8248,18 +8281,18 @@ contains
             xtemp1 = abs(x(1)-j1+2)
      
             ! calculate basis function
-            if(xtemp1 <= 1d0)then
-                phi1 = 4d0+xtemp1**2*(3d0*xtemp1-6d0)
-            elseif(xtemp1 <= 2d0)then
-                phi1 = (2d0-xtemp1)**3
+            if(xtemp1 <= 1.0_dp)then
+                phi1 = 4.0_dp+xtemp1**2*(3.0_dp*xtemp1-6.0_dp)
+            elseif(xtemp1 <= 2.0_dp)then
+                phi1 = (2.0_dp-xtemp1)**3
             else
-                phi1 = 0d0
+                phi1 = 0.0_dp
             endif
      
      
             !#### calculate spline for second dimension ###########################
      
-            s2 = 0d0
+            s2 = 0.0_dp
      
             do j2 = p(2), q(2)
      
@@ -8267,12 +8300,12 @@ contains
                 xtemp2 = abs(x(2)-j2+2)
      
                 ! calculate basis function
-                if(xtemp2 <= 1d0)then
-                    phi2 = 4d0+xtemp2**2*(3d0*xtemp2-6d0)
-                elseif(xtemp2 <= 2d0)then
-                    phi2 = (2d0-xtemp2)**3
+                if(xtemp2 <= 1.0_dp)then
+                    phi2 = 4.0_dp+xtemp2**2*(3.0_dp*xtemp2-6.0_dp)
+                elseif(xtemp2 <= 2.0_dp)then
+                    phi2 = (2.0_dp-xtemp2)**3
                 else
-                    phi2 = 0d0
+                    phi2 = 0.0_dp
                 endif
      
                 ! calculate spline value
@@ -8297,28 +8330,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(2)
+        real(dp), intent(in) :: x(2)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(2)
+        real(dp), intent(in) :: left(2)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(2)
+        real(dp), intent(in) :: right(2)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(2)
+        real(dp), intent(in), optional :: growth(2)
      
         ! value of spline function
-        real*8 :: spline2_grid
+        real(dp) :: spline2_grid
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j
-        real*8 :: xtemp(2)
+        integer(int32) :: n, j
+        real(dp) :: xtemp(2)
      
      
         !##### ROUTINE CODE #######################################################
@@ -8350,33 +8383,33 @@ contains
     function spline2_complete(x, yi, left, right, growth)
     
     
-        integer, parameter :: dim = 2
+        integer(int32), parameter :: dim = 2
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(dim)
+        real(dp), intent(in) :: x(dim)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline2_complete
+        real(dp) :: spline2_complete
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: xtemp(1, dim)
-        real*8 :: spline_temp(1)
+        real(dp) :: xtemp(1, dim)
+        real(dp) :: spline_temp(1)
      
      
         !##### ROUTINE CODE #######################################################
@@ -8405,34 +8438,34 @@ contains
     !##############################################################################
     function spline2_complete_m(x, yi, left, right, growth)
     
-        integer, parameter :: dim = 2
+        integer(int32), parameter :: dim = 2
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(1:, 1:)
+        real(dp), intent(in) :: x(1:, 1:)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline2_complete_m(size(x, 1))
+        real(dp) :: spline2_complete_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2)
-        real*8 :: xtemp(1:size(x, 1), dim)
-        integer :: n, m, j, k
+        real(dp) :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2)
+        real(dp) :: xtemp(1:size(x, 1), dim)
+        integer(int32) :: n, m, j, k
      
      
         !##### ROUTINE CODE #######################################################
@@ -8483,21 +8516,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(3)
+        real(dp), intent(in) :: x(3)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:)
      
         ! value of spline function
-        real*8 :: spline3
+        real(dp) :: spline3
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n(3), p(3), q(3)
-        integer :: j1, j2, j3
-        real*8 :: phi1, xtemp1, phi2, xtemp2, phi3, xtemp3
-        real*8 :: s2, s3
+        integer(int32) :: n(3), p(3), q(3)
+        integer(int32) :: j1, j2, j3
+        real(dp) :: phi1, xtemp1, phi2, xtemp2, phi3, xtemp3
+        real(dp) :: s2, s3
      
      
         !##### ROUTINE CODE #######################################################
@@ -8511,7 +8544,7 @@ contains
         p = max(floor(x)+1, 1)
         q = min(p+3, n)
      
-        spline3 = 0d0
+        spline3 = 0.0_dp
      
         do j1 = p(1), q(1)
      
@@ -8519,18 +8552,18 @@ contains
             xtemp1 = abs(x(1)-j1+2)
      
             ! calculate basis function
-            if(xtemp1 <= 1d0)then
-                phi1 = 4d0+xtemp1**2*(3d0*xtemp1-6d0)
-            elseif(xtemp1 <= 2d0)then
-                phi1 = (2d0-xtemp1)**3
+            if(xtemp1 <= 1.0_dp)then
+                phi1 = 4.0_dp+xtemp1**2*(3.0_dp*xtemp1-6.0_dp)
+            elseif(xtemp1 <= 2.0_dp)then
+                phi1 = (2.0_dp-xtemp1)**3
             else
-                phi1 = 0d0
+                phi1 = 0.0_dp
             endif
      
      
             !#### calculate spline for second dimension ###########################
      
-            s2 = 0d0
+            s2 = 0.0_dp
      
             do j2 = p(2), q(2)
      
@@ -8538,18 +8571,18 @@ contains
                 xtemp2 = abs(x(2)-j2+2)
      
                 ! calculate basis function
-                if(xtemp2 <= 1d0)then
-                    phi2 = 4d0+xtemp2**2*(3d0*xtemp2-6d0)
-                elseif(xtemp2 <= 2d0)then
-                    phi2 = (2d0-xtemp2)**3
+                if(xtemp2 <= 1.0_dp)then
+                    phi2 = 4.0_dp+xtemp2**2*(3.0_dp*xtemp2-6.0_dp)
+                elseif(xtemp2 <= 2.0_dp)then
+                    phi2 = (2.0_dp-xtemp2)**3
                 else
-                    phi2 = 0d0
+                    phi2 = 0.0_dp
                 endif
      
      
                 !#### calculate spline for second dimension #######################
      
-                s3 = 0d0
+                s3 = 0.0_dp
      
                 do j3 = p(3), q(3)
      
@@ -8557,12 +8590,12 @@ contains
                     xtemp3 = abs(x(3)-j3+2)
      
                     ! calculate basis function
-                    if(xtemp3 <= 1d0)then
-                        phi3 = 4d0+xtemp3**2*(3d0*xtemp3-6d0)
-                    elseif(xtemp3 <= 2d0)then
-                        phi3 = (2d0-xtemp3)**3
+                    if(xtemp3 <= 1.0_dp)then
+                        phi3 = 4.0_dp+xtemp3**2*(3.0_dp*xtemp3-6.0_dp)
+                    elseif(xtemp3 <= 2.0_dp)then
+                        phi3 = (2.0_dp-xtemp3)**3
                     else
-                        phi3 = 0d0
+                        phi3 = 0.0_dp
                     endif
      
                     ! calculate spline value
@@ -8591,28 +8624,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(3)
+        real(dp), intent(in) :: x(3)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(3)
+        real(dp), intent(in) :: left(3)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(3)
+        real(dp), intent(in) :: right(3)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(3)
+        real(dp), intent(in), optional :: growth(3)
      
         ! value of spline function
-        real*8 :: spline3_grid
+        real(dp) :: spline3_grid
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j
-        real*8 :: xtemp(3)
+        integer(int32) :: n, j
+        real(dp) :: xtemp(3)
      
      
         !##### ROUTINE CODE #######################################################
@@ -8644,33 +8677,33 @@ contains
     function spline3_complete(x, yi, left, right, growth)
     
     
-        integer, parameter :: dim = 3
+        integer(int32), parameter :: dim = 3
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(dim)
+        real(dp), intent(in) :: x(dim)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline3_complete
+        real(dp) :: spline3_complete
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: xtemp(1, dim)
-        real*8 :: spline_temp(1)
+        real(dp) :: xtemp(1, dim)
+        real(dp) :: spline_temp(1)
      
      
         !##### ROUTINE CODE #######################################################
@@ -8699,34 +8732,34 @@ contains
     !##############################################################################
     function spline3_complete_m(x, yi, left, right, growth)
     
-        integer, parameter :: dim = 3
+        integer(int32), parameter :: dim = 3
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(1:, 1:)
+        real(dp), intent(in) :: x(1:, 1:)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline3_complete_m(size(x, 1))
+        real(dp) :: spline3_complete_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2)
-        real*8 :: xtemp(1:size(x, 1), dim)
-        integer :: n, m, j, k
+        real(dp) :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2)
+        real(dp) :: xtemp(1:size(x, 1), dim)
+        integer(int32) :: n, m, j, k
      
      
         !##### ROUTINE CODE #######################################################
@@ -8777,19 +8810,19 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(4)
+        real(dp), intent(in) :: x(4)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:, 1:)
      
         ! value of spline function
-        real*8 :: spline4
+        real(dp) :: spline4
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j, p, q
-        real*8 :: phi, xtemp
+        integer(int32) :: n, j, p, q
+        real(dp) :: phi, xtemp
      
      
         !##### ROUTINE CODE #######################################################
@@ -8801,7 +8834,7 @@ contains
         p = max(floor(x(1))+1, 1)
         q = min(p+3, n)
      
-        spline4 = 0d0
+        spline4 = 0.0_dp
      
         do j = p, q
      
@@ -8809,12 +8842,12 @@ contains
             xtemp = abs(x(1)-j+2)
      
             ! calculate basis function
-            if(xtemp <= 1d0)then
-                phi = 4d0+xtemp**2*(3d0*xtemp-6d0)
-            elseif(xtemp <= 2d0)then
-                phi = (2d0-xtemp)**3
+            if(xtemp <= 1.0_dp)then
+                phi = 4.0_dp+xtemp**2*(3.0_dp*xtemp-6.0_dp)
+            elseif(xtemp <= 2.0_dp)then
+                phi = (2.0_dp-xtemp)**3
             else
-                phi = 0d0
+                phi = 0.0_dp
             endif
      
             ! calculate spline value
@@ -8835,28 +8868,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(4)
+        real(dp), intent(in) :: x(4)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:, 1:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(4)
+        real(dp), intent(in) :: left(4)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(4)
+        real(dp), intent(in) :: right(4)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(4)
+        real(dp), intent(in), optional :: growth(4)
      
         ! value of spline function
-        real*8 :: spline4_grid
+        real(dp) :: spline4_grid
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j
-        real*8 :: xtemp(4)
+        integer(int32) :: n, j
+        real(dp) :: xtemp(4)
      
      
         !##### ROUTINE CODE #######################################################
@@ -8888,33 +8921,33 @@ contains
     function spline4_complete(x, yi, left, right, growth)
     
     
-        integer, parameter :: dim = 4
+        integer(int32), parameter :: dim = 4
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(dim)
+        real(dp), intent(in) :: x(dim)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline4_complete
+        real(dp) :: spline4_complete
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: xtemp(1, dim)
-        real*8 :: spline_temp(1)
+        real(dp) :: xtemp(1, dim)
+        real(dp) :: spline_temp(1)
      
      
         !##### ROUTINE CODE #######################################################
@@ -8943,35 +8976,35 @@ contains
     !##############################################################################
     function spline4_complete_m(x, yi, left, right, growth)
     
-        integer, parameter :: dim = 4
+        integer(int32), parameter :: dim = 4
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(1:, 1:)
+        real(dp), intent(in) :: x(1:, 1:)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline4_complete_m(size(x, 1))
+        real(dp) :: spline4_complete_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2, &
+        real(dp) :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2, &
             1:size(yi, 4)+2)
-        real*8 :: xtemp(1:size(x, 1), dim)
-        integer :: n, m, j, k
+        real(dp) :: xtemp(1:size(x, 1), dim)
+        integer(int32) :: n, m, j, k
      
      
         !##### ROUTINE CODE #######################################################
@@ -9022,19 +9055,19 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(5)
+        real(dp), intent(in) :: x(5)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:, 1:, 1:)
      
         ! value of spline function
-        real*8 :: spline5
+        real(dp) :: spline5
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j, p, q
-        real*8 :: phi, xtemp
+        integer(int32) :: n, j, p, q
+        real(dp) :: phi, xtemp
      
      
         !##### ROUTINE CODE #######################################################
@@ -9046,7 +9079,7 @@ contains
         p = max(floor(x(1))+1, 1)
         q = min(p+3, n)
      
-        spline5 = 0d0
+        spline5 = 0.0_dp
      
         do j = p, q
      
@@ -9054,12 +9087,12 @@ contains
             xtemp = abs(x(1)-j+2)
      
             ! calculate basis function
-            if(xtemp <= 1d0)then
-                phi = 4d0+xtemp**2*(3d0*xtemp-6d0)
-            elseif(xtemp <= 2d0)then
-                phi = (2d0-xtemp)**3
+            if(xtemp <= 1.0_dp)then
+                phi = 4.0_dp+xtemp**2*(3.0_dp*xtemp-6.0_dp)
+            elseif(xtemp <= 2.0_dp)then
+                phi = (2.0_dp-xtemp)**3
             else
-                phi = 0d0
+                phi = 0.0_dp
             endif
      
             ! calculate spline value
@@ -9080,28 +9113,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(5)
+        real(dp), intent(in) :: x(5)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:, 1:, 1:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(5)
+        real(dp), intent(in) :: left(5)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(5)
+        real(dp), intent(in) :: right(5)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(5)
+        real(dp), intent(in), optional :: growth(5)
      
         ! value of spline function
-        real*8 :: spline5_grid
+        real(dp) :: spline5_grid
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j
-        real*8 :: xtemp(5)
+        integer(int32) :: n, j
+        real(dp) :: xtemp(5)
      
      
         !##### ROUTINE CODE #######################################################
@@ -9133,33 +9166,33 @@ contains
     function spline5_complete(x, yi, left, right, growth)
     
     
-        integer, parameter :: dim = 5
+        integer(int32), parameter :: dim = 5
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(dim)
+        real(dp), intent(in) :: x(dim)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline5_complete
+        real(dp) :: spline5_complete
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: xtemp(1, dim)
-        real*8 :: spline_temp(1)
+        real(dp) :: xtemp(1, dim)
+        real(dp) :: spline_temp(1)
      
      
         !##### ROUTINE CODE #######################################################
@@ -9188,35 +9221,35 @@ contains
     !##############################################################################
     function spline5_complete_m(x, yi, left, right, growth)
     
-        integer, parameter :: dim = 5
+        integer(int32), parameter :: dim = 5
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(1:, 1:)
+        real(dp), intent(in) :: x(1:, 1:)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline5_complete_m(size(x, 1))
+        real(dp) :: spline5_complete_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2, &
+        real(dp) :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2, &
             1:size(yi, 4)+2, 1:size(yi, 5)+2)
-        real*8 :: xtemp(1:size(x, 1), dim)
-        integer :: n, m, j, k
+        real(dp) :: xtemp(1:size(x, 1), dim)
+        integer(int32) :: n, m, j, k
      
      
         !##### ROUTINE CODE #######################################################
@@ -9267,19 +9300,19 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(6)
+        real(dp), intent(in) :: x(6)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:, 1:, 1:, 1:)
      
         ! value of spline function
-        real*8 :: spline6
+        real(dp) :: spline6
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j, p, q
-        real*8 :: phi, xtemp
+        integer(int32) :: n, j, p, q
+        real(dp) :: phi, xtemp
      
      
         !##### ROUTINE CODE #######################################################
@@ -9291,7 +9324,7 @@ contains
         p = max(floor(x(1))+1, 1)
         q = min(p+3, n)
      
-        spline6 = 0d0
+        spline6 = 0.0_dp
      
         do j = p, q
      
@@ -9299,12 +9332,12 @@ contains
             xtemp = abs(x(1)-j+2)
      
             ! calculate basis function
-            if(xtemp <= 1d0)then
-                phi = 4d0+xtemp**2*(3d0*xtemp-6d0)
-            elseif(xtemp <= 2d0)then
-                phi = (2d0-xtemp)**3
+            if(xtemp <= 1.0_dp)then
+                phi = 4.0_dp+xtemp**2*(3.0_dp*xtemp-6.0_dp)
+            elseif(xtemp <= 2.0_dp)then
+                phi = (2.0_dp-xtemp)**3
             else
-                phi = 0d0
+                phi = 0.0_dp
             endif
      
             ! calculate spline value
@@ -9325,28 +9358,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(6)
+        real(dp), intent(in) :: x(6)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:, 1:, 1:, 1:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(6)
+        real(dp), intent(in) :: left(6)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(6)
+        real(dp), intent(in) :: right(6)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(6)
+        real(dp), intent(in), optional :: growth(6)
      
         ! value of spline function
-        real*8 :: spline6_grid
+        real(dp) :: spline6_grid
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j
-        real*8 :: xtemp(6)
+        integer(int32) :: n, j
+        real(dp) :: xtemp(6)
      
      
         !##### ROUTINE CODE #######################################################
@@ -9378,33 +9411,33 @@ contains
     function spline6_complete(x, yi, left, right, growth)
     
     
-        integer, parameter :: dim = 6
+        integer(int32), parameter :: dim = 6
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(dim)
+        real(dp), intent(in) :: x(dim)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline6_complete
+        real(dp) :: spline6_complete
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: xtemp(1, dim)
-        real*8 :: spline_temp(1)
+        real(dp) :: xtemp(1, dim)
+        real(dp) :: spline_temp(1)
      
      
         !##### ROUTINE CODE #######################################################
@@ -9433,35 +9466,35 @@ contains
     !##############################################################################
     function spline6_complete_m(x, yi, left, right, growth)
     
-        integer, parameter :: dim = 6
+        integer(int32), parameter :: dim = 6
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(1:, 1:)
+        real(dp), intent(in) :: x(1:, 1:)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline6_complete_m(size(x, 1))
+        real(dp) :: spline6_complete_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2, &
+        real(dp) :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2, &
             1:size(yi, 4)+2, 1:size(yi, 5)+2, 1:size(yi, 6)+2)
-        real*8 :: xtemp(1:size(x, 1), dim)
-        integer :: n, m, j, k
+        real(dp) :: xtemp(1:size(x, 1), dim)
+        integer(int32) :: n, m, j, k
      
      
         !##### ROUTINE CODE #######################################################
@@ -9512,19 +9545,19 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(7)
+        real(dp), intent(in) :: x(7)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:, 1:, 1:, 1:, 1:)
      
         ! value of spline function
-        real*8 :: spline7
+        real(dp) :: spline7
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j, p, q
-        real*8 :: phi, xtemp
+        integer(int32) :: n, j, p, q
+        real(dp) :: phi, xtemp
      
      
         !##### ROUTINE CODE #######################################################
@@ -9536,7 +9569,7 @@ contains
         p = max(floor(x(1))+1, 1)
         q = min(p+3, n)
      
-        spline7 = 0d0
+        spline7 = 0.0_dp
      
         do j = p, q
      
@@ -9544,12 +9577,12 @@ contains
             xtemp = abs(x(1)-j+2)
      
             ! calculate basis function
-            if(xtemp <= 1d0)then
-                phi = 4d0+xtemp**2*(3d0*xtemp-6d0)
-            elseif(xtemp <= 2d0)then
-                phi = (2d0-xtemp)**3
+            if(xtemp <= 1.0_dp)then
+                phi = 4.0_dp+xtemp**2*(3.0_dp*xtemp-6.0_dp)
+            elseif(xtemp <= 2.0_dp)then
+                phi = (2.0_dp-xtemp)**3
             else
-                phi = 0d0
+                phi = 0.0_dp
             endif
      
             ! calculate spline value
@@ -9570,28 +9603,28 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(7)
+        real(dp), intent(in) :: x(7)
      
         ! coefficients for spline interpolation
-        real*8, intent(in) :: c(1:, 1:, 1:, 1:, 1:, 1:, 1:)
+        real(dp), intent(in) :: c(1:, 1:, 1:, 1:, 1:, 1:, 1:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(7)
+        real(dp), intent(in) :: left(7)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(7)
+        real(dp), intent(in) :: right(7)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(7)
+        real(dp), intent(in), optional :: growth(7)
      
         ! value of spline function
-        real*8 :: spline7_grid
+        real(dp) :: spline7_grid
      
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: n, j
-        real*8 :: xtemp(7)
+        integer(int32) :: n, j
+        real(dp) :: xtemp(7)
      
      
         !##### ROUTINE CODE #######################################################
@@ -9623,33 +9656,33 @@ contains
     function spline7_complete(x, yi, left, right, growth)
     
     
-        integer, parameter :: dim = 7
+        integer(int32), parameter :: dim = 7
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(dim)
+        real(dp), intent(in) :: x(dim)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline7_complete
+        real(dp) :: spline7_complete
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: xtemp(1, dim)
-        real*8 :: spline_temp(1)
+        real(dp) :: xtemp(1, dim)
+        real(dp) :: spline_temp(1)
      
      
         !##### ROUTINE CODE #######################################################
@@ -9678,35 +9711,35 @@ contains
     !##############################################################################
     function spline7_complete_m(x, yi, left, right, growth)
     
-        integer, parameter :: dim = 7
+        integer(int32), parameter :: dim = 7
      
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! value where to evaluate spline
-        real*8, intent(in) :: x(1:, 1:)
+        real(dp), intent(in) :: x(1:, 1:)
      
         ! data for spline interpolation
-        real*8, intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:, 0:)
+        real(dp), intent(in) :: yi(0:, 0:, 0:, 0:, 0:, 0:, 0:)
      
         ! left interval endpoint
-        real*8, intent(in) :: left(dim)
+        real(dp), intent(in) :: left(dim)
      
         ! right interval endpoint
-        real*8, intent(in) :: right(dim)
+        real(dp), intent(in) :: right(dim)
      
         ! growth rate of grid
-        real*8, intent(in), optional :: growth(dim)
+        real(dp), intent(in), optional :: growth(dim)
      
         ! value of spline function
-        real*8 :: spline7_complete_m(size(x, 1))
+        real(dp) :: spline7_complete_m(size(x, 1))
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8 :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2, &
+        real(dp) :: c(1:size(yi, 1)+2, 1:size(yi, 2)+2, 1:size(yi, 3)+2, &
             1:size(yi, 4)+2, 1:size(yi, 5)+2, 1:size(yi, 6)+2, 1:size(yi, 7)+2)
-        real*8 :: xtemp(1:size(x, 1), dim)
-        integer :: n, m, j, k
+        real(dp) :: xtemp(1:size(x, 1), dim)
+        integer(int32) :: n, m, j, k
      
      
         !##### ROUTINE CODE #######################################################
@@ -9784,26 +9817,26 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! left interval point on which integral should be calculated
-        real*8, intent(in) :: x1
+        real(dp), intent(in) :: x1
      
         ! left interval point on which integral should be calculated
-        real*8, intent(in) :: x2
+        real(dp), intent(in) :: x2
      
         ! abscissas of gaussian integration formula
-        real*8, intent(out) :: x(:)
+        real(dp), intent(out) :: x(:)
      
         ! weights of gaussian integration formula
-        real*8, intent(out) :: w(:)
+        real(dp), intent(out) :: w(:)
      
      
         !##### OTHER VARIABLES ####################################################
      
-        real*8, parameter :: eps = 3.0e-14
-        integer, parameter :: maxits = 10
-        real*8, parameter :: pi = 3.14159265358979d0
-        integer :: its, j, m, n
-        real*8 :: xl, xm
-        real*8, dimension((size(x)+1)/2) :: p1, p2, p3, pp, z, z1
+        real(dp), parameter :: eps = 3.0e-14_dp
+        integer(int32), parameter :: maxits = 10
+        real(dp), parameter :: pi = 3.14159265358979_dp
+        integer(int32) :: its, j, m, n
+        real(dp) :: xl, xm
+        real(dp), dimension((size(x)+1)/2) :: p1, p2, p3, pp, z, z1
         logical, dimension((size(x)+1)/2) :: unfinished
      
      
@@ -9816,13 +9849,13 @@ contains
         m = (n+1)/2
      
         ! calculate interval midpoint
-        xm = 0.5d0*(x2+x1)
+        xm = 0.5_dp*(x2+x1)
      
         ! calculate half of interval length
-        xl = 0.5d0*(x2-x1)
+        xl = 0.5_dp*(x2-x1)
      
         ! set initial guess for the roots
-        z = cos(pi*(arth(1,1,m)-0.25d0)/(n+0.5d0))
+        z = cos(pi*(arth(1,1,m)-0.25_dp)/(n+0.5_dp))
      
         ! initialized unfinished
         unfinished = .true.
@@ -9834,8 +9867,8 @@ contains
      
             ! initialize p1 and p2
             where (unfinished)
-                p1 = 1d0
-                p2 = 0d0
+                p1 = 1.0_dp
+                p2 = 0.0_dp
             endwhere
      
             ! calculate polynomial value at z by recursive formula
@@ -9851,7 +9884,7 @@ contains
                     p2 = p1
      
                     ! the legendre polynomial
-                    p1 = ((2d0*j-1d0)*z*p2-(j-1d0)*p3)/j
+                    p1 = ((2.0_dp*j-1.0_dp)*z*p2-(j-1.0_dp)*p3)/j
                 endwhere
             enddo
      
@@ -9859,7 +9892,7 @@ contains
             where (unfinished)
      
                 ! derivative
-                pp = n*(z*p1-p2)/(z*z-1d0)
+                pp = n*(z*p1-p2)/(z*z-1.0_dp)
      
                 ! store old z
                 z1 = z
@@ -9885,7 +9918,7 @@ contains
         x(n:n-m+1:-1) = xm+xl*z
      
         ! calculate weights
-        w(1:m) = 2d0*xl/((1d0-z**2)*pp**2)
+        w(1:m) = 2.0_dp*xl/((1.0_dp-z**2)*pp**2)
      
         ! symmetry for weights
         w(n:n-m+1:-1) = w(1:m)
@@ -9900,11 +9933,11 @@ contains
     !##############################################################################
     function arth(first, increment, n)
     
-        integer, intent(in) :: first, increment, n
-        integer, parameter :: npar_arth = 16
-        integer, parameter :: npar2_arth = 8
-        integer :: arth(n)
-        integer :: k, k2, temp
+        integer(int32), intent(in) :: first, increment, n
+        integer(int32), parameter :: npar_arth = 16
+        integer(int32), parameter :: npar2_arth = 8
+        integer(int32) :: arth(n)
+        integer(int32) :: k, k2, temp
      
         ! initialize first element
         if(n > 0)arth(1) = first
@@ -9972,28 +10005,28 @@ contains
        !##### INPUT/OUTPUT VARIABLES #############################################
     
        ! autoregression parameter
-       real*8, intent(in) :: rho
+       real(dp), intent(in) :: rho
     
        ! unconditional mean of the process
-       real*8, intent(in) :: mu
+       real(dp), intent(in) :: mu
     
        ! variance of the shock
-       real*8, intent(in) :: sigma_eps
+       real(dp), intent(in) :: sigma_eps
     
        ! discrete shock values
-       real*8, intent(out) :: z(:)
+       real(dp), intent(out) :: z(:)
     
        ! transition matrix
-       real*8, intent(out) :: pi(:, :)
+       real(dp), intent(out) :: pi(:, :)
     
        ! the stationary distribution
-       real*8, intent(out), optional :: w(:)
+       real(dp), intent(out), optional :: w(:)
     
     
        !##### OTHER VARIABLES ####################################################
     
-       integer :: n, in
-       real*8 :: psi, sigma_eta
+       integer(int32) :: n, in
+       real(dp) :: psi, sigma_eta
     
     
        !##### ROUTINE CODE #######################################################
@@ -10002,20 +10035,20 @@ contains
        n = assert_eq(size(z), size(pi,1), size(pi,2), 'discretize_AR')
     
        ! calculate variance of the overall process
-       sigma_eta = sigma_eps/(1d0-rho**2)
+       sigma_eta = sigma_eps/(1.0_dp-rho**2)
     
        ! determine the transition matrix
        call rouwenhorst_matrix(rho, pi)
     
        ! determine the nodes
-       psi = sqrt(dble(n-1))*sqrt(sigma_eta)
+       psi = sqrt(real(n-1, dp))*sqrt(sigma_eta)
        do in = 1, n
-           z(in) = -psi + 2d0*psi*dble(in-1)/dble(n-1)
+           z(in) = -psi + 2.0_dp*psi*real(in-1, dp)/real(n-1, dp)
        enddo
        z = z + mu
     
        if(present(w))then
-           w = 1d0/dble(n)
+           w = 1.0_dp/real(n, dp)
            do in = 1, 10000
                w = matmul(transpose(pi), w)
            enddo
@@ -10036,27 +10069,27 @@ contains
        recursive subroutine rouwenhorst_matrix(rho, pi_new)
     
            implicit none
-           real*8, intent(in) :: rho
-           real*8, intent(out) :: pi_new(:, :)
-           integer :: n
-           real*8 :: p, pi_old(size(pi_new,1)-1, size(pi_new,1)-1)
+           real(dp), intent(in) :: rho
+           real(dp), intent(out) :: pi_new(:, :)
+           integer(int32) :: n
+           real(dp) :: p, pi_old(size(pi_new,1)-1, size(pi_new,1)-1)
     
            n = size(pi_new, 1)
-           p = (1d0 + rho)/2d0
+           p = (1.0_dp + rho)/2.0_dp
     
            if(n == 2)then
-               pi_new(1, :) = (/p, 1d0-p/)
-               pi_new(2, :) = (/1d0-p, p/)
+               pi_new(1, :) = (/p, 1.0_dp-p/)
+               pi_new(2, :) = (/1.0_dp-p, p/)
            else
                call rouwenhorst_matrix(rho, pi_old)
-               pi_new = 0d0
+               pi_new = 0.0_dp
     
                pi_new(1:n-1, 1:n-1) = pi_new(1:n-1, 1:n-1) + p*pi_old
-               pi_new(1:n-1, 2:n  ) = pi_new(1:n-1, 2:n  ) + (1d0-p)*pi_old
-               pi_new(2:n  , 1:n-1) = pi_new(2:n  , 1:n-1) + (1d0-p)*pi_old
+               pi_new(1:n-1, 2:n  ) = pi_new(1:n-1, 2:n  ) + (1.0_dp-p)*pi_old
+               pi_new(2:n  , 1:n-1) = pi_new(2:n  , 1:n-1) + (1.0_dp-p)*pi_old
                pi_new(2:n  , 2:n  ) = pi_new(2:n  , 2:n  ) + p*pi_old
     
-               pi_new(2:n-1, :) = pi_new(2:n-1, :)/2d0
+               pi_new(2:n-1, :) = pi_new(2:n-1, :)/2.0_dp
            endif
        end subroutine
     
@@ -10080,38 +10113,38 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! autoregression parameter
-        real*8, intent(in) :: rho
+        real(dp), intent(in) :: rho
      
         ! unconditional mean of the process
-        real*8, intent(in) :: mu
+        real(dp), intent(in) :: mu
      
         ! variance of the shock
-        real*8, intent(in) :: sigma_eps
+        real(dp), intent(in) :: sigma_eps
      
         ! discrete shock values
-        real*8, intent(out) :: z(:)
+        real(dp), intent(out) :: z(:)
      
         ! transition matrix
-        real*8, intent(out) :: pi(:, :)
+        real(dp), intent(out) :: pi(:, :)
      
         ! the stationary distribution
-        real*8, intent(out), optional :: w(:)
+        real(dp), intent(out), optional :: w(:)
     
     
         !##### OTHER VARIABLES ####################################################
     
-        real*8 :: sigma_eta, mu_c, sigma_c
+        real(dp) :: sigma_eta, mu_c, sigma_c
     
     
         !##### ROUTINE CODE #######################################################
 
         ! calculate variance of the overall process
-        sigma_eta = sigma_eps/(1d0-rho**2)
+        sigma_eta = sigma_eps/(1.0_dp-rho**2)
     
         ! get the transformed variance and expectation
-        sigma_c = log(1d0+sigma_eta/mu**2)
-        mu_c  = log(mu)-0.5d0*sigma_c
-        sigma_c = sigma_c*(1d0-rho**2)
+        sigma_c = log(1.0_dp+sigma_eta/mu**2)
+        mu_c  = log(mu)-0.5_dp*sigma_c
+        sigma_c = sigma_c*(1.0_dp-rho**2)
 
         ! discretize the log distribution
         if(present(w))then
@@ -10139,10 +10172,10 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! transition matrix
-        real*8, intent(in) :: pi(:, :)
+        real(dp), intent(in) :: pi(:, :)
      
         ! simulated schocks
-        integer, intent(out) :: shocks(:)
+        integer(int32), intent(out) :: shocks(:)
         
         ! should the random seed be initialized at a fixed values
         logical, optional :: fixed
@@ -10150,7 +10183,7 @@ contains
      
         !##### OTHER VARIABLES ####################################################
      
-        integer :: T, n, j
+        integer(int32) :: T, n, j
      
      
         !##### ROUTINE CODE #######################################################
@@ -10198,16 +10231,16 @@ contains
             !##### INPUT/OUTPUT VARIABLES #########################################
      
             ! transition probabilities
-            real*8, intent(in) :: pi(:)
+            real(dp), intent(in) :: pi(:)
      
             ! tomorrows shock
-            integer :: get_tomorrow
+            integer(int32) :: get_tomorrow
      
      
             !##### OTHER VARIABLES ################################################
      
-            real*8 :: rand
-            integer :: i1
+            real(dp) :: rand
+            integer(int32) :: i1
      
      
             !##### ROUTINE CODE ###################################################
@@ -10264,22 +10297,22 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
 
         ! x axis definitiion
-        real*8, optional :: xlim(2)
+        real(dp), optional :: xlim(2)
 
         ! x axis tick definitions
-        real*8, optional :: xticks
+        real(dp), optional :: xticks
         
         ! x axis range for ticks
-        real*8, optional :: xtrange(2)
+        real(dp), optional :: xtrange(2)
 
         ! y axis definition
-        real*8, optional :: ylim(2)
+        real(dp), optional :: ylim(2)
 
         ! y axis tick definitions
-        real*8, optional :: yticks
+        real(dp), optional :: yticks
         
         ! y axis range for ticks
-        real*8, optional :: ytrange(2)
+        real(dp), optional :: ytrange(2)
 
         ! output file name
         character(LEN=*), optional :: title
@@ -10294,7 +10327,7 @@ contains
         character(LEN=2), optional :: legend
         
         ! y-to-x axis ratio
-        real*8, optional :: ratio
+        real(dp), optional :: ratio
         
         ! print no grid
         logical, optional :: nogrid
@@ -10313,7 +10346,7 @@ contains
         
         !##### OTHER VARIABLES ####################################################
  
-        integer :: i1, i2
+        integer(int32) :: i1, i2
         logical :: nw_copy
         character(LEN=3) :: ft, plotnumber
         character(LEN=150) :: cfile, dfile, pfile, term, location
@@ -10386,7 +10419,7 @@ contains
             endif
             
             if(present(ratio) .and. ft /= "png")then
-                write(term, '(a,f4.2)')trim(term)//" size 5,", 5d0*ratio
+                write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
             endif
             
             write(213659, *)
@@ -10456,7 +10489,7 @@ contains
         if(gnu_histogram)then
             if(present(ylim))then
                 write(213659, '(a,e13.5,a,e13.5,a)') &
-                    'set yrange [',min(minval(ylim),0d0),':',maxval(ylim),']'
+                    'set yrange [',min(minval(ylim),0.0_dp),':',maxval(ylim),']'
             else
                 write(213659, '(a)') 'set yrange [0:]'
             endif
@@ -10546,7 +10579,7 @@ contains
                 endif
                 
                 if(present(ratio) .and. ft /= "png")then
-                    write(term, '(a,f4.2)')trim(term)//" size 5,", 5d0*ratio
+                    write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
                 endif
                 
                 write(213659, *)
@@ -10592,22 +10625,22 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! input variables
-        real*8, intent(in) :: xin(:), yin(:)
+        real(dp), intent(in) :: xin(:), yin(:)
 
         ! line color
         character(LEN=*), optional :: color
 
         ! width of plotting line
-        real*8, optional :: linewidth
+        real(dp), optional :: linewidth
 
         ! dashtype of the plotting line
         character(LEN=*), optional :: dashtype
 
         ! marker definition
-        integer, optional :: marker
+        integer(int32), optional :: marker
 
         ! size of the marker
-        real*8, optional :: markersize
+        real(dp), optional :: markersize
 
         ! if no line should be plotted
         logical, optional :: noline
@@ -10618,7 +10651,7 @@ contains
 
         !##### OTHER VARIABLES ####################################################
  
-        integer :: n, i1
+        integer(int32) :: n, i1
         logical :: lines, points
      
      
@@ -10754,9 +10787,9 @@ contains
         ! get line width
         if(lines)then
             if(present(linewidth)) then
-                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' lw ', max(linewidth, 0d0)
+                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' lw ', max(linewidth, 0.0_dp)
             else
-                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' lw ', 2d0
+                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' lw ', 2.0_dp
             endif
             
             if(present(dashtype)) then
@@ -10774,9 +10807,9 @@ contains
             endif
 
             if(present(markersize))then
-                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' ps ', max(markersize, 0d0)
+                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' ps ', max(markersize, 0.0_dp)
             else
-                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' ps ', 1d0
+                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' ps ', 1.0_dp
             endif
         endif               
 
@@ -10804,7 +10837,7 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! input variables
-        real*8, intent(in) :: xin(:), yin(:)
+        real(dp), intent(in) :: xin(:), yin(:)
         
         ! histogram color
         character(LEN=*), optional :: color
@@ -10815,7 +10848,7 @@ contains
 
         !##### OTHER VARIABLES ####################################################
  
-        integer :: n, i1
+        integer(int32) :: n, i1
      
      
         !##### ROUTINE CODE #######################################################
@@ -10947,16 +10980,16 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! input variables
-        real*8, intent(in) :: xvalues(1:)
+        real(dp), intent(in) :: xvalues(1:)
 
         ! number of bins
-        integer, intent(in) :: nbins
+        integer(int32), intent(in) :: nbins
 
         ! left end of the bins
-        real*8, optional :: left
+        real(dp), optional :: left
 
         ! right end of the bins
-        real*8, optional :: right
+        real(dp), optional :: right
 
         ! should observations lying outside of the bins be included?
         logical, optional :: incl_outside
@@ -10973,10 +11006,10 @@ contains
 
         !##### OTHER VARIABLES ####################################################
  
-        integer :: n, i1
-        real*8 :: lower, upper, total
-        real*8 :: thresholds(0:nbins), freq(0:nbins)
-        real*8 :: xin(nbins), yin(nbins)
+        integer(int32) :: n, i1
+        real(dp) :: lower, upper, total
+        real(dp) :: thresholds(0:nbins), freq(0:nbins)
+        real(dp) :: xin(nbins), yin(nbins)
         
      
      
@@ -10995,23 +11028,23 @@ contains
         call grid_Cons_Equi(thresholds, lower, upper)
         
         ! get frequency
-        freq(0) = dble(count(xvalues < lower))
+        freq(0) = real(count(xvalues < lower), dp)
         do i1 = 1, nbins
-            freq(i1) = dble(count(xvalues <= thresholds(i1)))
+            freq(i1) = real(count(xvalues <= thresholds(i1)), dp)
         enddo
         total = freq(nbins) - freq(0)
         
         if(present(incl_outside))then
             if(incl_outside)then
-                freq(0) = 0d0
-                freq(nbins) = freq(nbins) + dble(count(xvalues >= upper))
+                freq(0) = 0.0_dp
+                freq(nbins) = freq(nbins) + real(count(xvalues >= upper), dp)
                 total = freq(nbins)
             endif
         endif
         
         ! get histogram data
         do i1 = 1, nbins
-            xin(i1) = (thresholds(i1-1) + thresholds(i1))/2d0
+            xin(i1) = (thresholds(i1-1) + thresholds(i1))/2.0_dp
             yin(i1) = (freq(i1) - freq(i1-1))
         enddo
         
@@ -11153,64 +11186,64 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! input variables
-        real*8, intent(in) :: xin(:), yin(:), zin(:,:)
+        real(dp), intent(in) :: xin(:), yin(:), zin(:,:)
 
         ! line color
         character(LEN=*), optional :: color
 
         ! width of the plotting line
-        real*8, optional :: linewidth
+        real(dp), optional :: linewidth
 
         ! dashtype of the plotting line
         character(LEN=*), optional :: dashtype
 
         ! marker definition
-        integer, optional :: marker
+        integer(int32), optional :: marker
 
         ! size of the marker
-        real*8, optional :: markersize
+        real(dp), optional :: markersize
 
         ! if no line should be plotted
         logical, optional :: noline
 
         ! x axis definition
-        real*8, optional :: xlim(2)
+        real(dp), optional :: xlim(2)
 
         ! x axis tick definitions
-        real*8, optional :: xticks
+        real(dp), optional :: xticks
 
         ! x axis range for ticks
-        real*8, optional :: xtrange(2)
+        real(dp), optional :: xtrange(2)
 
         ! y axis definition
-        real*8, optional :: ylim(2)
+        real(dp), optional :: ylim(2)
 
         ! y axis tick definitions
-        real*8, optional :: yticks
+        real(dp), optional :: yticks
 
         ! y axis range for ticks
-        real*8, optional :: ytrange(2)
+        real(dp), optional :: ytrange(2)
 
            ! z axis definition
-        real*8, optional :: zlim(2)
+        real(dp), optional :: zlim(2)
 
         ! z axis tick definitions
-        real*8, optional :: zticks
+        real(dp), optional :: zticks
 
         ! x axis range for ticks
-        real*8, optional :: ztrange(2)
+        real(dp), optional :: ztrange(2)
 
         ! point where the z axis is placed
-        real*8, optional :: zlevel
+        real(dp), optional :: zlevel
 
         ! rotates the graph
-        real*8, optional :: view(2)
+        real(dp), optional :: view(2)
 
         ! colored surface or not
         logical, optional :: surf
 
         ! color of the surface
-        integer, optional :: surf_color
+        integer(int32), optional :: surf_color
 
         ! see through surface or not
         logical, optional :: transparent
@@ -11228,7 +11261,7 @@ contains
         character(LEN=*), optional :: title
 
         ! y-to-x axis ratio
-        real*8, optional :: ratio
+        real(dp), optional :: ratio
 
         ! print no grid
         logical, optional :: nogrid
@@ -11250,7 +11283,7 @@ contains
  
         logical :: lines, points, nw_copy
         character(LEN = 2000) :: definition 
-        integer :: i1, i2, n1, n2
+        integer(int32) :: i1, i2, n1, n2
         character(LEN=3) :: ft, plotnumber
         character(LEN=150) :: cfile, dfile, pfile, term
      
@@ -11306,12 +11339,12 @@ contains
         ! get line width
         if(lines)then
             if(present(linewidth)) then
-                write(definition, '(a,f8.2)')trim(definition)//' lw ', max(linewidth, 0d0)
+                write(definition, '(a,f8.2)')trim(definition)//' lw ', max(linewidth, 0.0_dp)
             else
                 if(present(surf))then
-                    write(definition, '(a,f8.2)')trim(definition)//' lw ', 0.3d0
+                    write(definition, '(a,f8.2)')trim(definition)//' lw ', 0.3_dp
                 else
-                    write(definition, '(a,f8.2)')trim(definition)//' lw ', 1d0
+                    write(definition, '(a,f8.2)')trim(definition)//' lw ', 1.0_dp
                 endif
             endif
 
@@ -11330,9 +11363,9 @@ contains
             endif
 
             if(present(markersize))then
-                write(definition, '(a,f8.2)')trim(definition)//' ps ', max(markersize, 0d0)
+                write(definition, '(a,f8.2)')trim(definition)//' ps ', max(markersize, 0.0_dp)
             else
-                write(definition, '(a,f8.2)')trim(definition)//' ps ', 1d0
+                write(definition, '(a,f8.2)')trim(definition)//' ps ', 1.0_dp
             endif
         endif               
 
@@ -11399,7 +11432,7 @@ contains
             endif
             
             if(present(ratio) .and. ft /= "png")then
-                write(term, '(a,f4.2)')trim(term)//" size 5,", 5d0*ratio
+                write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
             endif
             
             write(213659, *)
@@ -11446,7 +11479,7 @@ contains
         endif
         
         if(present(zlevel)) then
-            write(213659, '(a,e13.5)')'set ticslevel ', -min(max(zlevel, 0d0), 1d0)
+            write(213659, '(a,e13.5)')'set ticslevel ', -min(max(zlevel, 0.0_dp), 1.0_dp)
         else 
             write(213659, '(a,e13.5)')'set ticslevel 0'
         endif
@@ -11476,8 +11509,8 @@ contains
         endif
         
         if(present(view)) then
-            write(213659, '(a,e13.5,a,e13.5)')'set view ', min(max(view(1), 0d0), 360d0), &
-                ',',min(max(view(2), 0d0), 360d0)
+            write(213659, '(a,e13.5,a,e13.5)')'set view ', min(max(view(1), 0.0_dp), 360.0_dp), &
+                ',',min(max(view(2), 0.0_dp), 360.0_dp)
         endif
           
         ! set x axis
@@ -11541,7 +11574,7 @@ contains
                 endif
                 
                 if(present(ratio) .and. ft /= "png")then
-                    write(term, '(a,f4.2)')trim(term)//" size 5,", 5d0*ratio
+                    write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
                 endif
                 
                 write(213659, *)
@@ -11583,58 +11616,58 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
         
         ! input variables
-        real*8, intent(in) :: xin(:), yin(:), zin(:)
+        real(dp), intent(in) :: xin(:), yin(:), zin(:)
 
         ! line and marker color
         character(LEN=*), optional :: color
 
         ! width of the plotting line
-        real*8, optional :: linewidth
+        real(dp), optional :: linewidth
 
         ! dashtype of the plotting line
         character(LEN=*), optional :: dashtype
 
         ! marker definition
-        integer, optional :: marker
+        integer(int32), optional :: marker
 
         ! size of the marker
-        real*8, optional :: markersize
+        real(dp), optional :: markersize
 
         ! if no line should be plotted
         logical, optional :: noline
 
         ! x axis definition
-        real*8, optional :: xlim(2)
+        real(dp), optional :: xlim(2)
 
         ! x axis tick definitions
-        real*8, optional :: xticks
+        real(dp), optional :: xticks
 
         ! x axis range for ticks
-        real*8, optional :: xtrange(2)
+        real(dp), optional :: xtrange(2)
 
         ! y axis definition
-        real*8, optional :: ylim(2)
+        real(dp), optional :: ylim(2)
 
         ! y axis tick definitions
-        real*8, optional :: yticks
+        real(dp), optional :: yticks
 
         ! y axis range for ticks
-        real*8, optional :: ytrange(2)
+        real(dp), optional :: ytrange(2)
 
            ! z axis definition
-        real*8, optional :: zlim(2)
+        real(dp), optional :: zlim(2)
 
         ! z axis tick definitions
-        real*8, optional :: zticks
+        real(dp), optional :: zticks
 
         ! x axis range for ticks
-        real*8, optional :: ztrange(2)
+        real(dp), optional :: ztrange(2)
 
         ! point where the z axis is placed
-        real*8, optional :: zlevel
+        real(dp), optional :: zlevel
 
         ! rotates the graph
-        real*8, optional :: view(2)
+        real(dp), optional :: view(2)
 
         ! output file name
         character(LEN=*), optional :: xlabel
@@ -11649,7 +11682,7 @@ contains
         character(LEN=*), optional :: title
 
         ! y-to-x axis ratio
-        real*8, optional :: ratio
+        real(dp), optional :: ratio
 
         ! print no grid
         logical, optional :: nogrid
@@ -11671,7 +11704,7 @@ contains
  
         logical :: lines, points, nw_copy
         character(LEN = 2000) :: definition 
-        integer :: i1, n
+        integer(int32) :: i1, n
         character(LEN=3) :: ft, plotnumber
         character(LEN=150) :: cfile, dfile, pfile, term
      
@@ -11726,9 +11759,9 @@ contains
         ! get line width
         if(lines)then
             if(present(linewidth)) then
-                write(definition, '(a,f8.2)')trim(definition)//' lw ', max(linewidth, 0d0)
+                write(definition, '(a,f8.2)')trim(definition)//' lw ', max(linewidth, 0.0_dp)
             else
-                write(definition, '(a,f8.2)')trim(definition)//' lw ', 1d0
+                write(definition, '(a,f8.2)')trim(definition)//' lw ', 1.0_dp
             endif
 
             if(present(dashtype)) then
@@ -11746,9 +11779,9 @@ contains
             endif
 
             if(present(markersize))then
-                write(definition, '(a,f8.2)')trim(definition)//' ps ', max(markersize, 0d0)
+                write(definition, '(a,f8.2)')trim(definition)//' ps ', max(markersize, 0.0_dp)
             else
-                write(definition, '(a,f8.2)')trim(definition)//' ps ', 1d0
+                write(definition, '(a,f8.2)')trim(definition)//' ps ', 1.0_dp
             endif
         endif               
 
@@ -11812,7 +11845,7 @@ contains
             endif
             
             if(present(ratio) .and. ft /= "png")then
-                write(term, '(a,f4.2)')trim(term)//" size 5,", 5d0*ratio
+                write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
             endif
             
             write(213659, *)
@@ -11859,14 +11892,14 @@ contains
         endif
         
         if(present(zlevel)) then
-            write(213659, '(a,e13.5)')'set ticslevel ', -min(max(zlevel, 0d0), 1d0)
+            write(213659, '(a,e13.5)')'set ticslevel ', -min(max(zlevel, 0.0_dp), 1.0_dp)
         else 
             write(213659, '(a,e13.5)')'set ticslevel 0'
         endif
                
         if(present(view)) then
-            write(213659, '(a,e13.5,a,e13.5)')'set view ', min(max(view(1), 0d0), 360d0), &
-                ',',min(max(view(2), 0d0), 360d0)
+            write(213659, '(a,e13.5,a,e13.5)')'set view ', min(max(view(1), 0.0_dp), 360.0_dp), &
+                ',',min(max(view(2), 0.0_dp), 360.0_dp)
         endif
           
         ! set x axis
@@ -11930,7 +11963,7 @@ contains
                 endif
                 
                 if(present(ratio) .and. ft /= "png")then
-                    write(term, '(a,f4.2)')trim(term)//" size 5,", 5d0*ratio
+                    write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
                 endif
                 
                 write(213659, *)
@@ -11973,7 +12006,7 @@ contains
     !##############################################################################
     ! SUBROUTINE sort_r
     !
-    ! Sorts an array of type real*8 in ascending order.
+    ! Sorts an array of type real(dp) in ascending order.
     !
     ! PARTS OF THIS PROCEDURE WERE COPIED AND ADAPTED FROM:
     !     The Wikibook "Algorithm Implementation" available at
@@ -11993,21 +12026,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
 
         ! the array that should be sorted
-        real*8, intent(inout) :: x(:)
+        real(dp), intent(inout) :: x(:)
 
 
         !##### OTHER VARIABLES ####################################################
 
         ! from which list size should insertion sort be used
-        integer, parameter :: Isw = 10
+        integer(int32), parameter :: Isw = 10
 
         ! type for the left and right bounds
         type Limits
-           integer :: Ileft, Iright
+           integer(int32) :: Ileft, Iright
         end type Limits
 
         ! other variables        
-        integer :: Ipvn, Ileft, Iright, ISpos, ISmax
+        integer(int32) :: Ipvn, Ileft, Iright, ISpos, ISmax
         type(Limits), allocatable :: Stack(:)
         
 
@@ -12065,19 +12098,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################          
 
             ! the array to work on
-            real*8, intent(in) :: XX(:)
+            real(dp), intent(in) :: XX(:)
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIleft, IIright
+            integer(int32), intent(in) :: IIleft, IIright
    
             ! the pivotal element that is returned
-            integer :: IIpv
+            integer(int32) :: IIpv
             
 
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: XXcp(3)
-            integer :: IIpt(3), IImd
+            real(dp) :: XXcp(3)
+            integer(int32) :: IIpt(3), IImd
 
 
             !##### ROUTINE CODE #######################################################
@@ -12115,19 +12148,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            real*8, intent(inout) :: XX(:)
+            real(dp), intent(inout) :: XX(:)
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIl, IIr
+            integer(int32), intent(in) :: IIl, IIr
 
             ! the permutations
-            integer, intent(inout), optional :: IIpt(:)
+            integer(int32), intent(inout), optional :: IIpt(:)
 
             
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: RRtmp
-            integer :: II, JJ
+            real(dp) :: RRtmp
+            integer(int32) :: II, JJ
             
 
             !##### ROUTINE CODE #######################################################
@@ -12161,19 +12194,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            real*8, intent(inout) :: X(:)
+            real(dp), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: Ileft, Iright, Ipv
+            integer(int32), intent(in) :: Ileft, Iright, Ipv
 
             ! return value
-            integer :: Ipvfn
+            integer(int32) :: Ipvfn
 
             
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: Rpv
-            integer :: I
+            real(dp) :: Rpv
+            integer(int32) :: I
             
 
             !##### ROUTINE CODE #######################################################
@@ -12205,15 +12238,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            real*8, intent(inout) :: X(:)
+            real(dp), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: I, J
+            integer(int32), intent(in) :: I, J
             
             
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: Xtmp
+            real(dp) :: Xtmp
             
 
             !##### ROUTINE CODE #######################################################        
@@ -12236,15 +12269,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: X(:)
+            integer(int32), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: I, J
+            integer(int32), intent(in) :: I, J
             
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: Xtmp
+            integer(int32) :: Xtmp
             
 
             !##### ROUTINE CODE #######################################################        
@@ -12262,7 +12295,7 @@ contains
     !##############################################################################
     ! SUBROUTINE sort_r2
     !
-    ! Sorts an array of type real*8 in ascending order and returns new ordering.
+    ! Sorts an array of type real(dp) in ascending order and returns new ordering.
     !
     ! PARTS OF THIS PROCEDURE WERE COPIED AND ADAPTED FROM:
     !     The Wikibook "Algorithm Implementation" available at
@@ -12282,24 +12315,24 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
 
         ! the array that should be sorted
-        real*8, intent(inout) :: x(:)
+        real(dp), intent(inout) :: x(:)
 
         ! an array that will contain the new sorting order
-        integer, intent(out) :: iorder(size(x, 1))
+        integer(int32), intent(out) :: iorder(size(x, 1))
 
 
         !##### OTHER VARIABLES ####################################################
 
         ! from which list size should insertion sort be used
-        integer, parameter :: Isw = 10
+        integer(int32), parameter :: Isw = 10
 
         ! type for the left and right bounds
         type Limits
-           integer :: Ileft, Iright
+           integer(int32) :: Ileft, Iright
         end type Limits
 
         ! other variables        
-        integer :: Ipvn, Ileft, Iright, ISpos, ISmax, ii
+        integer(int32) :: Ipvn, Ileft, Iright, ISpos, ISmax, ii
         type(Limits), allocatable :: Stack(:)
         
 
@@ -12360,19 +12393,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################          
 
             ! the array to work on
-            real*8, intent(in) :: XX(:)
+            real(dp), intent(in) :: XX(:)
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIleft, IIright
+            integer(int32), intent(in) :: IIleft, IIright
    
             ! the pivotal element that is returned
-            integer :: IIpv
+            integer(int32) :: IIpv
             
 
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: XXcp(3)
-            integer :: IIpt(3), IImd
+            real(dp) :: XXcp(3)
+            integer(int32) :: IIpt(3), IImd
 
 
             !##### ROUTINE CODE #######################################################
@@ -12408,19 +12441,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            real*8, intent(inout) :: XX(:)
+            real(dp), intent(inout) :: XX(:)
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIl, IIr
+            integer(int32), intent(in) :: IIl, IIr
 
             ! the permutations
-            integer, intent(inout) :: IIpt(:)
+            integer(int32), intent(inout) :: IIpt(:)
 
             
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: RRtmp
-            integer :: II, JJ
+            real(dp) :: RRtmp
+            integer(int32) :: II, JJ
             
 
             !##### ROUTINE CODE #######################################################
@@ -12453,20 +12486,20 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            real*8, intent(inout) :: XX(:)
+            real(dp), intent(inout) :: XX(:)
 
             ! an array that will contain the new sorting order
-            integer, intent(inout) :: iorder(size(XX, 1))
+            integer(int32), intent(inout) :: iorder(size(XX, 1))
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIl, IIr
+            integer(int32), intent(in) :: IIl, IIr
 
             
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: RRtmp
-            integer :: IItmp
-            integer :: II, JJ
+            real(dp) :: RRtmp
+            integer(int32) :: IItmp
+            integer(int32) :: II, JJ
             
 
             !##### ROUTINE CODE #######################################################
@@ -12502,22 +12535,22 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            real*8, intent(inout) :: X(:)
+            real(dp), intent(inout) :: X(:)
 
             ! an array that will contain the new sorting order
-            integer, intent(inout) :: iorder(size(X, 1))
+            integer(int32), intent(inout) :: iorder(size(X, 1))
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: Ileft, Iright, Ipv
+            integer(int32), intent(in) :: Ileft, Iright, Ipv
 
             ! return value
-            integer :: Ipvfn
+            integer(int32) :: Ipvfn
 
             
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: Rpv
-            integer :: I
+            real(dp) :: Rpv
+            integer(int32) :: I
             
 
             !##### ROUTINE CODE #######################################################
@@ -12552,15 +12585,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            real*8, intent(inout) :: X(:)
+            real(dp), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: I, J
+            integer(int32), intent(in) :: I, J
             
             
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: Xtmp
+            real(dp) :: Xtmp
             
 
             !##### ROUTINE CODE #######################################################        
@@ -12583,15 +12616,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: X(:)
+            integer(int32), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: I, J
+            integer(int32), intent(in) :: I, J
             
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: Xtmp
+            integer(int32) :: Xtmp
             
 
             !##### ROUTINE CODE #######################################################        
@@ -12630,21 +12663,21 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
 
         ! the array that should be sorted
-        integer, intent(inout) :: x(:)
+        integer(int32), intent(inout) :: x(:)
 
 
         !##### OTHER VARIABLES ####################################################
 
         ! from which list size should insertion sort be used
-        integer, parameter :: Isw = 10
+        integer(int32), parameter :: Isw = 10
 
         ! type for the left and right bounds
         type Limits
-           integer :: Ileft, Iright
+           integer(int32) :: Ileft, Iright
         end type Limits
 
         ! other variables        
-        integer :: Ipvn, Ileft, Iright, ISpos, ISmax
+        integer(int32) :: Ipvn, Ileft, Iright, ISpos, ISmax
         type(Limits), allocatable :: Stack(:)
         
 
@@ -12702,19 +12735,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################          
 
             ! the array to work on
-            integer, intent(in) :: XX(:)
+            integer(int32), intent(in) :: XX(:)
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIleft, IIright
+            integer(int32), intent(in) :: IIleft, IIright
    
             ! the pivotal element that is returned
-            integer :: IIpv
+            integer(int32) :: IIpv
             
 
             !##### OTHER VARIABLES ####################################################
             
-            integer :: XXcp(3)
-            integer :: IIpt(3), IImd
+            integer(int32) :: XXcp(3)
+            integer(int32) :: IIpt(3), IImd
 
 
             !##### ROUTINE CODE #######################################################
@@ -12752,19 +12785,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: XX(:)
+            integer(int32), intent(inout) :: XX(:)
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIl, IIr
+            integer(int32), intent(in) :: IIl, IIr
 
             ! the permutations
-            integer, intent(inout), optional :: IIpt(:)
+            integer(int32), intent(inout), optional :: IIpt(:)
 
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: RRtmp
-            integer :: II, JJ
+            integer(int32) :: RRtmp
+            integer(int32) :: II, JJ
             
 
             !##### ROUTINE CODE #######################################################
@@ -12798,19 +12831,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: X(:)
+            integer(int32), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: Ileft, Iright, Ipv
+            integer(int32), intent(in) :: Ileft, Iright, Ipv
 
             ! return value
-            integer :: Ipvfn
+            integer(int32) :: Ipvfn
 
             
             !##### OTHER VARIABLES ####################################################
             
-            real*8 :: Rpv
-            integer :: I
+            real(dp) :: Rpv
+            integer(int32) :: I
             
 
             !##### ROUTINE CODE #######################################################
@@ -12842,15 +12875,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: X(:)
+            integer(int32), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: I, J
+            integer(int32), intent(in) :: I, J
             
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: Xtmp
+            integer(int32) :: Xtmp
             
 
             !##### ROUTINE CODE #######################################################        
@@ -12873,15 +12906,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: X(:)
+            integer(int32), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: I, J
+            integer(int32), intent(in) :: I, J
             
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: Xtmp
+            integer(int32) :: Xtmp
             
 
             !##### ROUTINE CODE #######################################################        
@@ -12919,24 +12952,24 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
 
         ! the array that should be sorted
-        integer, intent(inout) :: x(:)
+        integer(int32), intent(inout) :: x(:)
 
         ! an array that will contain the new sorting order
-        integer, intent(out) :: iorder(size(x, 1))
+        integer(int32), intent(out) :: iorder(size(x, 1))
 
 
         !##### OTHER VARIABLES ####################################################
 
         ! from which list size should insertion sort be used
-        integer, parameter :: Isw = 10
+        integer(int32), parameter :: Isw = 10
 
         ! type for the left and right bounds
         type Limits
-           integer :: Ileft, Iright
+           integer(int32) :: Ileft, Iright
         end type Limits
 
         ! other variables        
-        integer :: Ipvn, Ileft, Iright, ISpos, ISmax, ii
+        integer(int32) :: Ipvn, Ileft, Iright, ISpos, ISmax, ii
         type(Limits), allocatable :: Stack(:)
         
 
@@ -12997,19 +13030,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################          
 
             ! the array to work on
-            integer, intent(in) :: XX(:)
+            integer(int32), intent(in) :: XX(:)
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIleft, IIright
+            integer(int32), intent(in) :: IIleft, IIright
    
             ! the pivotal element that is returned
-            integer :: IIpv
+            integer(int32) :: IIpv
             
 
             !##### OTHER VARIABLES ####################################################
             
-            integer :: XXcp(3)
-            integer :: IIpt(3), IImd
+            integer(int32) :: XXcp(3)
+            integer(int32) :: IIpt(3), IImd
 
 
             !##### ROUTINE CODE #######################################################
@@ -13045,19 +13078,19 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: XX(:)
+            integer(int32), intent(inout) :: XX(:)
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIl, IIr
+            integer(int32), intent(in) :: IIl, IIr
 
             ! the permutations
-            integer, intent(inout) :: IIpt(:)
+            integer(int32), intent(inout) :: IIpt(:)
 
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: RRtmp
-            integer :: II, JJ
+            integer(int32) :: RRtmp
+            integer(int32) :: II, JJ
             
 
             !##### ROUTINE CODE #######################################################
@@ -13090,20 +13123,20 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: XX(:)
+            integer(int32), intent(inout) :: XX(:)
 
             ! an array that will contain the new sorting order
-            integer, intent(inout) :: iorder(size(XX, 1))
+            integer(int32), intent(inout) :: iorder(size(XX, 1))
 
             ! the left and right definition of the sub-array
-            integer, intent(in) :: IIl, IIr
+            integer(int32), intent(in) :: IIl, IIr
 
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: RRtmp
-            integer :: IItmp
-            integer :: II, JJ
+            integer(int32) :: RRtmp
+            integer(int32) :: IItmp
+            integer(int32) :: II, JJ
             
 
             !##### ROUTINE CODE #######################################################
@@ -13139,22 +13172,22 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: X(:)
+            integer(int32), intent(inout) :: X(:)
 
             ! an array that will contain the new sorting order
-            integer, intent(inout) :: iorder(size(X, 1))
+            integer(int32), intent(inout) :: iorder(size(X, 1))
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: Ileft, Iright, Ipv
+            integer(int32), intent(in) :: Ileft, Iright, Ipv
 
             ! return value
-            integer :: Ipvfn
+            integer(int32) :: Ipvfn
 
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: Rpv
-            integer :: I
+            integer(int32) :: Rpv
+            integer(int32) :: I
             
 
             !##### ROUTINE CODE #######################################################
@@ -13189,15 +13222,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: X(:)
+            integer(int32), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: I, J
+            integer(int32), intent(in) :: I, J
             
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: Xtmp
+            integer(int32) :: Xtmp
             
 
             !##### ROUTINE CODE #######################################################        
@@ -13220,15 +13253,15 @@ contains
             !##### INPUT/OUTPUT VARIABLES #############################################
 
             ! the array to work on
-            integer, intent(inout) :: X(:)
+            integer(int32), intent(inout) :: X(:)
 
             ! the left and right definition of the sub-array and pivotal element
-            integer, intent(in) :: I, J
+            integer(int32), intent(in) :: I, J
             
             
             !##### OTHER VARIABLES ####################################################
             
-            integer :: Xtmp
+            integer(int32) :: Xtmp
             
 
             !##### ROUTINE CODE #######################################################        
