@@ -587,7 +587,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    function assert_eq2(n1, n2, string)
+    pure function assert_eq2(n1, n2, string)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -610,7 +610,7 @@ contains
         
         ! else throw error message
         else
-            call error(string, 'an assertion failed in assert_eq2')
+            error stop 'ERROR: an assertion failed in assert_eq2 (' // trim(string) // ')'
         end if
     
     end function assert_eq2
@@ -626,7 +626,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    function assert_eq3(n1, n2, n3, string)
+    pure function assert_eq3(n1, n2, n3, string)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -649,7 +649,7 @@ contains
         
         ! else throw error message
         else
-            call error(string, 'an assertion failed in assert_eq3')
+            error stop 'ERROR: an assertion failed in assert_eq3 (' // trim(string) // ')'
         end if
     
     end function assert_eq3
@@ -665,7 +665,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    function assert_eq4(n1, n2, n3, n4, string)
+    pure function assert_eq4(n1, n2, n3, n4, string)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -688,7 +688,7 @@ contains
         
         ! else throw error message
         else
-            call error(string, 'an assertion failed in assert_eq4')
+            error stop 'ERROR: an assertion failed in assert_eq4 (' // trim(string) // ')'
         end if
     
     end function assert_eq4
@@ -704,7 +704,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    function assert_eq5(n1, n2, n3, n4, n5, string)
+    pure function assert_eq5(n1, n2, n3, n4, n5, string)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -727,7 +727,7 @@ contains
         
         ! else throw error message
         else
-            call error(string, 'an assertion failed in assert_eq5')
+            error stop 'ERROR: an assertion failed in assert_eq5 (' // trim(string) // ')'
         end if
     
     end function assert_eq5
@@ -743,7 +743,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    function assert_eqn(nn, string)
+    pure function assert_eqn(nn, string)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -766,7 +766,7 @@ contains
         
         ! else throw error message
         else
-            call error(string, 'an assertion failed in assert_eqn')
+            error stop 'ERROR: an assertion failed in assert_eqn (' // trim(string) // ')'
         end if
     
     end function assert_eqn
@@ -943,7 +943,7 @@ contains
     !
     ! Constructs a whole equidistant grid on [left,right].
     !##############################################################################
-    subroutine grid_Cons_Equi(a, left, right)
+    pure subroutine grid_Cons_Equi(a, left, right)
      
      
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -967,8 +967,7 @@ contains
         n = size(a, 1)-1
      
         ! check for left <= right
-        if(left >= right)call error('grid_Cons_Equi', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Cons_Equi: left interval point greater than right point'
      
         ! calculate distance between grid points
         h = (right-left)/real(n, dp)
@@ -984,7 +983,7 @@ contains
     !
     ! Constructs a whole grid on [left,right] using chebychev nodes.
     !##############################################################################
-    subroutine grid_Cons_Cheb(a, left, right)
+    pure subroutine grid_Cons_Cheb(a, left, right)
      
      
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1008,8 +1007,7 @@ contains
         n = size(a, 1)-1
      
         ! check for left <= right
-        if(left >= right)call error('grid_Cons_Cheb', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Cons_Cheb: left interval point greater than right point'
      
         ! calculate grid value
         a = (left+right)/2.0_dp + (right-left)/2.0_dp* &
@@ -1023,7 +1021,7 @@ contains
     !
     ! Constructs a growing grid on [left, right].
     !##############################################################################
-    subroutine grid_Cons_Grow(a, left, right, growth)
+    pure subroutine grid_Cons_Grow(a, left, right, growth)
         
         implicit none
 
@@ -1036,7 +1034,7 @@ contains
         real(dp), intent(in) :: left, right
      
         ! the growth rate of the grid
-        real(dp) :: growth
+        real(dp), intent(in) :: growth
      
      
         !##### OTHER VARIABLES ####################################################
@@ -1051,12 +1049,10 @@ contains
         n = size(a, 1)-1
 
         ! check for left <= right
-        if(left >= right)call error('grid_Cons_Grow', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Cons_Grow: left interval point greater than right point'
 
         ! check for growth
-        if(growth <= 0.0_dp)call error('grid_Cons_Grow', &
-            'growth rate must be greater than zero')
+        if(growth <= 0.0_dp) error stop 'ERROR: grid_Cons_Grow: growth rate must be greater than zero'
 
         ! calculate factor
         h = (right-left)/((1.0_dp+growth)**n-1.0_dp)
@@ -1072,7 +1068,7 @@ contains
     !
     ! Calculates single gridpoint of an equidistant grid.
     !##############################################################################
-    function grid_Val_Equi(x, left, right, n)
+    elemental function grid_Val_Equi(x, left, right, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1098,8 +1094,7 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Val_Equi', &
-            'left interval point greater than right point')     
+        if(left >= right) error stop 'ERROR: grid_Val_Equi: left interval point greater than right point'
      
         ! calculate distance between grid points
         h = (right-left)/n
@@ -1115,7 +1110,7 @@ contains
     !
     ! Calculates single gridpoint of a Chebychev grid.
     !##############################################################################
-    function grid_Val_Cheb(x, left, right, n)
+    elemental function grid_Val_Cheb(x, left, right, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1141,8 +1136,7 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Val_Cheb', &
-            'left interval point greater than right point')     
+        if(left >= right) error stop 'ERROR: grid_Val_Cheb: left interval point greater than right point'
      
         ! calculate grid value
         grid_Val_Cheb = (left+right)/2.0_dp + (right-left)/2.0_dp* &
@@ -1156,7 +1150,7 @@ contains
     !
     ! Calculates single gridpoint of a growing grid.
     !##############################################################################
-    function grid_Val_Grow(x, left, right, growth, n)
+    elemental function grid_Val_Grow(x, left, right, growth, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1185,18 +1179,16 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Val', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Val_Grow: left interval point greater than right point'
 
         ! check for growth
-        if(growth <= 0.0_dp)call error('grid_Val_Grow', &
-            'growth rate must be greater than zero')
+        if(growth <= 0.0_dp) error stop 'ERROR: grid_Val_Grow: growth rate must be greater than zero'
      
         ! calculate factor
-        h = (right-left)/((1+growth)**n-1)
+        h = (right-left)/((1.0_dp+growth)**n-1.0_dp)
      
         ! calculate grid value
-        grid_Val_Grow = h*((1+growth)**x-1)+left
+        grid_Val_Grow = h*((1.0_dp+growth)**x-1.0_dp)+left
     
     end function grid_Val_Grow
 
@@ -1206,7 +1198,7 @@ contains
     !
     ! Calculates inverse of gridpoints of an equidistant grid.
     !##############################################################################
-    function grid_Inv_Equi_1(x, left, right, n)
+    pure function grid_Inv_Equi_1(x, left, right, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1232,8 +1224,7 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Inv_Equi', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Inv_Equi: left interval point greater than right point'
      
         ! calculate distance between grid points
         h = (right-left)/n
@@ -1249,7 +1240,7 @@ contains
     !
     ! Calculates inverse of gridpoints of a Chebychev grid.
     !##############################################################################
-    function grid_Inv_Cheb_1(x, left, right, n)
+    pure function grid_Inv_Cheb_1(x, left, right, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1275,8 +1266,7 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Inv_Cheb', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Inv_Cheb: left interval point greater than right point'
      
         ! calculate grid value
         grid_Inv_Cheb_1 = real(n, dp) + 0.5_dp - acos((2.0_dp*x-(left+right)) &
@@ -1290,7 +1280,7 @@ contains
     !
     ! Calculates inverse of gridpoints of a growing grid.
     !##############################################################################
-    function grid_Inv_Grow_1(x, left, right, growth, n)
+    pure function grid_Inv_Grow_1(x, left, right, growth, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1319,15 +1309,13 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Inv_Grow', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Inv_Grow: left interval point greater than right point'
 
         ! check for growth
-        if(growth <= 0.0_dp)call error('grid_Inv_Grow', &
-            'growth rate must be greater than zero')
+        if(growth <= 0.0_dp) error stop 'ERROR: grid_Inv_Grow: growth rate must be greater than zero'
      
         ! calculate factor
-        h = (right-left)/((1+growth)**n-1.0_dp)
+        h = (right-left)/((1.0_dp+growth)**n-1.0_dp)
      
         ! calculate grid value
         grid_Inv_Grow_1 = log((x-left)/h+1.0_dp)/log(1.0_dp+growth)
@@ -1340,7 +1328,7 @@ contains
     !
     ! Calculates inverse of gridpoints of an equidistant grid.
     !##############################################################################
-    function grid_Inv_Equi_m(x, left, right, n)
+    pure function grid_Inv_Equi_m(x, left, right, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1366,8 +1354,7 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Inv_Equi', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Inv_Equi: left interval point greater than right point'
      
         ! calculate distance between grid points
         h = (right-left)/n
@@ -1383,7 +1370,7 @@ contains
     !
     ! Calculates inverse of gridpoints of a Chebychev grid.
     !##############################################################################
-    function grid_Inv_Cheb_m(x, left, right, n)
+    pure function grid_Inv_Cheb_m(x, left, right, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1409,8 +1396,7 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Inv_Cheb', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Inv_Cheb: left interval point greater than right point'
  
         ! calculate grid value
         grid_Inv_Cheb_m = real(n, dp) + 0.5_dp - acos((2.0_dp*x-(left+right)) &
@@ -1424,7 +1410,7 @@ contains
     !
     ! Calculates inverse of gridpoints of a growing grid.
     !##############################################################################
-    function grid_Inv_Grow_m(x, left, right, growth, n)
+    pure function grid_Inv_Grow_m(x, left, right, growth, n)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1453,12 +1439,10 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('grid_Inv_Grow', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: grid_Inv_Grow: left interval point greater than right point'
 
         ! check for growth
-        if(growth <= 0.0_dp)call error('grid_Inv_Grow', &
-            'growth rate must be greater than zero')
+        if(growth <= 0.0_dp) error stop 'ERROR: grid_Inv_Grow: growth rate must be greater than zero'
      
         ! calculate factor
         h = (right-left)/((1.0_dp+growth)**n-1.0_dp)
@@ -1474,7 +1458,7 @@ contains
     !
     ! Calculates linear interpolant on an equidistant grid.
     !##############################################################################
-    subroutine linint_Equi_1(x, left, right, n, il, ir, phi)
+    pure subroutine linint_Equi_1(x, left, right, n, il, ir, phi)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1527,7 +1511,7 @@ contains
     !
     ! Calculates linear interpolant on an equidistant grid.
     !##############################################################################
-    subroutine linint_Equi_m(x, left, right, n, il, ir, phi)
+    pure subroutine linint_Equi_m(x, left, right, n, il, ir, phi)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1585,7 +1569,7 @@ contains
     !
     ! Calculates linear interpolant on an equidistant grid.
     !##############################################################################
-    subroutine linint_Cheb_1(x, left, right, n, il, ir, phi)
+    pure subroutine linint_Cheb_1(x, left, right, n, il, ir, phi)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1640,7 +1624,7 @@ contains
     !
     ! Calculates linear interpolant on a Chebychev grid.
     !##############################################################################
-    subroutine linint_Cheb_m(x, left, right, n, il, ir, phi)
+    pure subroutine linint_Cheb_m(x, left, right, n, il, ir, phi)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1700,7 +1684,7 @@ contains
     !
     ! Calculates linear interpolant on a growing grid.
     !##############################################################################
-    subroutine linint_Grow_1(x, left, right, growth, n, il, ir, phi)
+    pure subroutine linint_Grow_1(x, left, right, growth, n, il, ir, phi)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1734,8 +1718,7 @@ contains
         !##### ROUTINE CODE #######################################################
      
         ! check for left <= right
-        if(left >= right)call error('linint_Grow', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: linint_Grow: left interval point greater than right point'
      
         ! invert the grid to get point
         xinv = grid_Inv_Grow_1(min(max(x, left), right), left, right, growth, n)
@@ -1745,9 +1728,9 @@ contains
         ir = il+1
 
         ! determine left and right gridpoint
-        h = (right-left)/((1+growth)**n-1)     
-        xl = h*((1+growth)**real(il, dp)-1.0_dp)+left
-        xr = h*((1+growth)**real(ir, dp)-1.0_dp)+left
+        h = (right-left)/((1.0_dp+growth)**n-1.0_dp)     
+        xl = h*((1.0_dp+growth)**real(il, dp)-1.0_dp)+left
+        xr = h*((1.0_dp+growth)**real(ir, dp)-1.0_dp)+left
 
         ! get share on the left point
         phi = (xr-x)/(xr-xl)
@@ -1760,7 +1743,7 @@ contains
     !
     ! Calculates linear interpolant on an equidistant grid.
     !##############################################################################
-    subroutine linint_Grow_m(x, left, right, growth, n, il, ir, phi)
+    pure subroutine linint_Grow_m(x, left, right, growth, n, il, ir, phi)
     
     
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1799,8 +1782,7 @@ contains
         m = m
      
         ! check for left <= right
-        if(left >= right)call error('linint_Grow', &
-            'left interval point greater than right point')
+        if(left >= right) error stop 'ERROR: linint_Grow: left interval point greater than right point'
      
         ! invert the grid to get point
         xinv = grid_Inv_Grow_m(min(max(x, left), right), left, right, growth, n)
@@ -1810,9 +1792,9 @@ contains
         ir = il+1
 
         ! determine left and right gridpoint
-        h = (right-left)/((1+growth)**n-1)     
-        xl = h*((1+growth)**real(il, dp)-1.0_dp)+left
-        xr = h*((1+growth)**real(ir, dp)-1.0_dp)+left
+        h = (right-left)/((1.0_dp+growth)**n-1.0_dp)     
+        xl = h*((1.0_dp+growth)**real(il, dp)-1.0_dp)+left
+        xr = h*((1.0_dp+growth)**real(ir, dp)-1.0_dp)+left
 
         ! get share on the left point
         phi = (xr-x)/(xr-xl)
@@ -1825,7 +1807,7 @@ contains
     !
     ! For linear interpolation on irregular grids.
     !##############################################################################
-    function linint_Gen(x, xi, yi, istart_in)
+    pure function linint_Gen(x, xi, yi, istart_in)
 
         
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -1892,7 +1874,7 @@ contains
         phi = 1.0_dp - (x-xi(ial))/(xi(iar)-xi(ial))        
         linint_Gen = phi*yi(ial) + (1.0_dp-phi)*yi(iar)
 
-    end function
+    end function linint_Gen
 
 
     !##############################################################################
@@ -1900,7 +1882,7 @@ contains
     !
     ! For linear interpolation on irregular grids (with detailed return values).
     !##############################################################################
-    subroutine linint_Gen_detail(x, xi, ial, iar, phi, istart_in)
+    pure subroutine linint_Gen_detail(x, xi, ial, iar, phi, istart_in)
 
         !##### INPUT/OUTPUT VARIABLES #############################################
 
@@ -1968,7 +1950,7 @@ contains
         ! linearly interpolate between the two points
         phi = 1.0_dp - (x-xi(ial))/(xi(iar)-xi(ial))            
 
-    end subroutine
+    end subroutine linint_Gen_detail
 
 
 
@@ -2182,7 +2164,7 @@ contains
     contains
         
         
-        function outerprod(a, b)
+        pure function outerprod(a, b)
         
             real(dp), intent(in) :: a(:), b(:)
             real(dp) :: outerprod(size(a, 1),size(b, 1))
@@ -2193,7 +2175,7 @@ contains
         end function outerprod
         
         
-        subroutine swap(a, b)
+        pure subroutine swap(a, b)
         
             real(dp), intent(inout) :: a(:), b(:)
             real(dp) :: dum(size(a))
@@ -2205,7 +2187,7 @@ contains
         end subroutine swap
         
         
-        function imaxloc(arr)
+        pure function imaxloc(arr)
         
             real(dp), intent(in) :: arr(:)
             integer(int32) :: imaxloc
@@ -2443,7 +2425,7 @@ contains
     !
     ! Calculates uniform density at point x.
     !##############################################################################
-    function uniformPDF(x, a, b)
+    pure function uniformPDF(x, a, b)
      
         implicit none
      
@@ -2454,10 +2436,10 @@ contains
         real(dp), intent(in) :: x
      
         ! left end of the distribution
-        real(dp), optional :: a
+        real(dp), intent(in), optional :: a
      
         ! right end of the distribution
-        real(dp), optional :: b
+        real(dp), intent(in), optional :: b
         
         ! value of the uniform density
         real(dp) :: uniformPDF
@@ -2476,9 +2458,7 @@ contains
         b_c = 1.0_dp
         if(present(b))b_c = b
         
-        if(b_c < a_c)then
-            call error('uniformPDF','b is smaller than a')
-        endif
+        if(b_c < a_c) error stop 'ERROR: uniformPDF: b is smaller than a'
      
         if(x < a_c .or. x > b_c)then
             uniformPDF = 0.0_dp
@@ -2494,7 +2474,7 @@ contains
     !
     ! Calculates cumulated uniform distribution at point x.
     !##############################################################################
-    function uniformCDF(x, a, b)
+    pure function uniformCDF(x, a, b)
      
         implicit none
      
@@ -2505,10 +2485,10 @@ contains
         real(dp), intent(in) :: x
      
         ! left end of the distribution
-        real(dp), optional :: a
+        real(dp), intent(in), optional :: a
      
         ! right end of the distribution
-        real(dp), optional :: b
+        real(dp), intent(in), optional :: b
         
         ! value of the uniform distribution function
         real(dp) :: uniformCDF
@@ -2527,9 +2507,7 @@ contains
         b_c = 1.0_dp
         if(present(b))b_c = b
         
-        if(b_c < a_c)then
-            call error('uniformCDF','b is smaller than a')
-        endif
+        if(b_c < a_c) error stop 'ERROR: uniformCDF: b is smaller than a'
      
         if(x <= a_c)then
             uniformCDF = 0.0_dp
@@ -2547,7 +2525,7 @@ contains
     !
     ! Calculates inverse cumulated uniform distribution at point x.
     !##############################################################################
-    function uniformCDF_Inv(x, a, b)
+    pure function uniformCDF_Inv(x, a, b)
      
         implicit none
      
@@ -2558,10 +2536,10 @@ contains
         real(dp), intent(in) :: x
      
         ! left end of the distribution
-        real(dp), optional :: a
+        real(dp), intent(in), optional :: a
      
         ! right end of the distribution
-        real(dp), optional :: b
+        real(dp), intent(in), optional :: b
         
         ! value of the uniform distribution function
         real(dp) :: uniformCDF_Inv
@@ -2580,9 +2558,7 @@ contains
         b_c = 1.0_dp
         if(present(b))b_c = b
         
-        if(b_c < a_c)then
-            call error('uniformCDF_Inv','b is smaller than a')
-        endif
+        if(b_c < a_c) error stop 'ERROR: uniformCDF_Inv: b is smaller than a'
      
         if(x <= 0.0_dp)then
             uniformCDF_Inv = a_c
@@ -2600,7 +2576,7 @@ contains
     !
     ! Calculates normal density functions at point x.
     !##############################################################################
-    function normalPDF(x, mu, sigma)
+    pure function normalPDF(x, mu, sigma)
      
         implicit none
      
@@ -2611,10 +2587,10 @@ contains
         real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real(dp), optional :: mu
+        real(dp), intent(in), optional :: mu
      
         ! variance of distribution
-        real(dp), optional :: sigma
+        real(dp), intent(in), optional :: sigma
      
         ! value of normal density at p
         real(dp) :: normalPDF
@@ -2634,9 +2610,7 @@ contains
         sigma_c = 1.0_dp
         if(present(sigma))sigma_c = sqrt(sigma)
         
-        if(sigma_c <= 0.0_dp)then
-            call error('normalCDF','sigma has zero or negative value')
-        endif
+        if(sigma_c <= 0.0_dp) error stop 'ERROR: normalPDF: sigma has zero or negative value'
      
         normalPDF = 1.0_dp/(sigma_c*sqrt(2.0_dp*pi))*exp(-((x-mu_c)/sigma_c)**2/2.0_dp)
      
@@ -2655,7 +2629,7 @@ contains
     !     REFERENCE: Hill, D. (1973). Algorithm AS 66: The Normal Integral.
     !                Applied Statistics, 22(3), 424-427.
     !##############################################################################
-    function normalCDF(x, mu, sigma)
+    pure function normalCDF(x, mu, sigma)
      
         implicit none
      
@@ -2666,10 +2640,10 @@ contains
         real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real(dp), optional :: mu
+        real(dp), intent(in), optional :: mu
      
         ! variance of distribution
-        real(dp), optional :: sigma
+        real(dp), intent(in), optional :: sigma
      
         ! value of the normal distribution at x
         real(dp) :: normalCDF
@@ -2710,9 +2684,7 @@ contains
             if(sigma_c > 0.0_dp)sigma_c = sqrt(sigma)
         endif
         
-        if(sigma_c <= 0.0_dp)then
-            call error('normalCDF','sigma has zero or negative value')
-        endif
+        if(sigma_c <= 0.0_dp) error stop 'ERROR: normalCDF: sigma has zero or negative value'
      
         ! standardize evaluation point
         xtrans = (x - mu_c)/sigma_c
@@ -2750,7 +2722,7 @@ contains
     !                of the Normal Distribution. Applied Statistics, 37(3),
     !                477-484.
     !##############################################################################
-    function normalCDF_Inv(x, mu, sigma)
+    pure function normalCDF_Inv(x, mu, sigma)
      
         implicit none
      
@@ -2758,13 +2730,13 @@ contains
         !##### INPUT/OUTPUT VARIABLES #############################################
      
         ! point where to calculate function
-        real(dp) :: x
+        real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real(dp), optional :: mu
+        real(dp), intent(in), optional :: mu
      
         ! variance of distribution
-        real(dp), optional :: sigma
+        real(dp), intent(in), optional :: sigma
      
         ! value of the inverse of the normal distribution at x   
         real(dp) :: normalCDF_Inv
@@ -2838,9 +2810,7 @@ contains
             if(sigma_c > 0.0_dp)sigma_c = sqrt(sigma)
         endif
         
-        if(sigma_c <= 0.0_dp)then
-            call error('normalCDF_Inv','sigma has zero or negative value')
-        endif
+        if(sigma_c <= 0.0_dp) error stop 'ERROR: normalCDF_Inv: sigma has zero or negative value'
      
         ! check for very small or large values
         if(x <= 0.0_dp)then
@@ -2889,7 +2859,7 @@ contains
     contains
         
         ! stable evaluation of a polynomial
-        function r8poly_value(n, a, x)
+        pure function r8poly_value(n, a, x)
         
             implicit none
             
@@ -2921,7 +2891,7 @@ contains
                 r8poly_value = r8poly_value * x + a(i)
             enddo
         
-        end function
+        end function r8poly_value
      
     end function normalCDF_Inv
     
@@ -2931,7 +2901,7 @@ contains
     !
     ! Calculates log-normal density functions at point x.
     !##############################################################################
-    function log_normalPDF(x, mu, sigma)
+    pure function log_normalPDF(x, mu, sigma)
      
         implicit none
      
@@ -2942,10 +2912,10 @@ contains
         real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real(dp), optional :: mu
+        real(dp), intent(in), optional :: mu
      
         ! variance of distribution
-        real(dp), optional :: sigma
+        real(dp), intent(in), optional :: sigma
      
         ! value of normal density at p
         real(dp) :: log_normalPDF
@@ -2964,16 +2934,9 @@ contains
         sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0.0_dp)then
-            call error('log_normalPDF','sigma has zero or negative value')
-        endif
-        if(mu_c <= 0.0_dp)then
-            call error('log_normalPDF','mu has zero or negative value')
-        endif
-        
-        if(x < 0.0_dp)then
-            call error('log_normalPDF','x has negative value')
-        endif
+        if(sigma_c <= 0.0_dp) error stop 'ERROR: log_normalPDF: sigma has zero or negative value'
+        if(mu_c <= 0.0_dp) error stop 'ERROR: log_normalPDF: mu has zero or negative value'
+        if(x < 0.0_dp) error stop 'ERROR: log_normalPDF: x has negative value'
      
         ! get expectation and variance
         sigma_c = log(1.0_dp+sigma_c/mu_c**2)
@@ -2994,7 +2957,7 @@ contains
     !
     ! Calculates log-normal distribution at point x.
     !##############################################################################
-    function log_normalCDF(x, mu, sigma)
+    pure function log_normalCDF(x, mu, sigma)
      
         implicit none
      
@@ -3005,10 +2968,10 @@ contains
         real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real(dp), optional :: mu
+        real(dp), intent(in), optional :: mu
      
         ! variance of distribution
-        real(dp), optional :: sigma
+        real(dp), intent(in), optional :: sigma
      
         ! value of normal density at p
         real(dp) :: log_normalCDF
@@ -3027,16 +2990,9 @@ contains
         sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0.0_dp)then
-            call error('log_normalCDF','sigma has zero or negative value')
-        endif
-        if(mu_c <= 0.0_dp)then
-            call error('log_normalCDF','mu has zero or negative value')
-        endif
-        
-        if(x < 0.0_dp)then
-            call error('log_normalCDF','x has negative value')
-        endif
+        if(sigma_c <= 0.0_dp) error stop 'ERROR: log_normalCDF: sigma has zero or negative value'
+        if(mu_c <= 0.0_dp) error stop 'ERROR: log_normalCDF: mu has zero or negative value'
+        if(x < 0.0_dp) error stop 'ERROR: log_normalCDF: x has negative value'
      
         ! get expectation and variance
         sigma_c = log(1.0_dp+sigma_c/mu_c**2)
@@ -3057,7 +3013,7 @@ contains
     !
     ! Calculates cumulated log-normal distribution at point x.
     !##############################################################################
-    function log_normalCDF_Inv(x, mu, sigma)
+    pure function log_normalCDF_Inv(x, mu, sigma)
      
         implicit none
      
@@ -3068,10 +3024,10 @@ contains
         real(dp), intent(in) :: x
      
         ! expectation of distribution
-        real(dp), optional :: mu
+        real(dp), intent(in), optional :: mu
      
         ! variance of distribution
-        real(dp), optional :: sigma
+        real(dp), intent(in), optional :: sigma
      
         ! value of normal density at p
         real(dp) :: log_normalCDF_Inv
@@ -3090,12 +3046,8 @@ contains
         sigma_c = exp(1.0_dp)*(exp(1.0_dp)-1.0_dp)
         if(present(sigma))sigma_c = sigma
         
-        if(sigma_c <= 0.0_dp)then
-            call error('log_normalCDF_Inv','sigma has zero or negative value')
-        endif
-        if(mu_c <= 0.0_dp)then
-            call error('log_normalCDF_Inv','mu has zero or negative value')
-        endif
+        if(sigma_c <= 0.0_dp) error stop 'ERROR: log_normalCDF_Inv: sigma has zero or negative value'
+        if(mu_c <= 0.0_dp) error stop 'ERROR: log_normalCDF_Inv: mu has zero or negative value'
         
         ! get expectation and variance
         sigma_c = log(1.0_dp+sigma_c/mu_c**2)
@@ -3720,7 +3672,7 @@ contains
     !
     ! Calculates probabilities of the bernoulli distribution.
     !##############################################################################
-    function bernoulliPDF(k, p)
+    elemental function bernoulliPDF(k, p)
 
         implicit none
      
@@ -3740,9 +3692,7 @@ contains
         !##### ROUTINE CODE #######################################################
         
         ! check for validity
-        if(p < 0.0_dp .or. p > 1.0_dp)then
-            call error('bernoulliPDF', 'Probability p is out of [0,1]')
-        endif
+        if(p < 0.0_dp .or. p > 1.0_dp) error stop 'ERROR: bernoulliPDF: Probability p is out of [0,1]'
         
         ! outside of range
         if(k < 0)then
@@ -3761,7 +3711,7 @@ contains
             bernoulliPDF = p
         endif
 
-    end function
+    end function bernoulliPDF
     
     
     !##############################################################################
@@ -3769,7 +3719,7 @@ contains
     !
     ! Calculates cumulated probabilities of the bernoulli distribution.
     !##############################################################################
-    function bernoulliCDF(k, p)
+    elemental function bernoulliCDF(k, p)
 
         implicit none
      
@@ -3789,9 +3739,7 @@ contains
         !##### ROUTINE CODE #######################################################
         
         ! check for validity
-        if(p < 0.0_dp .or. p > 1.0_dp)then
-            call error('bernoulliCDF', 'Probability p is out of [0,1]')
-        endif
+        if(p < 0.0_dp .or. p > 1.0_dp) error stop 'ERROR: bernoulliCDF: Probability p is out of [0,1]'
         
         ! outside of range
         if(k < 0)then
@@ -3806,7 +3754,7 @@ contains
         
         bernoulliCDF = 1.0_dp - p
 
-    end function
+    end function bernoulliCDF
     
     
     !##############################################################################
@@ -3814,7 +3762,7 @@ contains
     !
     ! Calculates probabilities of the binomial distribution.
     !##############################################################################
-    function binomialPDF(k, n, p)
+    elemental function binomialPDF(k, n, p)
 
         implicit none
      
@@ -3838,9 +3786,7 @@ contains
         
 
         ! check for validity
-        if(p < 0.0_dp .or. p > 1.0_dp)then
-            call error('binomialPDF', 'Probability p is out of [0,1]')
-        endif
+        if(p < 0.0_dp .or. p > 1.0_dp) error stop 'ERROR: binomialPDF: Probability p is out of [0,1]'
         
         ! outside of range
         if(k < 0 .or. k > n)then
@@ -3850,7 +3796,7 @@ contains
 
         binomialPDF = binomial_coefficient(n, k)*p**k*(1.0_dp-p)**(n-k)        
 
-    end function
+    end function binomialPDF
     
     
     !##############################################################################
@@ -3858,7 +3804,7 @@ contains
     !
     ! Calculates cumulated probabilities of the binomial distribution.
     !##############################################################################
-    function binomialCDF(k, n, p)
+    elemental function binomialCDF(k, n, p)
 
         implicit none
      
@@ -3886,9 +3832,7 @@ contains
         !##### ROUTINE CODE #######################################################
         
         ! check for validity
-        if(p < 0.0_dp .or. p > 1.0_dp)then
-            call error('binomialCDF', 'Probability p is out of [0,1]')
-        endif
+        if(p < 0.0_dp .or. p > 1.0_dp) error stop 'ERROR: binomialCDF: Probability p is out of [0,1]'
         
         ! outside of range
         if(k < 0)then
@@ -3906,7 +3850,7 @@ contains
             binomialCDF = binomialCDF +  binomial_coefficient(n, ii)*p**ii*(1.0_dp-p)**(n-ii)
         enddo
 
-    end function
+    end function binomialCDF
     
     
     !##############################################################################
@@ -3914,7 +3858,7 @@ contains
     !
     ! Calculate binomial coefficients efficiently
     !##############################################################################
-    function binomial_coefficient(n, k)
+    elemental function binomial_coefficient(n, k)
     
         implicit none
      
@@ -3959,7 +3903,7 @@ contains
             binomial_coefficient = binomial_coefficient/real(ii, dp)
         enddo
     
-    end function
+    end function binomial_coefficient
     
      
      
@@ -5461,7 +5405,7 @@ contains
     !
     ! Constructs interpolating polynomial given nodes xi and data yi.
     !##############################################################################
-    function poly_interpol_1(x, xi, yi)
+    pure function poly_interpol_1(x, xi, yi)
      
      
         !##### INPUT/OUTPUT VARIABLES #############################################
@@ -5512,7 +5456,7 @@ contains
     ! Constructs interpolating polynomial given nodes xi and data yi and several
     !     points x.
     !##############################################################################
-    function poly_interpol_m(x, xi, yi)
+    pure function poly_interpol_m(x, xi, yi)
      
      
         !##### INPUT/OUTPUT VARIABLES #############################################
