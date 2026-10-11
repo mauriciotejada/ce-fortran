@@ -57,6 +57,9 @@ real(dp),  private  :: tbox_gftol_root = 1.0e-8_dp
 ! Maximum number of iterations for broydn
 integer(int32), private  :: itermax_root = 200
 
+! Thread-local storage for OpenMP parallel regions
+!$omp threadprivate(starttime_cpu, tbox_seed, tbox_gftol, tbox_itermax_min, tbox_gftol_root, itermax_root)
+
 ! control variables for gnuplot
 logical, private :: gnu_addtoplot = .false.
 logical, private :: gnu_dolegend = .false.
@@ -795,17 +798,25 @@ contains
     !##############################################################################
     ! SUBROUTINE tic
     !
-    ! Starts cpu timer.
+    ! Starts cpu timer. Optionally returns current timestamp.
     !##############################################################################
-    subroutine tic()
+    subroutine tic(t)
     
         use omp_lib
+
+        !##### INPUT/OUTPUT VARIABLES #############################################
+        
+        ! optional starting time output
+        real(dp), intent(out), optional :: t
+        real(dp) :: now
     
 
         !##### ROUTINE CODE #######################################################
         
         ! get cpu time
-        starttime_cpu = omp_get_wtime()
+        now = omp_get_wtime()
+        starttime_cpu = now
+        if(present(t)) t = now
     
     end subroutine tic
     
@@ -813,9 +824,9 @@ contains
     !##############################################################################
     ! SUBROUTINE toc
     !
-    ! Stops cpu timer.
+    ! Stops cpu timer. Optionally takes explicit start time and returns elapsed.
     !##############################################################################
-    subroutine toc(file)
+    subroutine toc(file, t, elapsed)
     
         use omp_lib
 
@@ -824,6 +835,12 @@ contains
         
         ! optional file identifier
         integer(int32), intent(in), optional :: file
+
+        ! optional starting time input
+        real(dp), intent(in), optional :: t
+
+        ! optional elapsed seconds output
+        real(dp), intent(out), optional :: elapsed
         
         
         !##### OTHER VARIABLES ####################################################
@@ -846,7 +863,14 @@ contains
         time = omp_get_wtime()
         
         ! calculate time difference
-        time = time - starttime_cpu
+        if(present(t))then
+            time = time - t
+        else
+            time = time - starttime_cpu
+        endif
+
+        ! record elapsed seconds if requested
+        if(present(elapsed)) elapsed = time
         
         ! get number of days
         times(1) = floor(time/(24.0_dp*60.0_dp*60.0_dp))
@@ -3918,11 +3942,13 @@ contains
     !##############################################################################
     subroutine init_random_seed(fixed)
      
+        !$ use omp_lib, only: omp_get_thread_num
         implicit none
         integer(int32), allocatable :: seed(:)
         integer(int32) :: i, n, dt(8)
         integer(kind=int64) :: t
         logical, optional :: fixed
+        !$ integer(int32) :: tid
      
         call random_seed(size = n)
         allocate(seed(n))
@@ -3941,6 +3967,10 @@ contains
         if(present(fixed))then
             if(fixed)t = 0
         endif
+        !$ if (.not. (present(fixed) .and. (fixed .eqv. .true.))) then
+        !$     tid = omp_get_thread_num()
+        !$     t = t + int(tid, int64) * 104729_int64
+        !$ end if
         do i = 1, n
             seed(i) = lcg(t)
         enddo
@@ -5591,7 +5621,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    subroutine brent(xmin, fret, minimum, maximum, func)
+    subroutine brent(xmin, fret, minimum, maximum, func, tol, itermax)
      
         implicit none
         
@@ -5607,15 +5637,21 @@ contains
         ! left, middle and right interval points
         real(dp), intent(in) :: minimum, maximum
         
+        ! optional tolerance level
+        real(dp), intent(in), optional :: tol
+
+        ! optional maximum number of iterations
+        integer(int32), intent(in), optional :: itermax
+        
         
         !##### OTHER VARIABLES ####################################################
         
-        real(dp) :: tol
+        real(dp) :: tol_val
         real(dp), parameter :: cgold = 0.3819660_dp
         real(dp), parameter :: zeps = 1.0e-3_dp*epsilon(xmin)
         real(dp) :: a, b, d, e, etemp, fu, fv, fw, fx, p, q, r, tol1, tol2, &
             u, v, w, x, xm, ax, bx, cx
-        integer(int32) :: iter
+        integer(int32) :: iter, max_iter
         
         
         !##### INTERFACES #########################################################
@@ -5633,8 +5669,17 @@ contains
         
         !##### ROUTINE CODE #######################################################
         
-        ! set tolerance level
-        tol =  tbox_gftol
+        ! set tolerance level and max iterations
+        if(present(tol))then
+            tol_val = tol
+        else
+            tol_val = tbox_gftol
+        endif
+        if(present(itermax))then
+            max_iter = itermax
+        else
+            max_iter = tbox_itermax_min
+        endif
         
         ! define a, b, d, e to zero
         a = 0.0_dp
@@ -5667,9 +5712,9 @@ contains
         fv = fx
         fw = fx
         
-        do iter = 1,tbox_itermax_min
+        do iter = 1, max_iter
             xm = 0.5_dp*(a+b)
-            tol1 = tol*abs(x)+zeps
+            tol1 = tol_val*abs(x)+zeps
             tol2 = 2.0_dp*tol1
         
             if(abs(x-xm) <= (tol2-0.5_dp*(b-a)))then
@@ -5775,7 +5820,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press.
     !##############################################################################
-    subroutine powell(p, fret, minimum, maximum, func)
+    subroutine powell(p, fret, minimum, maximum, func, tol, itermax)
     
         implicit none
     
@@ -5793,6 +5838,12 @@ contains
     
         ! maximum optimization interval point
         real(dp), intent(in) :: maximum(:)
+
+        ! optional tolerance level
+        real(dp), intent(in), optional :: tol
+
+        ! optional maximum number of iterations
+        integer(int32), intent(in), optional :: itermax
     
     
         !##### OTHER VARIABLES ####################################################
@@ -5800,7 +5851,7 @@ contains
         real(dp) :: xi(size(p, 1), size(p, 1))
         real(dp) :: ftol
         real(dp), parameter :: tiny = 1.0e-25_dp
-        integer(int32) :: i, ibig, n, iter
+        integer(int32) :: i, ibig, n, iter, max_iter
         real(dp) :: del, fp, fptt, t
         real(dp), dimension(size(p)) :: pt, ptt, xit
         real(dp) :: xicom(size(p,1))
@@ -5821,8 +5872,17 @@ contains
     
         !##### ROUTINE CODE #######################################################
     
-        ! set tolerance level
-        ftol = tbox_gftol
+        ! set tolerance level and max iterations
+        if(present(tol))then
+            ftol = tol
+        else
+            ftol = tbox_gftol
+        endif
+        if(present(itermax))then
+            max_iter = itermax
+        else
+            max_iter = tbox_itermax_min
+        endif
         
         ! Set number of points
         n = assert_eq(size(p), size(minimum, 1), size(maximum,1), 'fminsearch')
@@ -5873,7 +5933,7 @@ contains
             if (2.0_dp*(fp - fret) <= ftol*(abs(fp) + abs(fret)) + tiny) return
             
             ! quit if maximum iterations reached
-            if(iter == tbox_itermax_min)then
+            if(iter == max_iter)then
                 call warning('fminsearch', 'maximum iterations exceeded')
             endif
             
@@ -5955,7 +6015,7 @@ contains
             !##### ROUTINE CODE ###################################################
      
             ! set tolerance level
-            tol = tbox_gftol
+            tol = ftol
      
             xicom(:) = xi(:)
      
@@ -6742,7 +6802,7 @@ contains
     !
     ! Find root of one-dimensional function by interpolatory newton method.
     !##############################################################################
-    subroutine newton_interpol(x, funcv, check_return)
+    subroutine newton_interpol(x, funcv, check_return, tol, itermax)
     
         implicit none
      
@@ -6755,6 +6815,12 @@ contains
         ! check is true if newton_interpol converged to local minimum or can make no
         !     further progress
         logical, intent(out), optional :: check_return
+
+        ! optional tolerance level
+        real(dp), intent(in), optional :: tol
+
+        ! optional maximum number of iterations
+        integer(int32), intent(in), optional :: itermax
      
         !##### OTHER VARIABLES ####################################################
      
@@ -6763,7 +6829,7 @@ contains
         real(dp), parameter :: tolx = eps
         real(dp), parameter :: stpmx = 100.0_dp
         real(dp) :: x1, x2, f1, f2, xnew, fnew, h
-        integer(int32) :: its
+        integer(int32) :: its, max_iter
      
      
         !##### INTERFACES #########################################################
@@ -6781,9 +6847,19 @@ contains
      
         !##### ROUTINE CODE #######################################################
      
-        ! set tolerance levels
-        tolf = tbox_gftol_root
-        tolmin = tbox_gftol_root
+        ! set tolerance levels and max iterations
+        if(present(tol))then
+            tolf = tol
+            tolmin = tol
+        else
+            tolf = tbox_gftol_root
+            tolmin = tbox_gftol_root
+        endif
+        if(present(itermax))then
+            max_iter = itermax
+        else
+            max_iter = itermax_root
+        endif
         if(present(check_return))check_return = .false.
      
         ! initialize values
@@ -6816,7 +6892,7 @@ contains
         endif
      
         ! start iteration
-        do its = 1, itermax_root
+        do its = 1, max_iter
      
             ! calculate new point xnew
             xnew = x2 - (x2-x1)/(1.0_dp-f1/f2)
@@ -6870,7 +6946,7 @@ contains
     !     Numerical Recipes in Fortran 90: The Art of Parallel Scientific
     !     Computing, 2nd edition. Cambridge: Cambridge University Press. 
     !##############################################################################
-    subroutine broydn(x, funcv, check_return)
+    subroutine broydn(x, funcv, check_return, tol, itermax)
     
         implicit none
      
@@ -6883,6 +6959,12 @@ contains
         ! check is true if broydn converged to local minimum or can make no
         !     further progress
         logical, intent(out), optional :: check_return
+
+        ! optional tolerance level
+        real(dp), intent(in), optional :: tol
+
+        ! optional maximum number of iterations
+        integer(int32), intent(in), optional :: itermax
      
      
         !##### OTHER VARIABLES ####################################################
@@ -6891,7 +6973,7 @@ contains
         real(dp) :: tolf, tolmin
         real(dp), parameter :: tolx = eps
         real(dp), parameter :: stpmx = 100.0_dp
-        integer(int32) :: i, j, k, its, n
+        integer(int32) :: i, j, k, its, n, max_iter
         real(dp) :: f, fold, stpmax
         real(dp), dimension(size(x)) :: c, d, fvcold, g, p, s, t, w, xold
         real(dp), dimension(size(x),size(x)) :: qt, r
@@ -6914,9 +6996,19 @@ contains
      
         !##### ROUTINE CODE #######################################################
      
-        ! set tolerance levels
-        tolf = tbox_gftol_root
-        tolmin = tbox_gftol_root
+        ! set tolerance levels and max iterations
+        if(present(tol))then
+            tolf = tol
+            tolmin = tol
+        else
+            tolf = tbox_gftol_root
+            tolmin = tbox_gftol_root
+        endif
+        if(present(itermax))then
+            max_iter = itermax
+        else
+            max_iter = itermax_root
+        endif
         if(present(check_return))check_return = .false.
      
         ! get size of x
@@ -6935,7 +7027,7 @@ contains
         restrt = .true.
      
         ! iterate broydn steps
-        do its=1,itermax_root
+        do its = 1, max_iter
      
             ! If restart then calculate jacobian of function
             if (restrt) then
