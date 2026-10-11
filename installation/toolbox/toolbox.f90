@@ -25,30 +25,16 @@ module toolbox
 !##############################################################################
 !##############################################################################
 
+! Standard intrinsic module for storage sizes and standard I/O units
+use, intrinsic :: iso_fortran_env, only: &
+    sp => real32, dp => real64, qp => real128, &
+    int8, int16, int32, int64, &
+    input_unit, output_unit, error_unit
+
 implicit none
 
 ! declare everything as private by default
 private
-
-!##############################################################################
-! Numerical storage size parameters for real and integer values
-!##############################################################################
-
-! Single precision real numbers, 6 digits, range 10^-37 to 10^37-1; 32 bits
-integer, parameter :: sp = selected_real_kind(6, 37)
-! Double precision real numbers, 15 digits, range 10^-307 to 10^307-1; 64 bits
-integer, parameter :: dp = selected_real_kind(15, 307)
-! Quadruple precision real numbers, 33 digits, range 10^-4931 to 10^4931-1; 128 bits
-integer, parameter :: qp = selected_real_kind(33, 4931)
-
-! Char length for integers, range -2^7 to 2^7-1; 8 bits
-integer, parameter :: int8 = selected_int_kind(2)
-! Short length for integers, range -2^15 to 2^15-1; 16 bits
-integer, parameter :: int16 = selected_int_kind(4)
-! Length of default integers, range -2^31 to 2^31-1; 32 bits
-integer, parameter :: int32 = selected_int_kind(9)
-! Long length for integers, range -2^63 to 2^63-1; 64 bits
-integer, parameter :: int64 = selected_int_kind(18)
 
 ! starting time for cpu timer
 real(dp), private :: starttime_cpu
@@ -93,9 +79,10 @@ character(LEN = 2000), dimension(1000), private :: gnu_definitions
 !##############################################################################
 !##############################################################################
 
-! kind parameters
+! kind parameters and standard I/O units
 public :: sp, dp, qp
 public :: int8, int16, int32, int64
+public :: input_unit, output_unit, error_unit
 
 ! matrix operations
 public :: lu_solve, lu_invert, lu_dec
