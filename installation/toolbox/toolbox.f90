@@ -10332,6 +10332,7 @@ contains
         character(LEN=*), optional :: output
         
         !##### OTHER VARIABLES ####################################################
+        integer(int32) :: u_data, u_cmd, ios
  
         integer(int32) :: i1, i2
         logical :: nw_copy
@@ -10379,14 +10380,16 @@ contains
         endif
 
         ! write the output data file
-        open(213659,file=trim(dfile))
+        open(newunit=u_data, file=trim(dfile), status='replace', action='write', iostat=ios)
+        if(ios /= 0) call error('execplot', 'Failed to open data file: '//trim(dfile))
         do i1 = 1, gnu_nmax
-            write(213659, '(2000e21.10e4)')(gnu_x(i1, i2), gnu_y(i1, i2), i2=1, gnu_mmax)
+            write(u_data, '(2000e21.10e4)')(gnu_x(i1, i2), gnu_y(i1, i2), i2=1, gnu_mmax)
         enddo
-        close(213659)
+        close(u_data)
 
         ! write the command file
-        open(213659,file=trim(cfile))
+        open(newunit=u_cmd, file=trim(cfile), status='replace', action='write', iostat=ios)
+        if(ios /= 0) call error('execplot', 'Failed to open command file: '//trim(cfile))
 
         ! set file or terminal
         if(nw_copy)then
@@ -10409,90 +10412,90 @@ contains
                 write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
             endif
             
-            write(213659, *)
-            write(213659, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
-            write(213659, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
+            write(u_cmd, *)
+            write(u_cmd, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
+            write(u_cmd, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
 
             write(*,'(/a/)')'CREATING PLOT '//trim(pfile)//'.'//ft
         else
         
             ! print graph to terminal
 
-            write(213659, '(a)')'if (strstrt(GPVAL_TERMINALS, "wxt") > 0) {'
-            write(213659, '(a)')'    set terminal wxt title "Gnuplot" enhanced'
-            write(213659, '(a)')'} else {'
-            write(213659, '(a)')'    if (strstrt(GPVAL_TERMINALS, "x11") > 0) {'
-            write(213659, '(a)')'        set terminal x11 enhanced'
-            write(213659, '(a)')'    } else {'
-            write(213659, '(a)')'        if (strstrt(GPVAL_TERMINALS, "qt") > 0) {'
-            write(213659, '(a)')'            set terminal qt enhanced'
-            write(213659, '(a)')'        } else {'
-            write(213659, '(a)')'            print ""'
-            write(213659, '(a)')'            print "ATTENTION: There seems to be NO VALID TERMINAL installed in "'
-            write(213659, '(a)')'            print "           your version of gnuplot. It might be a good idea to "'
-            write(213659, '(a)')'            print "           completely uninstall your Fortran/gnuplot/geany installation"'
-            write(213659, '(a)')'            print "           using the uninstallation files on www.ce-fortran.com. "'
-            write(213659, '(a)')'            print "           Afterwards you should reinstall the Fortran system again."'
-            write(213659, '(a)')'            print "           If this does not help, please refer to the forum."'
-            write(213659, '(a)')'            print ""'
-            write(213659, '(a)')'            q'
-            write(213659, '(a)')'        }'
-            write(213659, '(a)')'    }'
-            write(213659, '(a)')'}'
+            write(u_cmd, '(a)')'if (strstrt(GPVAL_TERMINALS, "wxt") > 0) {'
+            write(u_cmd, '(a)')'    set terminal wxt title "Gnuplot" enhanced'
+            write(u_cmd, '(a)')'} else {'
+            write(u_cmd, '(a)')'    if (strstrt(GPVAL_TERMINALS, "x11") > 0) {'
+            write(u_cmd, '(a)')'        set terminal x11 enhanced'
+            write(u_cmd, '(a)')'    } else {'
+            write(u_cmd, '(a)')'        if (strstrt(GPVAL_TERMINALS, "qt") > 0) {'
+            write(u_cmd, '(a)')'            set terminal qt enhanced'
+            write(u_cmd, '(a)')'        } else {'
+            write(u_cmd, '(a)')'            print ""'
+            write(u_cmd, '(a)')'            print "ATTENTION: There seems to be NO VALID TERMINAL installed in "'
+            write(u_cmd, '(a)')'            print "           your version of gnuplot. It might be a good idea to "'
+            write(u_cmd, '(a)')'            print "           completely uninstall your Fortran/gnuplot/geany installation"'
+            write(u_cmd, '(a)')'            print "           using the uninstallation files on www.ce-fortran.com. "'
+            write(u_cmd, '(a)')'            print "           Afterwards you should reinstall the Fortran system again."'
+            write(u_cmd, '(a)')'            print "           If this does not help, please refer to the forum."'
+            write(u_cmd, '(a)')'            print ""'
+            write(u_cmd, '(a)')'            q'
+            write(u_cmd, '(a)')'        }'
+            write(u_cmd, '(a)')'    }'
+            write(u_cmd, '(a)')'}'
         endif
 
 
         ! set the grid definition
         if(present(nogrid))then
             if(nogrid)then
-                write(213659, '(a)')'unset grid'
+                write(u_cmd, '(a)')'unset grid'
             else
-                write(213659, '(a)')'set grid'
+                write(u_cmd, '(a)')'set grid'
             endif
         else
-            write(213659, '(a)')'set grid'
+            write(u_cmd, '(a)')'set grid'
         endif
         
         ! set histogram definition
         if(gnu_histogram)then
-            write(213659, '(a)')'set style data histograms'
-            write(213659, '(a)')'set style fill solid border -1'
+            write(u_cmd, '(a)')'set style data histograms'
+            write(u_cmd, '(a)')'set style fill solid border -1'
         endif
           
         ! set x axis
-        if(present(xlim))write(213659, '(a,e13.5,a,e13.5,a)')'set xrange [',minval(xlim),':',maxval(xlim),']'
+        if(present(xlim))write(u_cmd, '(a,e13.5,a,e13.5,a)')'set xrange [',minval(xlim),':',maxval(xlim),']'
         if(present(xticks))then
             if(present(xtrange))then
-                write(213659, '(a,e13.5,a,e13.5,a,e13.5)')'set xtics ',xtrange(1),',', xticks,',', xtrange(2)
+                write(u_cmd, '(a,e13.5,a,e13.5,a,e13.5)')'set xtics ',xtrange(1),',', xticks,',', xtrange(2)
             else
-                write(213659, '(a,e13.5)')'set xtics ',xticks
+                write(u_cmd, '(a,e13.5)')'set xtics ',xticks
             endif
         endif
-        if(present(xlabel))write(213659, '(a)')'set xlabel "'//xlabel//'"font ",14"'
+        if(present(xlabel))write(u_cmd, '(a)')'set xlabel "'//xlabel//'"font ",14"'
         
         ! set y axis
         if(present(ylim) .and. .not. gnu_histogram) &
-            write(213659, '(a,e13.5,a,e13.5,a)')'set yrange [',minval(ylim),':',maxval(ylim),']'
+            write(u_cmd, '(a,e13.5,a,e13.5,a)')'set yrange [',minval(ylim),':',maxval(ylim),']'
         if(gnu_histogram)then
             if(present(ylim))then
-                write(213659, '(a,e13.5,a,e13.5,a)') &
+                write(u_cmd, '(a,e13.5,a,e13.5,a)') &
                     'set yrange [',min(minval(ylim),0.0_dp),':',maxval(ylim),']'
             else
-                write(213659, '(a)') 'set yrange [0:]'
+                write(u_cmd, '(a)') 'set yrange [0:]'
             endif
         endif
                     
         if(present(yticks))then
             if(present(ytrange))then
-                write(213659, '(a,e13.5,a,e13.5,a,e13.5)')'set ytics ',ytrange(1),',', yticks,',', ytrange(2)
+                write(u_cmd, '(a,e13.5,a,e13.5,a,e13.5)')'set ytics ',ytrange(1),',', yticks,',', ytrange(2)
             else
-                write(213659, '(a,e13.5)')'set ytics ',yticks
+                write(u_cmd, '(a,e13.5)')'set ytics ',yticks
             endif
         endif
-        if(present(ylabel))write(213659, '(a)')'set ylabel "'//ylabel//'"font ",14"'
+        if(present(ylabel))write(u_cmd, '(a)')'set ylabel "'//ylabel//'"font ",14"'
 
         ! set title
-        if(present(title))write(213659, '(a)')'set title "'//title//'" font ",16"'
+        if(present(title))write(u_cmd, '(a)')'set title "'//title//'" font ",16"'
         
         ! legend statement
         if(gnu_dolegend)then
@@ -10529,25 +10532,25 @@ contains
                 location = 'center below'
             endif   
             
-            write(213659, '(a)')'set key '//trim(location)//' box Left reverse spacing 1.2'
+            write(u_cmd, '(a)')'set key '//trim(location)//' box Left reverse spacing 1.2'
         else
-            write(213659, '(a)')'unset key'
+            write(u_cmd, '(a)')'unset key'
         endif
 
         ! write plot lines
         if(gnu_mmax == 1)then
-            write(213659, '(a)')'plot "'//trim(dfile)//'" using 1:2 '//trim(gnu_definitions(1))
+            write(u_cmd, '(a)')'plot "'//trim(dfile)//'" using 1:2 '//trim(gnu_definitions(1))
         else
-            write(213659, '(a)')'plot "'//trim(dfile)//'" using 1:2 '//trim(gnu_definitions(1))//',\' 
+            write(u_cmd, '(a)')'plot "'//trim(dfile)//'" using 1:2 '//trim(gnu_definitions(1))//',\' 
             do i1 = 2, gnu_mmax-1
-                write(213659, '(a,i4,a,i4,a)')'     "'//trim(dfile)//'" using '&
+                write(u_cmd, '(a,i4,a,i4,a)')'     "'//trim(dfile)//'" using '&
                     ,2*(i1-1)+1,':',2*(i1-1)+2,' '//trim(gnu_definitions(i1))//',\' 
             enddo
-            write(213659, '(a,i4,a,i4,a)')'     "'//trim(dfile)//'" using ',  &
+            write(u_cmd, '(a,i4,a,i4,a)')'     "'//trim(dfile)//'" using ',  &
                 2*(gnu_mmax-1)+1,':',2*(gnu_mmax-1)+2,' '//trim(gnu_definitions(i1))
         endif
                         
-        if(.not. nw_copy)write(213659, '(a)')'pause mouse close'
+        if(.not. nw_copy)write(u_cmd, '(a)')'pause mouse close'
 
         ! write graph to file
         if(.not. nw_copy)then
@@ -10569,22 +10572,22 @@ contains
                     write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
                 endif
                 
-                write(213659, *)
-                write(213659, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
-                write(213659, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
-                write(213659, '(a)')'replot'
+                write(u_cmd, *)
+                write(u_cmd, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
+                write(u_cmd, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
+                write(u_cmd, '(a)')'replot'
             endif
         endif
         
-        write(213659, '(a)')'q'
-        close(213659)
+        write(u_cmd, '(a)')'q'
+        close(u_cmd)
         
         call system('gnuplot "'//trim(cfile)//'"') 
         if(.not.present(output))then
-            open(213659,file=trim(dfile))
-            close(213659, status='delete')
-            open(213659,file=trim(cfile))
-            close(213659, status='delete')
+            open(newunit=u_data, file=trim(dfile), iostat=ios)
+            if(ios == 0) close(u_data, status='delete')
+            open(newunit=u_cmd, file=trim(cfile), iostat=ios)
+            if(ios == 0) close(u_cmd, status='delete')
         endif
 
         gnu_addtoplot = .false.
@@ -11267,6 +11270,7 @@ contains
 
 
         !##### OTHER VARIABLES ####################################################
+        integer(int32) :: u_data, u_cmd, ios
  
         logical :: lines, points, nw_copy
         character(LEN = 2000) :: definition 
@@ -11389,17 +11393,19 @@ contains
         endif
 
         ! write the output data file
-        open(213659,file=trim(dfile))
+        open(newunit=u_data, file=trim(dfile), status='replace', action='write', iostat=ios)
+        if(ios /= 0) call error('plot3d_grid', 'Failed to open data file: '//trim(dfile))
         do i1 = 1, n1
             do i2 = 1, n2
-                write(213659, '(3e21.10e4)')xin(i1), yin(i2), zin(i1, i2)
+                write(u_data, '(3e21.10e4)')xin(i1), yin(i2), zin(i1, i2)
              enddo
-            write(213659,*)            
+            write(u_data,*)            
         enddo
-        close(213659)
+        close(u_data)
 
         ! write the command file
-        open(213659,file=trim(cfile))
+        open(newunit=u_cmd, file=trim(cfile), status='replace', action='write', iostat=ios)
+        if(ios /= 0) call error('plot3d_grid', 'Failed to open command file: '//trim(cfile))
 
         ! set file or terminal
         if(nw_copy)then
@@ -11422,127 +11428,127 @@ contains
                 write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
             endif
             
-            write(213659, *)
-            write(213659, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
-            write(213659, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
+            write(u_cmd, *)
+            write(u_cmd, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
+            write(u_cmd, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
 
             write(*,'(/a/)')'CREATING PLOT '//trim(pfile)//'.'//ft
         else
         
             ! print graph to terminal
 
-            write(213659, '(a)')'if (strstrt(GPVAL_TERMINALS, "wxt") > 0) {'
-            write(213659, '(a)')'    set terminal wxt title "Gnuplot" enhanced'
-            write(213659, '(a)')'} else {'
-            write(213659, '(a)')'    if (strstrt(GPVAL_TERMINALS, "x11") > 0) {'
-            write(213659, '(a)')'        set terminal x11 enhanced'
-            write(213659, '(a)')'    } else {'
-            write(213659, '(a)')'        if (strstrt(GPVAL_TERMINALS, "qt") > 0) {'
-            write(213659, '(a)')'            set terminal qt enhanced'
-            write(213659, '(a)')'        } else {'
-            write(213659, '(a)')'            print ""'
-            write(213659, '(a)')'            print "ATTENTION: There seems to be NO VALID TERMINAL installed in "'
-            write(213659, '(a)')'            print "           your version of gnuplot. It might be a good idea to "'
-            write(213659, '(a)')'            print "           completely uninstall your Fortran/gnuplot/geany installation"'
-            write(213659, '(a)')'            print "           using the uninstallation files on www.ce-fortran.com. "'
-            write(213659, '(a)')'            print "           Afterwards you should reinstall the Fortran system again."'
-            write(213659, '(a)')'            print "           If this does not help, please refer to the forum."'
-            write(213659, '(a)')'            print ""'
-            write(213659, '(a)')'            q'
-            write(213659, '(a)')'        }'
-            write(213659, '(a)')'    }'
-            write(213659, '(a)')'}'
+            write(u_cmd, '(a)')'if (strstrt(GPVAL_TERMINALS, "wxt") > 0) {'
+            write(u_cmd, '(a)')'    set terminal wxt title "Gnuplot" enhanced'
+            write(u_cmd, '(a)')'} else {'
+            write(u_cmd, '(a)')'    if (strstrt(GPVAL_TERMINALS, "x11") > 0) {'
+            write(u_cmd, '(a)')'        set terminal x11 enhanced'
+            write(u_cmd, '(a)')'    } else {'
+            write(u_cmd, '(a)')'        if (strstrt(GPVAL_TERMINALS, "qt") > 0) {'
+            write(u_cmd, '(a)')'            set terminal qt enhanced'
+            write(u_cmd, '(a)')'        } else {'
+            write(u_cmd, '(a)')'            print ""'
+            write(u_cmd, '(a)')'            print "ATTENTION: There seems to be NO VALID TERMINAL installed in "'
+            write(u_cmd, '(a)')'            print "           your version of gnuplot. It might be a good idea to "'
+            write(u_cmd, '(a)')'            print "           completely uninstall your Fortran/gnuplot/geany installation"'
+            write(u_cmd, '(a)')'            print "           using the uninstallation files on www.ce-fortran.com. "'
+            write(u_cmd, '(a)')'            print "           Afterwards you should reinstall the Fortran system again."'
+            write(u_cmd, '(a)')'            print "           If this does not help, please refer to the forum."'
+            write(u_cmd, '(a)')'            print ""'
+            write(u_cmd, '(a)')'            q'
+            write(u_cmd, '(a)')'        }'
+            write(u_cmd, '(a)')'    }'
+            write(u_cmd, '(a)')'}'
         endif
         
         ! set the grid definition
         if(present(nogrid))then
             if(nogrid)then
-                write(213659, '(a)')'unset grid'
+                write(u_cmd, '(a)')'unset grid'
             else
-                write(213659, '(a)')'set grid'
+                write(u_cmd, '(a)')'set grid'
             endif
         else
-            write(213659, '(a)')'set grid'
+            write(u_cmd, '(a)')'set grid'
         endif
         
         if(present(zlevel)) then
-            write(213659, '(a,e13.5)')'set ticslevel ', -min(max(zlevel, 0.0_dp), 1.0_dp)
+            write(u_cmd, '(a,e13.5)')'set ticslevel ', -min(max(zlevel, 0.0_dp), 1.0_dp)
         else 
-            write(213659, '(a,e13.5)')'set ticslevel 0'
+            write(u_cmd, '(a,e13.5)')'set ticslevel 0'
         endif
         
         if(present(surf) .and. surf) then
-            write(213659, '(a)')'set pm3d'
+            write(u_cmd, '(a)')'set pm3d'
             if(present(surf_color)) then
                 select case (surf_color)
                     case(1)
-                         write(213659,'(a)')'set palette gray'
+                         write(u_cmd,'(a)')'set palette gray'
                     case(2)
-                        write(213659,'(a)')'set palette rgbformulae 33,13,10'
+                        write(u_cmd,'(a)')'set palette rgbformulae 33,13,10'
                     case(3)
-                        write(213659,'(a)')'set palette rgbformulae 3,11,6'
+                        write(u_cmd,'(a)')'set palette rgbformulae 3,11,6'
                     case(4)
-                        write(213659,'(a)')'set palette rgbformulae 23,28,3'
+                        write(u_cmd,'(a)')'set palette rgbformulae 23,28,3'
                     case(5)
-                        write(213659, '(a)')'set palette rgbformulae 21,22,23'
+                        write(u_cmd, '(a)')'set palette rgbformulae 21,22,23'
                     case default
-                        write(213659, '(a)')'set palette rgbformulae 7,5,15'
+                        write(u_cmd, '(a)')'set palette rgbformulae 7,5,15'
                     end select
             endif               
         endif
 
         if(present(transparent) .and. .not. transparent) then
-            write(213659, '(a)')'set hidden3d'
+            write(u_cmd, '(a)')'set hidden3d'
         endif
         
         if(present(view)) then
-            write(213659, '(a,e13.5,a,e13.5)')'set view ', min(max(view(1), 0.0_dp), 360.0_dp), &
+            write(u_cmd, '(a,e13.5,a,e13.5)')'set view ', min(max(view(1), 0.0_dp), 360.0_dp), &
                 ',',min(max(view(2), 0.0_dp), 360.0_dp)
         endif
           
         ! set x axis
-        if(present(xlim))write(213659, '(a,e13.5,a,e13.5,a)')'set xrange [',minval(xlim),':',maxval(xlim),']'
+        if(present(xlim))write(u_cmd, '(a,e13.5,a,e13.5,a)')'set xrange [',minval(xlim),':',maxval(xlim),']'
         if(present(xticks))then
             if(present(xtrange))then
-                write(213659, '(a,e13.5,a,e13.5,a,e13.5)')'set xtics ',xtrange(1),',', xticks,',', xtrange(2)
+                write(u_cmd, '(a,e13.5,a,e13.5,a,e13.5)')'set xtics ',xtrange(1),',', xticks,',', xtrange(2)
             else
-                write(213659, '(a,e13.5)')'set xtics ',xticks
+                write(u_cmd, '(a,e13.5)')'set xtics ',xticks
             endif
         endif
-        if(present(xlabel))write(213659, '(a)')'set xlabel "'//xlabel//'"font ",12"'
+        if(present(xlabel))write(u_cmd, '(a)')'set xlabel "'//xlabel//'"font ",12"'
         
         ! set y axis
-        if(present(ylim))write(213659, '(a,e13.5,a,e13.5,a)')'set yrange [',minval(ylim),':',maxval(ylim),']'
+        if(present(ylim))write(u_cmd, '(a,e13.5,a,e13.5,a)')'set yrange [',minval(ylim),':',maxval(ylim),']'
         if(present(yticks))then
             if(present(ytrange))then
-                write(213659, '(a,e13.5,a,e13.5,a,e13.5)')'set ytics ',ytrange(1),',', yticks,',', ytrange(2)
+                write(u_cmd, '(a,e13.5,a,e13.5,a,e13.5)')'set ytics ',ytrange(1),',', yticks,',', ytrange(2)
             else
-                write(213659, '(a,e13.5)')'set ytics ',yticks
+                write(u_cmd, '(a,e13.5)')'set ytics ',yticks
             endif
         endif
-        if(present(ylabel))write(213659, '(a)')'set ylabel "'//ylabel//'"font ",12"'
+        if(present(ylabel))write(u_cmd, '(a)')'set ylabel "'//ylabel//'"font ",12"'
 
         ! set z axis
-        if(present(zlim))write(213659, '(a,e13.5,a,e13.5,a)')'set zrange [',minval(zlim),':',maxval(zlim),']'
+        if(present(zlim))write(u_cmd, '(a,e13.5,a,e13.5,a)')'set zrange [',minval(zlim),':',maxval(zlim),']'
         if(present(zticks))then
             if(present(ztrange))then
-                write(213659, '(a,e13.5,a,e13.5,a,e13.5)')'set ztics ',ztrange(1),',', zticks,',', ztrange(2)
+                write(u_cmd, '(a,e13.5,a,e13.5,a,e13.5)')'set ztics ',ztrange(1),',', zticks,',', ztrange(2)
             else
-                write(213659, '(a,e13.5)')'set ztics ',zticks
+                write(u_cmd, '(a,e13.5)')'set ztics ',zticks
             endif
         endif       
-        if(present(zlabel))write(213659, '(a)')'set zlabel "'//zlabel//'"font ",12"'
+        if(present(zlabel))write(u_cmd, '(a)')'set zlabel "'//zlabel//'"font ",12"'
 
         ! set title
-        if(present(title))write(213659, '(a)')'set title "'//title//'" font ",16"'
+        if(present(title))write(u_cmd, '(a)')'set title "'//title//'" font ",16"'
         
         ! legend statement
-        write(213659, '(a)')'unset key'
+        write(u_cmd, '(a)')'unset key'
 
         ! write plot lines for 3D-data
-        write(213659, '(a)')'splot "'//trim(dfile)//'" using 1:2:3 '//trim(definition)
+        write(u_cmd, '(a)')'splot "'//trim(dfile)//'" using 1:2:3 '//trim(definition)
                         
-        if(.not. nw_copy)write(213659, '(a)')'pause mouse close'
+        if(.not. nw_copy)write(u_cmd, '(a)')'pause mouse close'
 
         ! write graph to file
         if(.not. nw_copy)then
@@ -11564,22 +11570,22 @@ contains
                     write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
                 endif
                 
-                write(213659, *)
-                write(213659, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
-                write(213659, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
-                write(213659, '(a)')'replot'
+                write(u_cmd, *)
+                write(u_cmd, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
+                write(u_cmd, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
+                write(u_cmd, '(a)')'replot'
             endif
         endif
         
-        write(213659, '(a)')'q'
-        close(213659)
+        write(u_cmd, '(a)')'q'
+        close(u_cmd)
         
         call system('gnuplot "'//trim(cfile)//'"') 
         if(.not.present(output))then
-            open(213659,file=trim(dfile))
-            close(213659, status='delete')
-            open(213659,file=trim(cfile))
-            close(213659, status='delete')
+            open(newunit=u_data, file=trim(dfile), iostat=ios)
+            if(ios == 0) close(u_data, status='delete')
+            open(newunit=u_cmd, file=trim(cfile), iostat=ios)
+            if(ios == 0) close(u_cmd, status='delete')
         endif
         
     end subroutine
@@ -11688,6 +11694,7 @@ contains
 
 
         !##### OTHER VARIABLES ####################################################
+        integer(int32) :: u_data, u_cmd, ios
  
         logical :: lines, points, nw_copy
         character(LEN = 2000) :: definition 
@@ -11805,14 +11812,16 @@ contains
         endif
 
         ! write the output data file
-        open(213659,file=trim(dfile))
+        open(newunit=u_data, file=trim(dfile), status='replace', action='write', iostat=ios)
+        if(ios /= 0) call error('plot3d_line', 'Failed to open data file: '//trim(dfile))
         do i1 = 1, n
-            write(213659, '(3e21.10e4)')xin(i1), yin(i1), zin(i1)
+            write(u_data, '(3e21.10e4)')xin(i1), yin(i1), zin(i1)
         enddo
-        close(213659)
+        close(u_data)
 
         ! write the command file
-        open(213659,file=trim(cfile))
+        open(newunit=u_cmd, file=trim(cfile), status='replace', action='write', iostat=ios)
+        if(ios /= 0) call error('plot3d_line', 'Failed to open command file: '//trim(cfile))
 
         ! set file or terminal
         if(nw_copy)then
@@ -11835,103 +11844,103 @@ contains
                 write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
             endif
             
-            write(213659, *)
-            write(213659, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
-            write(213659, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
+            write(u_cmd, *)
+            write(u_cmd, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
+            write(u_cmd, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
 
             write(*,'(/a/)')'CREATING PLOT '//trim(pfile)//'.'//ft
         else
         
             ! print graph to terminal
 
-            write(213659, '(a)')'if (strstrt(GPVAL_TERMINALS, "wxt") > 0) {'
-            write(213659, '(a)')'    set terminal wxt title "Gnuplot" enhanced'
-            write(213659, '(a)')'} else {'
-            write(213659, '(a)')'    if (strstrt(GPVAL_TERMINALS, "x11") > 0) {'
-            write(213659, '(a)')'        set terminal x11 enhanced'
-            write(213659, '(a)')'    } else {'
-            write(213659, '(a)')'        if (strstrt(GPVAL_TERMINALS, "qt") > 0) {'
-            write(213659, '(a)')'            set terminal qt enhanced'
-            write(213659, '(a)')'        } else {'
-            write(213659, '(a)')'            print ""'
-            write(213659, '(a)')'            print "ATTENTION: There seems to be NO VALID TERMINAL installed in "'
-            write(213659, '(a)')'            print "           your version of gnuplot. It might be a good idea to "'
-            write(213659, '(a)')'            print "           completely uninstall your Fortran/gnuplot/geany installation"'
-            write(213659, '(a)')'            print "           using the uninstallation files on www.ce-fortran.com. "'
-            write(213659, '(a)')'            print "           Afterwards you should reinstall the Fortran system again."'
-            write(213659, '(a)')'            print "           If this does not help, please refer to the forum."'
-            write(213659, '(a)')'            print ""'
-            write(213659, '(a)')'            q'
-            write(213659, '(a)')'        }'
-            write(213659, '(a)')'    }'
-            write(213659, '(a)')'}'
+            write(u_cmd, '(a)')'if (strstrt(GPVAL_TERMINALS, "wxt") > 0) {'
+            write(u_cmd, '(a)')'    set terminal wxt title "Gnuplot" enhanced'
+            write(u_cmd, '(a)')'} else {'
+            write(u_cmd, '(a)')'    if (strstrt(GPVAL_TERMINALS, "x11") > 0) {'
+            write(u_cmd, '(a)')'        set terminal x11 enhanced'
+            write(u_cmd, '(a)')'    } else {'
+            write(u_cmd, '(a)')'        if (strstrt(GPVAL_TERMINALS, "qt") > 0) {'
+            write(u_cmd, '(a)')'            set terminal qt enhanced'
+            write(u_cmd, '(a)')'        } else {'
+            write(u_cmd, '(a)')'            print ""'
+            write(u_cmd, '(a)')'            print "ATTENTION: There seems to be NO VALID TERMINAL installed in "'
+            write(u_cmd, '(a)')'            print "           your version of gnuplot. It might be a good idea to "'
+            write(u_cmd, '(a)')'            print "           completely uninstall your Fortran/gnuplot/geany installation"'
+            write(u_cmd, '(a)')'            print "           using the uninstallation files on www.ce-fortran.com. "'
+            write(u_cmd, '(a)')'            print "           Afterwards you should reinstall the Fortran system again."'
+            write(u_cmd, '(a)')'            print "           If this does not help, please refer to the forum."'
+            write(u_cmd, '(a)')'            print ""'
+            write(u_cmd, '(a)')'            q'
+            write(u_cmd, '(a)')'        }'
+            write(u_cmd, '(a)')'    }'
+            write(u_cmd, '(a)')'}'
         endif
         
         ! set the grid definition
         if(present(nogrid))then
             if(nogrid)then
-                write(213659, '(a)')'unset grid'
+                write(u_cmd, '(a)')'unset grid'
             else
-                write(213659, '(a)')'set grid'
+                write(u_cmd, '(a)')'set grid'
             endif
         else
-            write(213659, '(a)')'set grid'
+            write(u_cmd, '(a)')'set grid'
         endif
         
         if(present(zlevel)) then
-            write(213659, '(a,e13.5)')'set ticslevel ', -min(max(zlevel, 0.0_dp), 1.0_dp)
+            write(u_cmd, '(a,e13.5)')'set ticslevel ', -min(max(zlevel, 0.0_dp), 1.0_dp)
         else 
-            write(213659, '(a,e13.5)')'set ticslevel 0'
+            write(u_cmd, '(a,e13.5)')'set ticslevel 0'
         endif
                
         if(present(view)) then
-            write(213659, '(a,e13.5,a,e13.5)')'set view ', min(max(view(1), 0.0_dp), 360.0_dp), &
+            write(u_cmd, '(a,e13.5,a,e13.5)')'set view ', min(max(view(1), 0.0_dp), 360.0_dp), &
                 ',',min(max(view(2), 0.0_dp), 360.0_dp)
         endif
           
         ! set x axis
-        if(present(xlim))write(213659, '(a,e13.5,a,e13.5,a)')'set xrange [',minval(xlim),':',maxval(xlim),']'
+        if(present(xlim))write(u_cmd, '(a,e13.5,a,e13.5,a)')'set xrange [',minval(xlim),':',maxval(xlim),']'
         if(present(xticks))then
             if(present(xtrange))then
-                write(213659, '(a,e13.5,a,e13.5,a,e13.5)')'set xtics ',xtrange(1),',', xticks,',', xtrange(2)
+                write(u_cmd, '(a,e13.5,a,e13.5,a,e13.5)')'set xtics ',xtrange(1),',', xticks,',', xtrange(2)
             else
-                write(213659, '(a,e13.5)')'set xtics ',xticks
+                write(u_cmd, '(a,e13.5)')'set xtics ',xticks
             endif
         endif
-        if(present(xlabel))write(213659, '(a)')'set xlabel "'//xlabel//'"font ",12"'
+        if(present(xlabel))write(u_cmd, '(a)')'set xlabel "'//xlabel//'"font ",12"'
         
         ! set y axis
-        if(present(ylim))write(213659, '(a,e13.5,a,e13.5,a)')'set yrange [',minval(ylim),':',maxval(ylim),']'
+        if(present(ylim))write(u_cmd, '(a,e13.5,a,e13.5,a)')'set yrange [',minval(ylim),':',maxval(ylim),']'
         if(present(yticks))then
             if(present(ytrange))then
-                write(213659, '(a,e13.5,a,e13.5,a,e13.5)')'set ytics ',ytrange(1),',', yticks,',', ytrange(2)
+                write(u_cmd, '(a,e13.5,a,e13.5,a,e13.5)')'set ytics ',ytrange(1),',', yticks,',', ytrange(2)
             else
-                write(213659, '(a,e13.5)')'set ytics ',yticks
+                write(u_cmd, '(a,e13.5)')'set ytics ',yticks
             endif
         endif
-        if(present(ylabel))write(213659, '(a)')'set ylabel "'//ylabel//'"font ",12"'
+        if(present(ylabel))write(u_cmd, '(a)')'set ylabel "'//ylabel//'"font ",12"'
 
         ! set z axis
-        if(present(zlim))write(213659, '(a,e13.5,a,e13.5,a)')'set zrange [',minval(zlim),':',maxval(zlim),']'
+        if(present(zlim))write(u_cmd, '(a,e13.5,a,e13.5,a)')'set zrange [',minval(zlim),':',maxval(zlim),']'
         if(present(zticks))then
             if(present(ztrange))then
-                write(213659, '(a,e13.5,a,e13.5,a,e13.5)')'set ztics ',ztrange(1),',', zticks,',', ztrange(2)
+                write(u_cmd, '(a,e13.5,a,e13.5,a,e13.5)')'set ztics ',ztrange(1),',', zticks,',', ztrange(2)
             else
-                write(213659, '(a,e13.5)')'set ztics ',zticks
+                write(u_cmd, '(a,e13.5)')'set ztics ',zticks
             endif
         endif       
-        if(present(zlabel))write(213659, '(a)')'set zlabel "'//zlabel//'"font ",12"'
+        if(present(zlabel))write(u_cmd, '(a)')'set zlabel "'//zlabel//'"font ",12"'
 
         ! set title
-        if(present(title))write(213659, '(a)')'set title "'//title//'" font ",16"'
+        if(present(title))write(u_cmd, '(a)')'set title "'//title//'" font ",16"'
         
         ! legend statement
-        write(213659, '(a)')'unset key'
+        write(u_cmd, '(a)')'unset key'
 
         ! write plot lines for 3D-data
-        write(213659, '(a)')'splot "'//trim(dfile)//'" using 1:2:3 '//trim(definition)
+        write(u_cmd, '(a)')'splot "'//trim(dfile)//'" using 1:2:3 '//trim(definition)
                         
-        if(.not. nw_copy)write(213659, '(a)')'pause mouse close'
+        if(.not. nw_copy)write(u_cmd, '(a)')'pause mouse close'
 
         ! write graph to file
         if(.not. nw_copy)then
@@ -11953,22 +11962,22 @@ contains
                     write(term, '(a,f4.2)')trim(term)//" size 5,", 5.0_dp*ratio
                 endif
                 
-                write(213659, *)
-                write(213659, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
-                write(213659, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
-                write(213659, '(a)')'replot'
+                write(u_cmd, *)
+                write(u_cmd, '(a)')'set terminal '//trim(term)//'  color enhanced fontscale 0.7'
+                write(u_cmd, '(a)')'set output "'//trim(pfile)//'.'//ft//'"'
+                write(u_cmd, '(a)')'replot'
             endif
         endif
         
-        write(213659, '(a)')'q'
-        close(213659)
+        write(u_cmd, '(a)')'q'
+        close(u_cmd)
         
         call system('gnuplot "'//trim(cfile)//'"') 
         if(.not.present(output))then
-            open(213659,file=trim(dfile))
-            close(213659, status='delete')
-            open(213659,file=trim(cfile))
-            close(213659, status='delete')
+            open(newunit=u_data, file=trim(dfile), iostat=ios)
+            if(ios == 0) close(u_data, status='delete')
+            open(newunit=u_cmd, file=trim(cfile), iostat=ios)
+            if(ios == 0) close(u_cmd, status='delete')
         endif
         
     end subroutine
