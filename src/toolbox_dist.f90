@@ -1655,8 +1655,13 @@ contains
         integer(int32) :: i, n, dt(8)
         integer(kind=int64) :: t
         logical, optional :: fixed
+        logical :: is_fixed
         !$ integer(int32) :: tid
-     
+
+        ! an absent optional argument must not be referenced
+        is_fixed = .false.
+        if(present(fixed))is_fixed = fixed
+
         call random_seed(size = n)
         allocate(seed(n))
      
@@ -1671,10 +1676,8 @@ contains
                 + dt(8)
         endif
         
-        if(present(fixed))then
-            if(fixed)t = 0
-        endif
-        !$ if (.not. (present(fixed) .and. (fixed .eqv. .true.))) then
+        if(is_fixed)t = 0
+        !$ if (.not. is_fixed) then
         !$     tid = omp_get_thread_num()
         !$     t = t + int(tid, int64) * 104729_int64
         !$ end if

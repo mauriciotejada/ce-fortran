@@ -1268,28 +1268,32 @@ contains
             write(u_cmd, '(a,e13.5)')'set ticslevel 0'
         endif
         
-        if(present(surf) .and. surf) then
-            write(u_cmd, '(a)')'set pm3d'
-            if(present(surf_color)) then
-                select case (surf_color)
-                    case(1)
-                         write(u_cmd,'(a)')'set palette gray'
-                    case(2)
-                        write(u_cmd,'(a)')'set palette rgbformulae 33,13,10'
-                    case(3)
-                        write(u_cmd,'(a)')'set palette rgbformulae 3,11,6'
-                    case(4)
-                        write(u_cmd,'(a)')'set palette rgbformulae 23,28,3'
-                    case(5)
-                        write(u_cmd, '(a)')'set palette rgbformulae 21,22,23'
-                    case default
-                        write(u_cmd, '(a)')'set palette rgbformulae 7,5,15'
-                    end select
-            endif               
+        if(present(surf)) then
+            if(surf) then
+                write(u_cmd, '(a)')'set pm3d'
+                if(present(surf_color)) then
+                    select case (surf_color)
+                        case(1)
+                             write(u_cmd,'(a)')'set palette gray'
+                        case(2)
+                            write(u_cmd,'(a)')'set palette rgbformulae 33,13,10'
+                        case(3)
+                            write(u_cmd,'(a)')'set palette rgbformulae 3,11,6'
+                        case(4)
+                            write(u_cmd,'(a)')'set palette rgbformulae 23,28,3'
+                        case(5)
+                            write(u_cmd, '(a)')'set palette rgbformulae 21,22,23'
+                        case default
+                            write(u_cmd, '(a)')'set palette rgbformulae 7,5,15'
+                        end select
+                endif
+            endif
         endif
 
-        if(present(transparent) .and. .not. transparent) then
-            write(u_cmd, '(a)')'set hidden3d'
+        if(present(transparent)) then
+            if(.not. transparent) then
+                write(u_cmd, '(a)')'set hidden3d'
+            endif
         endif
         
         if(present(view)) then
