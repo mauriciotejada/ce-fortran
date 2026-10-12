@@ -14,7 +14,7 @@ cd "$( cd "$( dirname "$0" )" && pwd )"
 
 # ASK FOR UNINSTALLATION CONFIRMATION
 echo
-echo "This script uninstalls Fortran/GNU Plot/Geany from your system."
+echo "This script uninstalls Fortran/GNU Plot and configured editor environments from your system."
 echo
 echo "THIS SCRIPT NEEDS ROOT PRIVILEGES FOR MANY UNINSTALLATION STEPS!!!"
 echo "PLEASE USE WITH CAUTION!"
@@ -27,6 +27,20 @@ if [ "$key" != "y" ]; then
 fi
 
 
+# ASK WHICH EDITOR CONFIGURATION TO UNINSTALL
+echo
+echo "Which editor configuration would you like to remove?"
+echo "  1) Visual Studio Code (removes Fortran tasks & debug settings)"
+echo "  2) Geany (removes Geany application & configuration)"
+echo "  3) Both"
+echo "  4) Neither (keep editor settings, remove Fortran/Toolbox only)"
+echo
+read -rp $'Select an option [1-4, default: 1]: ' editor_uninstall_choice
+if [ -z "$editor_uninstall_choice" ]; then
+    editor_uninstall_choice=1
+fi
+
+
 # REMOVE THE TOOLBOX
 sudo rm -f /usr/local/include/toolbox.mod
 sudo rm -f /usr/local/include/toolbox.o
@@ -34,14 +48,56 @@ sudo rm -f /usr/local/include/toolbox_debug.o
 sudo rm -f /usr/local/include/toolbox_version.sh
 
 
-# UNINSTALL GEANY
+# UNINSTALL SELECTED EDITOR CONFIGURATIONS
+if [ "$editor_uninstall_choice" = "1" ] || [ "$editor_uninstall_choice" = "3" ]; then
+    # REMOVE THE FORTRAN CONFIGURATION FROM VSCODE (VSCODE ITSELF IS NOT REMOVED)
+    python3 - <<'EOF'
+import json, os, re
 
-# uninstall software
-sudo apt --yes remove geany
-sudo rm -r ~/.config/geany
+user_dir = os.path.expanduser("~/.config/Code/User")
 
-# remove desktop icon
-sudo rm -f ~/Desktop/geany.desktop
+def load(path):
+    text = open(path).read()
+    try:
+        return json.loads(text)
+    except ValueError:
+        text = re.sub(r'^\s*//.*$', '', text, flags=re.M)
+        text = re.sub(r',(\s*[}\]])', r'\1', text)
+        return json.loads(text)
+
+def save(path, data):
+    with open(path, "w") as f:
+        json.dump(data, f, indent=4)
+        f.write("\n")
+
+try:
+    path = os.path.join(user_dir, "tasks.json")
+    if os.path.exists(path):
+        data = load(path)
+        data["tasks"] = [t for t in data.get("tasks", []) if not t.get("label", "").startswith("Fortran: ")]
+        save(path, data)
+        print("Removed Fortran tasks from VS Code.")
+
+    path = os.path.join(user_dir, "settings.json")
+    if os.path.exists(path):
+        data = load(path)
+        launch = data.get("launch", {})
+        launch["configurations"] = [c for c in launch.get("configurations", []) if not c.get("name", "").startswith("Fortran: ")]
+        data.pop("[fortran_free-form]", None)
+        save(path, data)
+        print("Removed Fortran settings from VS Code.")
+except Exception as e:
+    print("Could not parse your vscode settings - please remove the 'Fortran: ' entries manually: %s" % e)
+EOF
+fi
+
+if [ "$editor_uninstall_choice" = "2" ] || [ "$editor_uninstall_choice" = "3" ]; then
+    # UNINSTALL GEANY
+    sudo apt --yes remove geany
+    rm -rf ~/.config/geany
+    rm -f ~/Desktop/geany.desktop
+    echo "Removed Geany application and configuration."
+fi
 
 
 # UNINSTALL GNUPLOT
@@ -54,7 +110,7 @@ sudo apt --yes remove gfortran
 sudo apt --yes autoremove
 
 # CLEAN UP CONFIGURATIONS
-sudo sudo apt --yes clean
+sudo apt --yes clean
 
 
 # IF EVERYTHING RAN CORRECTLY, AT THIS POINT EVERYTHING SHOULD BE UNINSTALLED PROPERLY

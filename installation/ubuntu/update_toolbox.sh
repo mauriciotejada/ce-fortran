@@ -44,7 +44,7 @@ gfortran -c -O3 -fopenmp -ffree-line-length-none ./../toolbox/toolbox.f90 -o too
 sudo mkdir -p /usr/local/include
 sudo mv toolbox.mod /usr/local/include/
 sudo mv toolbox.o /usr/local/include/
-sudo v toolbox_debug.o /usr/local/include/
+sudo mv toolbox_debug.o /usr/local/include/
 
 
 # IF EVERYTHING RAN CORRECTLY, AT THIS POINT EVERYTHING SHOULD BE INSTALLED PROPERLY

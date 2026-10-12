@@ -18,25 +18,30 @@ There are some fixes for this issue on the internet. Yet, they involve changing 
 
 ## Installation
 
-When you execute the file `install_fortran.command`, it will install the [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) environment, the plotting programm [gnuplot](http://gnuplot.info/) as well as the IDE [geany](https://www.geany.org/) to your Mac. In addition, it is going to compile and store the toolbox on your Mac.
+When you execute the file `install_fortran.command`, it will install the [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) environment, the plotting program [gnuplot](http://gnuplot.info/), and prompt you to choose your preferred development editor: **Visual Studio Code** or **Geany**. In addition, it will compile and store the toolbox on your Mac.
 
 
 #### The installation process in detail
 
-The file `install_fortran.command` is a so-called bash-file, which we use to execute certain installation routines on your Mac. You can run this file by right-clicking on it and then selecting `Open`. During the installation process, we will make some changes to your lower system files. For this, the file `install_fortran.command` needs administrator rights, which is why you are asked for your password twice. When starting the file, you will be asked to confirm that you want to install all software components as well as our toolbox on your Mac. You can do this by typing the letter `y` and pressing ENTER.
+The file `install_fortran.command` is a bash file used to execute the installation routines on your Mac. You can run this file by right-clicking on it and selecting `Open`. During the installation process, changes are made to lower system files requiring administrator privileges. When prompted, confirm installation by typing `y` and pressing ENTER.
 
-Now the installation process has started. In detail you will see the following things happening:
+You will then be prompted to select your editor of choice:
+1. **Visual Studio Code (VS Code)** (default)
+2. **Geany**
 
-1. The first part of the installer copies all [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) components to your system using [homebrew](https://brew.sh).
-2. Next, we install [gnuplot](http://gnuplot.info/).
-3. The third installer component will bring the IDE [geany](https://www.geany.org/) to your system.
+In detail, you will see the following:
 
-When the three software components are installed, the installation bash-file will do a couple more things:
-
-1. It will patch the software geany such that it already contains the right configuration for using Fortran with our toolbox.
-2. It will compile and install the toolbox to a directory to which the compiler is pointed.
+1. The installer checks for [Homebrew](https://brew.sh) (supporting both Apple Silicon `/opt/homebrew` and Intel `/usr/local`) and installs the GNU Fortran compiler (`gcc`) and [gnuplot](http://gnuplot.info/).
+2. Depending on your editor selection:
+   - **Visual Studio Code**: The installer installs VS Code (if not already installed), adds the Fortran linter (`fortran-lang.linter-gfortran`) and LLDB debugger (`vadimcn.vscode-lldb`) extensions, and merges Fortran compile, build, run, and debug tasks into `tasks.json` and `settings.json` (backing up any existing files to `.bak`).
+   - **Geany**: The installer installs Geany via Homebrew and configures its build menu (`filetypes.fortran`) and editor behavior (`geany.conf`).
+3. Finally, it compiles and installs the `ce-fortran` toolbox (`toolbox.o`, `toolbox_debug.o`, `toolbox.mod`) to `/usr/local/include`.
 
 **This is it!** If you saw no error messages appearing, then Fortran as well as our toolbox were successfully installed on your system.
+
+#### Working with your chosen editor:
+- **VS Code**: Open any `.f90` file and press `Cmd+Shift+B` to compile and build. Use **Terminal > Run Task...** to select **Fortran: Run Program**, or press `F5` to start debugging.
+- **Geany**: Open any `.f90` file and use the **Build** menu (or shortcuts `F8` to compile, `F9` to build, and `F5` to execute).
 
 
 ## Uninstallation

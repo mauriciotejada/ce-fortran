@@ -12,26 +12,31 @@ All installation files have been tested with Windows 10, but should work down to
 
 ## Installation
 
-When you execute the file `install_fortran.bat`, it will install the [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) environment, the plotting programm [gnuplot](http://gnuplot.info/) as well as the IDE [geany](https://www.geany.org/) to your computer. In addition, it is going to compile and store the toolbox on your computer.
+When you execute the file `install_fortran.bat`, it will install the [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) environment, the plotting program [gnuplot](http://gnuplot.info/), and prompt you to choose your preferred development editor: **Visual Studio Code** or **Geany**. In addition, it will compile and store the toolbox on your computer.
 
 
 #### The installation process in detail
 
-The file `install_fortran.bat` is a so-called batch-file, which we use to execute certain installation routines on your computer. You can run this file by double-clicking on it. During the installation process, we will make some changes to your system’s registry and (possibly) the file association register. For this, the file `install_fortran.bat` needs administrator rights, which you will have to grant by clicking `Yes` in the dialogue that shows up immediately when you execute the batch-file. Once administrator rights are granted, a console appears and you will be asked to confirm that you want to install all software components as well as our toolbox on your computer. You can do this by typing the letter `y` and pressing ENTER. We strongly recommend that you use the standard installation directory, which is `C:\cygwin`. If for some reasons you are not able to install Fortran to this directory, you can follow the advice in bullet point 3.
+The file `install_fortran.bat` is a batch file used to execute installation routines on your computer. You can run this file by double-clicking on it. During the installation process, changes are made to your system registry requiring administrator rights (granted via the UAC prompt). Once administrator rights are granted, confirm installation by typing `y` and pressing ENTER. We recommend using the default installation directory `C:\cygwin`.
 
-Now the installation process has started. In detail you will see the following things happening:
+You will then be prompted to select your editor of choice:
+1. **Visual Studio Code (VS Code)** (default)
+2. **Geany**
 
-1. The first part of the installer copies [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) components to your system using [cywin](https://www.cygwin.com).
-2. Next, we install [gnuplot](http://gnuplot.info/).
-3. The third installer component will bring the IDE [geany](https://www.geany.org/) to your system.
+In detail, you will see the following happening:
 
-When the three software components are installed, the installation batch-file will do a couple more things:
-
-1. It will patch the software geany such that it already contains the right configuration for using Fortran with our toolbox.
-2. It will compile and install the toolbox to a directory to which the compiler is pointed.
-3. It will ask you whether all Fortran code files should be associated with our programming IDE geany. If you want this to happen, then just confirm by typing the letter y and pressing Enter.
+1. The installer installs the GNU Fortran compiler and related build tools using [Cygwin](https://www.cygwin.com).
+2. Next, it installs [gnuplot](http://gnuplot.info/).
+3. Depending on your editor selection:
+   - **Visual Studio Code**: The installer checks for VS Code (installing it if not already present), installs the Fortran linter (`fortran-lang.linter-gfortran`) and LLDB debugger (`vadimcn.vscode-lldb`) extensions, and merges Fortran compile, build, run, and debug tasks into `%APPDATA%\Code\User\tasks.json` and `settings.json` (backing up any existing files to `.bak`).
+   - **Geany**: The installer downloads and installs Geany silently, configures its build menu (`filetypes.fortran`) and editor behavior (`geany.conf`), and optionally associates Fortran file extensions (`.f90`, `.f77`, etc.) with Geany.
+4. Finally, it compiles and installs the `ce-fortran` toolbox (`toolbox.o`, `toolbox_debug.o`, `toolbox.mod`) to `%location%\include\`.
 
 **This is it!** If you saw no error messages appearing, then Fortran as well as our toolbox were successfully installed on your system.
+
+#### Working with your chosen editor:
+- **VS Code**: Open any `.f90` file and press `Ctrl+Shift+B` to compile and build. Use **Terminal > Run Task...** to select **Fortran: Run Program**, or press `F5` to start debugging.
+- **Geany**: Open any `.f90` file and use the **Build** menu (or shortcuts `F8` to compile, `F9` to build, and `F5` to execute).
 
 
 #### Changing the installation directory

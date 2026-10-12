@@ -107,7 +107,60 @@ chmod +x gnuplotins.exe
 gnuplotins.exe /SILENT /LOADINF="gnusetup.log"
 
 
+:: ASK FOR EDITOR SELECTION
+ECHO.
+ECHO Which editor/IDE would you like to install and configure for Fortran?
+ECHO   1) Visual Studio Code (VS Code)
+ECHO   2) Geany
+ECHO.
+set /p editor_choice=Select an editor [1 or 2, default: 1]: 
+if "%editor_choice%"=="" set editor_choice=1
+if "%editor_choice%"=="2" goto :install_geany
+
+
+:: INSTALL AND CONFIGURE VISUAL STUDIO CODE
+:install_vscode
+ECHO.
+ECHO Checking Visual Studio Code installation...
+
+set "CODE_CLI="
+where code 1>nul 2>nul
+if %errorlevel% equ 0 set "CODE_CLI=code"
+if not defined CODE_CLI if exist "%LOCALAPPDATA%\Programs\Microsoft VS Code\bin\code.cmd" set "CODE_CLI=%LOCALAPPDATA%\Programs\Microsoft VS Code\bin\code.cmd"
+if not defined CODE_CLI if exist "%ProgramFiles%\Microsoft VS Code\bin\code.cmd" set "CODE_CLI=%ProgramFiles%\Microsoft VS Code\bin\code.cmd"
+if not defined CODE_CLI if exist "%ProgramFiles(x86)%\Microsoft VS Code\bin\code.cmd" set "CODE_CLI=%ProgramFiles(x86)%\Microsoft VS Code\bin\code.cmd"
+
+if defined CODE_CLI (
+    ECHO Visual Studio Code is already installed - skipping download.
+) else (
+    ECHO Downloading Visual Studio Code installer...
+    @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "$WebClient = New-Object System.Net.WebClient; $WebClient.DownloadFile('https://update.code.visualstudio.com/latest/win32-x64-user/stable', 'vscode_setup.exe')"
+    ECHO Running Visual Studio Code installer...
+    vscode_setup.exe /VERYSILENT /NORESTART /MERGETASKS=!runcode,addtopath
+    del /Q vscode_setup.exe 2>nul
+
+    if exist "%LOCALAPPDATA%\Programs\Microsoft VS Code\bin\code.cmd" set "CODE_CLI=%LOCALAPPDATA%\Programs\Microsoft VS Code\bin\code.cmd"
+    if not defined CODE_CLI if exist "%ProgramFiles%\Microsoft VS Code\bin\code.cmd" set "CODE_CLI=%ProgramFiles%\Microsoft VS Code\bin\code.cmd"
+)
+
+:: install extensions
+if defined CODE_CLI (
+    ECHO Installing Fortran extensions for VS Code...
+    call "%CODE_CLI%" --install-extension fortran-lang.linter-gfortran
+    call "%CODE_CLI%" --install-extension vadimcn.vscode-lldb
+) else (
+    ECHO WARNING: could not locate the vscode 'code' command line tool.
+    ECHO Please install extensions fortran-lang.linter-gfortran and vadimcn.vscode-lldb manually.
+)
+
+:: configure VS Code for Fortran
+@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "%~dp0configure_vscode.ps1" "%location%"
+
+goto :install_toolbox
+
+
 :: INSTALL GEANY
+:install_geany
 
 :: download file
 wget -O geanyins.exe https://download.geany.org/geany-2.0_setup.exe
@@ -151,8 +204,11 @@ mkdir "%userprofile%\AppData\Roaming\geany\filedefs\" 2>nul
 move filetypes.fortran "%userprofile%\AppData\Roaming\geany\filedefs\filetypes.fortran"
 move geany.conf "%userprofile%\AppData\Roaming\geany\geany.conf"
 
+goto :install_toolbox
+
 
 :: INSTALL THE TOOLBOX
+:install_toolbox
 
 gfortran -c -Werror -fopenmp -Wno-unused  -ffree-line-length-none -fimplicit-none -Wall -fcheck=bound,do -ffpe-trap=invalid,zero,overflow -frecursive -g ./../../toolbox/toolbox.f90 -o toolbox_debug.o
 gfortran -c -O3 -fopenmp -ffree-line-length-none ./../../toolbox/toolbox.f90 -o toolbox.o
@@ -165,7 +221,8 @@ move "toolbox.o" "%location%\include%\"
 move "toolbox_debug.o" "%location%\include%\"
 
 
-:: ASK FOR FILE ASSOCIATION
+:: ASK FOR FILE ASSOCIATION (IF GEANY WAS SELECTED)
+if not "%editor_choice%"=="2" goto :theend
 
 ECHO.
 ECHO.
@@ -193,6 +250,15 @@ ECHO.
 ECHO. 
 ECHO. 
 ECHO ...INSTALLATION COMPLETED.
+ECHO.
+if "%editor_choice%"=="2" (
+    ECHO You can now open Geany to start writing and running Fortran programs.
+    ECHO Use the Build menu to compile, build, and run your code.
+) else (
+    ECHO In VS Code, open a .f90 file and press Ctrl+Shift+B to compile and build it.
+    ECHO Use "Terminal > Run Task..." for "Fortran: Run Program" and "Fortran: Debug Build",
+    ECHO or press F5 to start the debugger.
+)
 ECHO.
 ECHO YOU SHOULD RESTART YOUR SYSTEM TO FULLY ENJOY THE FORTRAN DEVELOPMENT ENVIRONMENT.
 ECHO.

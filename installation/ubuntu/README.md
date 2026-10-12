@@ -11,25 +11,30 @@ All installation files have been tested with Ubuntu 20.04, but should work on pr
 
 ## Installation
 
-When you execute the file `install_fortran.sh`, it will install the [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) environment, the plotting programm [gnuplot](http://gnuplot.info/) as well as the IDE [geany](https://www.geany.org/) to your computer. In addition, it is going to compile and store the toolbox on your computer.
+When you execute the file `install_fortran.sh`, it will install the [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) environment, the plotting program [gnuplot](http://gnuplot.info/), and prompt you to choose your preferred development editor: **Visual Studio Code** or **Geany**. In addition, it will compile and store the toolbox on your computer.
 
 
 #### The installation process in detail
 
-The file `install_fortran.sh` is a bash-file, which we use to execute certain installation routines on your computer. You can run this file in a terminal. You might have to add executable rights to it by typing `chmod +x install_fortran.sh`. During the installation process, we will make some changes to your lower system files. For this, the file `install_fortran.sh` needs administrator rights, which is why you are asked for your password. When starting the file, you will be asked to confirm that you want to install all software components as well as our toolbox on your computer. You can do this by typing the letter `y` and pressing ENTER.
+The file `install_fortran.sh` is a bash file used to execute the installation routines on your computer. You can run this file in a terminal (you might need to add executable rights by typing `chmod +x install_fortran.sh`). During the installation process, changes are made to lower system files requiring administrator rights (`sudo`). When prompted, confirm installation by typing `y` and pressing ENTER.
 
-Now the installation process has started. In detail you will see the following things happening:
+You will then be prompted to select your editor of choice:
+1. **Visual Studio Code (VS Code)** (default)
+2. **Geany**
 
-1. The first part of the installer copies all [GNU Fortran Compiler](https://gcc.gnu.org/fortran/) components to your system.
-2. Next, we install [gnuplot](http://gnuplot.info/).
-3. The third installer component will bring the IDE [geany](https://www.geany.org/) to your system.
+In detail, you will see the following happening:
 
-When the three software components are installed, the installation bash-file will do a couple more things:
-
-1. It will patch the software geany such that it already contains the right configuration for using Fortran with our toolbox.
-2. It will compile and install the toolbox to a directory to which the compiler is pointed.
+1. The installer installs the GNU Fortran compiler (`gfortran`), GNU debugger (`gdb`), build tools, and [gnuplot](http://gnuplot.info/).
+2. Depending on your editor selection:
+   - **Visual Studio Code**: The installer installs VS Code (via official deb package if not already present), installs the Fortran linter (`fortran-lang.linter-gfortran`) and LLDB debugger (`vadimcn.vscode-lldb`) extensions, and merges Fortran compile, build, run, and debug tasks into `~/.config/Code/User/tasks.json` and `settings.json` (backing up any existing files to `.bak`).
+   - **Geany**: The installer installs Geany via apt and configures its build menu (`filetypes.fortran`) and editor behavior (`geany.conf`).
+3. Finally, it compiles and installs the `ce-fortran` toolbox (`toolbox.o`, `toolbox_debug.o`, `toolbox.mod`) to `/usr/local/include`.
 
 **This is it!** If you saw no error messages appearing, then Fortran as well as our toolbox were successfully installed on your system.
+
+#### Working with your chosen editor:
+- **VS Code**: Open any `.f90` file and press `Ctrl+Shift+B` to compile and build. Use **Terminal > Run Task...** to select **Fortran: Run Program**, or press `F5` to start debugging.
+- **Geany**: Open any `.f90` file and use the **Build** menu (or shortcuts `F8` to compile, `F9` to build, and `F5` to execute).
 
 
 ## Uninstallation

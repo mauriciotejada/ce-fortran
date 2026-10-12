@@ -34,7 +34,7 @@ exit /B
 
 :: ASK FOR UNINSTALLATION PROCESS
 ECHO.
-ECHO This script completely uninstalls CYGWIN/GNU Plot/Geany from your system location:
+ECHO This script uninstalls CYGWIN/GNU Plot and configured editor environments from:
 ECHO.
 ECHO    %location%
 ECHO.
@@ -45,6 +45,47 @@ set exitres=T
 if %temp:~-0,1%==y set exitres=F
 if %temp:~-0,1%==Y set exitres=F
 if %exitres%==T exit
+
+
+:: ASK WHICH EDITOR CONFIGURATION TO UNINSTALL
+ECHO.
+ECHO Which editor configuration would you like to remove?
+ECHO   1) Visual Studio Code (removes Fortran tasks & debug settings)
+ECHO   2) Geany (uninstalls Geany application & removes configuration)
+ECHO   3) Both
+ECHO   4) Neither (remove Cygwin/GNU Plot only)
+ECHO.
+set /p editor_uninstall_choice=Select an option [1-4, default: 1]: 
+if "%editor_uninstall_choice%"=="" set editor_uninstall_choice=1
+
+if "%editor_uninstall_choice%"=="1" goto :cleanup_vscode
+if "%editor_uninstall_choice%"=="2" goto :cleanup_geany
+if "%editor_uninstall_choice%"=="3" goto :cleanup_both
+goto :skip_editor_cleanup
+
+:cleanup_both
+call :do_cleanup_vscode
+call :do_cleanup_geany
+goto :skip_editor_cleanup
+
+:cleanup_vscode
+call :do_cleanup_vscode
+goto :skip_editor_cleanup
+
+:cleanup_geany
+call :do_cleanup_geany
+goto :skip_editor_cleanup
+
+:do_cleanup_vscode
+@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "%~dp0cleanup_vscode.ps1"
+exit /B 0
+
+:do_cleanup_geany
+if exist "%ProgramFiles(x86)%\Geany\uninst.exe" "%ProgramFiles(x86)%\Geany\uninst.exe" /S 2>nul
+rmdir /s /q "%userprofile%\AppData\Roaming\geany\" 2>nul
+exit /B 0
+
+:skip_editor_cleanup
 
 
 :: UNINSTALL CYGWIN COMPLETELY
@@ -85,15 +126,7 @@ EndLocal
 
 
 :: UNINSTALL GNUPLOT
-"%ProgramFiles%\gnuplot\unins000.exe" /SILENT
-
-
-:: UNINSTALL GEANY
-"%ProgramFiles(x86)%\Geany\uninst.exe" /S
-
-
-:: REMOVE ALL GEANY TRACES
-rmdir /s /q "%userprofile%\AppData\Roaming\geany\" 2>nul
+if exist "%ProgramFiles%\gnuplot\unins000.exe" "%ProgramFiles%\gnuplot\unins000.exe" /SILENT
 
 
 :: IF EVERYTHING RAN CORRECTLY, AT THIS POINT EVERYTHING SHOULD BE UNINSTALLED PROPERLY
