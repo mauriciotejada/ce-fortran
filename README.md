@@ -29,7 +29,7 @@ In your project's `fpm.toml`, add `ce-toolbox` to your `[dependencies]`:
 
 ```toml
 [dependencies]
-ce-toolbox = { git = "https://github.com/fabiankindermann/ce-fortran.git", branch = "ce-fortran-fpm" }
+ce-toolbox = { git = "https://github.com/mauriciotejada/ce-fortran.git", branch = "ce-fortran-fpm" }
 ```
 
 In your Fortran program or module, import the toolbox using either:
