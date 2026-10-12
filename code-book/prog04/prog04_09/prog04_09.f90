@@ -177,7 +177,7 @@ program mortality_riskmanagement
     ! print results
     write(*,'(/a/)')'PORTFOLIO CHARACTERISTICS'
     write(*,'(a, 5f10.3/)')'mu    = ', mu
-    write(*,'(a, 5f10.3)')'sig   = ', sig(ii, :)
+    write(*,'(a, 5f10.3)')'sig   = ', sig(1, :)
     do ii = 2, NN
         write(*,'(8x,5f10.3)')sig(ii, :)
     enddo

@@ -15,6 +15,12 @@ program multi_interpol
     use toolbox
 
     implicit none
+
+    ! keep the large arrays below in static memory: the build commands use
+    ! -fopenmp -frecursive, which would otherwise place them on the stack
+    ! and overflow it
+    save
+
     integer, parameter :: nx = 10, nz = 20, nerr = 1000
     real*8, parameter :: x_l = -1d0, x_r = 2d0
     real*8, parameter :: z_l = 0.5d0, z_r = 8d0

@@ -15,6 +15,12 @@ program creditriskmanagement_MC
     use toolbox
 
     implicit none
+
+    ! keep the large arrays below in static memory: the build commands use
+    ! -fopenmp -frecursive, which would otherwise place them on the stack
+    ! and overflow it
+    save
+
     integer, parameter :: KK = 8               ! number of ratings
     integer, parameter :: JJ = 5               ! number of industries
     integer, parameter :: BB = 16              ! number of bonds in portfolio
