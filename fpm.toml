@@ -1,0 +1,18 @@
+name = "ce-toolbox"
+version = "1.0.0"
+license = "GPL-3.0-or-later"
+author = "Hans Fehr, Fabian Kindermann"
+maintainer = "contact@ce-fortran.com"
+copyright = "2018 Hans Fehr and Fabian Kindermann"
+description = "Computational Economics Fortran Toolbox accompanying 'Introduction to Computational Economics using Fortran' (Fehr & Kindermann, 2018)"
+
+[install]
+library = true
+
+[dependencies]
+openmp = "*"
+
+[[test]]
+name = "test_toolbox"
+source-dir = "test"
+main = "test_toolbox.f90"

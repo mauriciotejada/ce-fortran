@@ -5,9 +5,13 @@
 # Fortran Compile Files #
 #########################
 *.mod
+*.smod
 *.o
 *.obj
 *.exe
+*.a
+*.so
+*.dylib
 build/
 
 # VSCode Configuration  #

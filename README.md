@@ -1,23 +1,82 @@
-# The ce-fortran Code and Compiler Repository
+# ce-toolbox: Computational Economics Fortran Toolbox
 
-This program and compiler repository accompanies our textbook
+`ce-toolbox` is a Fortran library providing numerical and scientific computing routines tailored for computational economics. It packages the numerical toolbox from:
 
-[Fehr and Kindermann (2018), Introduction to Computational Economics Using Fortran, Oxford University Press.](https://global.oup.com/academic/product/introduction-to-computational-economics-using-fortran-9780198804406?prevSortField=1&sortField=8&start=0&resultsPerPage=20&prevNumResPerPage=20&lang=en&cc=no)
+> [Fehr, H. & Kindermann, F. (2018). *Introduction to Computational Economics Using Fortran*. Oxford University Press.](https://global.oup.com/academic/product/introduction-to-computational-economics-using-fortran-9780198804406)
 
-as well as its exercise and solution manual. Here you will find all the programs we describe in the book as well as detailed information on how to install free Fortran compilers. In addition we show you how to install our toolbox. This toolbox contains ample numerical routines as well as a plotting interface for GNUPlot.
+This branch (`ce-fortran-fpm`) is packaged as a standalone library ready to be used with the [Fortran Package Manager (`fpm`)](https://github.com/fortran-lang/fpm), modeled after standard Fortran ecosystem packages like [fortran-lang/stdlib](https://github.com/fortran-lang/stdlib).
 
-Just download or clone this repository and you will be able to install a suitable Fortran compiler on your operating system such that you can study all codes that come with the books.
+---
 
-## Structure of this respository
+## Features
 
-1. All Fortran codes for the book are stored in the folder [code-book](https://github.com/fabiankindermann/ce-fortran/tree/main/code-book).
-2. All Fortran codes for the solution manual are stored in the folder [code-solution](https://github.com/fabiankindermann/ce-fortran/tree/main/code-solution).
-3. Installation instructions and packages for different operating systems as well as Docker containers can be found in the folder [installation](https://github.com/fabiankindermann/ce-fortran/tree/main/installation). Just choose your operating system and learn how to install a Fortran compiler and our toolbox on your computer. Refer to the `README.md` files for further instructions.
+- **Linear Algebra (`toolbox_linalg`)**: LU decomposition, linear solvers, matrix inversion, Cholesky decomposition.
+- **Rootfinding & Optimization (`toolbox_opt`)**: Brent 1D rootfinding, Powell multi-D minimization, Broyden solver, Newton interpolation, simplex linear programming.
+- **Interpolation (`toolbox_interp`)**: Multidimensional linear, polynomial, and cubic spline interpolation.
+- **Quadrature (`toolbox_quad`)**: Gauss-Legendre numerical integration.
+- **Grids (`toolbox_grids`)**: Equidistant, Chebyshev, and exponential/growth grids.
+- **Distributions & Random Simulation (`toolbox_dist`)**: Discrete normal/log-normal approximations, uniform, normal, log-normal, gamma, beta, Bernoulli, binomial PRNG.
+- **Markov Chains (`toolbox_markov`)**: Rouwenhorst discretization and Markov chain simulation for AR(1) processes.
+- **Sorting (`toolbox_sort`)**: In-place Quicksort for real and integer arrays.
+- **Timers & Utilities (`toolbox_core`, `toolbox_kinds`)**: CPU & wall-clock timers (`tic`, `toc`) with OpenMP support, standard real/integer kinds (`dp`, `int32`), assertion checks.
+- **Visualization (`toolbox_gnuplot`)**: 2D and 3D plotting interface via Gnuplot.
 
-## Wiki
+---
 
-In our [wiki](https://github.com/fabiankindermann/ce-fortran/wiki), you can find a full documentation of the ce-fortran toolbox as well as further links that you might find useful.
+## Using `ce-toolbox` as an FPM Dependency
 
-## I need help or support!
+In your project's `fpm.toml`, add `ce-toolbox` to your `[dependencies]`:
 
-The best way to get help or support is to [start a discussion](https://github.com/fabiankindermann/ce-fortran/discussions). We are trying to be as quick as possible in providing responses to your questions.
+```toml
+[dependencies]
+ce-toolbox = { git = "https://github.com/fabiankindermann/ce-fortran.git", branch = "ce-fortran-fpm" }
+```
+
+In your Fortran program or module, import the toolbox using either:
+
+```fortran
+program main
+    use ce_toolbox
+    implicit none
+
+    real(dp) :: grid(10)
+    call grid_Cons_Equi(grid, 0.0_dp, 1.0_dp)
+    print *, grid
+end program main
+```
+
+or the classic module name:
+
+```fortran
+use toolbox
+```
+
+You can also import specialized submodules directly:
+
+```fortran
+use toolbox_linalg, only: lu_solve, chol_decomp
+use toolbox_opt,    only: brent, powell
+use toolbox_grids,  only: grid_Cons_Equi, grid_Cons_Cheb
+```
+
+---
+
+## Building and Testing
+
+To build the library with `fpm`:
+
+```bash
+fpm build
+```
+
+To run the built-in test suite:
+
+```bash
+fpm test
+```
+
+---
+
+## License
+
+This software is published under the [GNU General Public License v3 (GPL-3.0-or-later)](LICENSE).
