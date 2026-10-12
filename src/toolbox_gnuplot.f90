@@ -576,7 +576,8 @@ contains
             endif
             
             if(present(dashtype)) then
-                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))//' dashtype "'//adjustl(trim(dashtype))//'"'
+                write(gnu_definitions(gnu_mmax), '(a,f8.2)')trim(gnu_definitions(gnu_mmax))// &
+                    ' dashtype "'//adjustl(trim(dashtype))//'"'
             endif
         endif
 
