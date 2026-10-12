@@ -717,7 +717,7 @@ contains
         !##### OTHER VARIABLES ####################################################
      
         integer(int32) :: j, n, i
-        real(dp) :: lagrange_poly(size(x, 1), 0:size(xi, 1))
+        real(dp) :: lagrange_poly(size(x, 1), 0:size(xi, 1)-1)
      
      
         !##### ROUTINE CODE #######################################################
