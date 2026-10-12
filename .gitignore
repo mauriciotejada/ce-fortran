@@ -13,6 +13,7 @@
 *.so
 *.dylib
 build/
+examples/build/
 
 # VSCode Configuration  #
 #########################
