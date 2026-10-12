@@ -143,9 +143,7 @@ contains
             if(nodisplay)nw_copy = .true.
         endif
         
-        if(access('/usr/local/include/toolbox_visual.txt', ' ') == 0)then
-            nw_copy = .true.
-        endif
+        if(.not. nw_copy) inquire(file='/usr/local/include/toolbox_visual.txt', exist=nw_copy)
 
         ! create output files
         if(present(output))then
@@ -377,7 +375,7 @@ contains
         write(u_cmd, '(a)')'q'
         close(u_cmd)
         
-        call system('gnuplot "'//trim(cfile)//'"') 
+        call execute_command_line('gnuplot "'//trim(cfile)//'"') 
         if(.not.present(output))then
             open(newunit=u_data, file=trim(dfile), iostat=ios)
             if(ios == 0) close(u_data, status='delete')
@@ -1099,9 +1097,7 @@ contains
             if(nodisplay)nw_copy = .true.
         endif
         
-        if(access('/usr/local/include/toolbox_visual.txt', ' ') == 0)then
-            nw_copy = .true.
-        endif
+        if(.not. nw_copy) inquire(file='/usr/local/include/toolbox_visual.txt', exist=nw_copy)
 
         ! set up definitions
         definition = 'with'
@@ -1375,7 +1371,7 @@ contains
         write(u_cmd, '(a)')'q'
         close(u_cmd)
         
-        call system('gnuplot "'//trim(cfile)//'"') 
+        call execute_command_line('gnuplot "'//trim(cfile)//'"') 
         if(.not.present(output))then
             open(newunit=u_data, file=trim(dfile), iostat=ios)
             if(ios == 0) close(u_data, status='delete')
@@ -1522,9 +1518,7 @@ contains
             if(nodisplay)nw_copy = .true.
         endif
         
-        if(access('/usr/local/include/toolbox_visual.txt', ' ') == 0)then
-            nw_copy = .true.
-        endif
+        if(.not. nw_copy) inquire(file='/usr/local/include/toolbox_visual.txt', exist=nw_copy)
 
         ! set up definitions
         definition = 'with'
@@ -1767,7 +1761,7 @@ contains
         write(u_cmd, '(a)')'q'
         close(u_cmd)
         
-        call system('gnuplot "'//trim(cfile)//'"') 
+        call execute_command_line('gnuplot "'//trim(cfile)//'"') 
         if(.not.present(output))then
             open(newunit=u_data, file=trim(dfile), iostat=ios)
             if(ios == 0) close(u_data, status='delete')

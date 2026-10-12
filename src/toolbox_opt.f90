@@ -490,14 +490,14 @@ contains
      
             !##### INPUT/OUTPUT VARIABLES #########################################
      
+            ! number of dimensions
+            integer(int32), intent(in) :: n
+     
             ! point where to start and minimum if minimization is done
             real(dp), intent(inout) :: p(n)
      
             ! direction in which to optimize
             real(dp), intent(inout) :: xi(n)
-     
-            ! number of dimensions
-            integer(int32), intent(in) :: n
      
             ! value of function at minimum
             real(dp), intent(out)  :: fret
