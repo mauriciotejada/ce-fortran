@@ -1,0 +1,7 @@
+name = "nelder_mead"
+version = "0.1.0"
+license = "license"
+author = "Mauricio M. Tejada"
+
+[dependencies]
+ce-toolbox = { git = "https://github.com/mauriciotejada/ce-fortran.git", branch = "ce-fortran-fpm" }
