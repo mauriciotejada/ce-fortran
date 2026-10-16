@@ -5,6 +5,7 @@ program test_toolbox
     real(dp) :: grid_equi(5), grid_cheb(5)
     real(dp) :: A(3, 3), b(3), x_exact(3)
     real(dp) :: arr(5)
+    real(dp) :: x_min(2), f_min
     real(dp) :: t_start, elapsed
     integer(int32) :: i
 
@@ -51,10 +52,28 @@ program test_toolbox
     end do
     print *, "[PASS] Real quicksort verified."
 
+    ! 5. Nelder-Mead minimizer (unbounded fminsearch)
+    x_min = [-1.2_dp, 1.0_dp]
+    call fminsearch(x_min, f_min, rosenbrock)
+    if (maxval(abs(x_min - 1.0_dp)) > 1.0e-5_dp) then
+        error stop "Error in nelder_mead!"
+    end if
+    print *, "[PASS] Nelder-Mead minimizer verified."
+
     ! Stop timer
     call toc(t=t_start, elapsed=elapsed)
     print *, "=========================================="
     print *, "All tests passed successfully!"
     print *, "=========================================="
+
+contains
+
+    ! Rosenbrock function, minimum at (1, 1)
+    function rosenbrock(p)
+        real(dp), intent(in) :: p(:)
+        real(dp) :: rosenbrock
+
+        rosenbrock = 100.0_dp*(p(2) - p(1)**2)**2 + (1.0_dp - p(1))**2
+    end function rosenbrock
 
 end program test_toolbox

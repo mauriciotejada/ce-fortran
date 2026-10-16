@@ -11,7 +11,7 @@ This branch (`ce-fortran-fpm`) is packaged as a standalone library ready to be u
 ## Features
 
 - **Linear Algebra (`toolbox_linalg`)**: LU decomposition, linear solvers, matrix inversion, Cholesky decomposition.
-- **Rootfinding & Optimization (`toolbox_opt`)**: Brent 1D rootfinding, Powell multi-D minimization, Broyden solver, Newton interpolation, simplex linear programming.
+- **Rootfinding & Optimization (`toolbox_opt`)**: Brent 1D rootfinding, Powell multi-D minimization, Nelder-Mead simplex minimization (unbounded `fminsearch`), Broyden solver, Newton interpolation, simplex linear programming.
 - **Interpolation (`toolbox_interp`)**: Multidimensional linear, polynomial, and cubic spline interpolation.
 - **Quadrature (`toolbox_quad`)**: Gauss-Legendre numerical integration.
 - **Grids (`toolbox_grids`)**: Equidistant, Chebyshev, and exponential/growth grids.
