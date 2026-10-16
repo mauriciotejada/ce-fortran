@@ -36,7 +36,7 @@ module toolbox_opt
     public :: settol_root, setiter_root, fzero
     public :: settol_min, setiter_min, fminsearch
     public :: solve_lin
-    public :: brent, powell, newton_interpol, broydn
+    public :: brent, powell, nelder_mead, newton_interpol, broydn
 
 !##############################################################################
 ! INTERFACE fminsearch
@@ -45,7 +45,7 @@ module toolbox_opt
 !##############################################################################
 interface fminsearch
 
-    module procedure brent, powell
+    module procedure brent, powell, nelder_mead
 
 end interface
 
@@ -838,6 +838,234 @@ contains
         end subroutine shft
     
     end subroutine powell
+
+
+
+    !##############################################################################
+    ! SUBROUTINE nelder_mead
+    !
+    ! Minimizes an unconstrained multidimensional function with the downhill
+    !     simplex method of Nelder and Mead.
+    !
+    ! The coefficients of reflection (1), expansion (2), contraction (0.5) and
+    !     shrinkage (0.5) and the initial simplex, which moves each coordinate
+    !     of the starting point by 5 percent (or to 0.00025 if it is zero), are
+    !     those of MATLAB's fminsearch. If itermax is not given, the maximum
+    !     number of iterations is the one set with setiter_min times the
+    !     number of variables (200*n by default).
+    !
+    ! PARTS OF THIS PROCEDURE WERE COPIED AND ADAPTED FROM:
+    !     Press, W.H., Teukolsky, S.A., Vetterling, W.T. & Flannery, B.P. (2007).
+    !     Numerical Recipes: The Art of Scientific Computing, 3rd edition.
+    !     Cambridge: Cambridge University Press.
+    !
+    !     Lagarias, J.C., Reeds, J.A., Wright, M.H. & Wright, P.E. (1998).
+    !     Convergence Properties of the Nelder-Mead Simplex Method in Low
+    !     Dimensions. SIAM Journal on Optimization, 9(1), 112-147.
+    !##############################################################################
+    subroutine nelder_mead(x, fret, func, tol, itermax)
+
+        implicit none
+
+
+        !##### INPUT/OUTPUT VARIABLES #############################################
+
+        ! starting and ending point
+        real(dp), intent(inout) :: x(:)
+
+        ! value of function in minimum
+        real(dp), intent(out) :: fret
+
+        ! optional tolerance level
+        real(dp), intent(in), optional :: tol
+
+        ! optional maximum number of iterations
+        integer(int32), intent(in), optional :: itermax
+
+
+        !##### OTHER VARIABLES ####################################################
+
+        ! coefficients of reflection, expansion, contraction and shrinkage
+        real(dp), parameter :: rho = 1.0_dp, chi = 2.0_dp, psi = 0.5_dp, &
+            sigma = 0.5_dp
+
+        ! relative and absolute steps of the initial simplex
+        real(dp), parameter :: usual_delta = 0.05_dp
+        real(dp), parameter :: zero_term_delta = 0.00025_dp
+        real(dp), parameter :: tiny = 1.0e-10_dp
+        real(dp) :: ftol
+        integer(int32) :: i, n, iter, max_iter
+        real(dp) :: simp(size(x, 1), size(x, 1)+1), fv(size(x, 1)+1)
+        real(dp), dimension(size(x, 1)) :: xbar, xr, xe, xc
+        real(dp) :: fr, fe, fc
+        logical :: shrink
+
+
+        !##### INTERFACES #########################################################
+
+        ! interface for the function
+        interface
+            function func(p)
+                import :: dp
+                implicit none
+                real(dp), intent(in) :: p(:)
+                real(dp) :: func
+            end function func
+        end interface
+
+
+        !##### ROUTINE CODE #######################################################
+
+        ! get number of dimensions
+        n = size(x, 1)
+
+        ! set tolerance level and max iterations
+        if(present(tol))then
+            ftol = tol
+        else
+            ftol = tbox_gftol
+        endif
+        if(present(itermax))then
+            max_iter = itermax
+        else
+            max_iter = tbox_itermax_min*n
+        endif
+
+        ! set up initial simplex, vertex i+1 moves coordinate i
+        simp(:, 1) = x(:)
+        fv(1) = func(x)
+        do i = 1, n
+            simp(:, i+1) = x(:)
+            if(abs(x(i)) > 0.0_dp)then
+                simp(i, i+1) = (1.0_dp + usual_delta)*x(i)
+            else
+                simp(i, i+1) = zero_term_delta
+            endif
+            fv(i+1) = func(simp(:, i+1))
+        enddo
+
+        ! order vertices from best to worst
+        call sort_simplex()
+
+        ! start iteration
+        do iter = 1, max_iter
+
+            ! termination criterion: fractional range from best to worst vertex
+            if(2.0_dp*abs(fv(n+1) - fv(1)) <= &
+                    ftol*(abs(fv(n+1)) + abs(fv(1)) + tiny))then
+                x(:) = simp(:, 1)
+                fret = fv(1)
+                return
+            endif
+
+            ! centroid of all vertices but the worst one
+            xbar(:) = sum(simp(:, 1:n), dim=2)/real(n, dp)
+
+            ! reflect the worst vertex through the centroid
+            xr(:) = (1.0_dp + rho)*xbar(:) - rho*simp(:, n+1)
+            fr = func(xr)
+            shrink = .false.
+
+            if(fr < fv(1))then
+
+                ! reflection beats the best vertex -> try to expand further
+                xe(:) = (1.0_dp + rho*chi)*xbar(:) - rho*chi*simp(:, n+1)
+                fe = func(xe)
+                if(fe < fr)then
+                    simp(:, n+1) = xe(:)
+                    fv(n+1) = fe
+                else
+                    simp(:, n+1) = xr(:)
+                    fv(n+1) = fr
+                endif
+            elseif(fr < fv(n))then
+
+                ! reflection beats the second worst vertex -> accept it
+                simp(:, n+1) = xr(:)
+                fv(n+1) = fr
+            elseif(fr < fv(n+1))then
+
+                ! reflection beats only the worst vertex -> contract outside
+                xc(:) = (1.0_dp + psi*rho)*xbar(:) - psi*rho*simp(:, n+1)
+                fc = func(xc)
+                if(fc <= fr)then
+                    simp(:, n+1) = xc(:)
+                    fv(n+1) = fc
+                else
+                    shrink = .true.
+                endif
+            else
+
+                ! reflection is no improvement -> contract inside
+                xc(:) = (1.0_dp - psi)*xbar(:) + psi*simp(:, n+1)
+                fc = func(xc)
+                if(fc < fv(n+1))then
+                    simp(:, n+1) = xc(:)
+                    fv(n+1) = fc
+                else
+                    shrink = .true.
+                endif
+            endif
+
+            ! if contraction failed, shrink simplex towards the best vertex
+            if(shrink)then
+                do i = 2, n+1
+                    simp(:, i) = simp(:, 1) + sigma*(simp(:, i) - simp(:, 1))
+                    fv(i) = func(simp(:, i))
+                enddo
+            endif
+
+            ! reorder vertices from best to worst
+            call sort_simplex()
+        enddo
+
+        ! return best vertex if maximum iterations reached
+        x(:) = simp(:, 1)
+        fret = fv(1)
+        call warning('fminsearch', 'maximum iterations exceeded')
+
+
+    !##### SUBROUTINES AND FUNCTIONS ##########################################
+
+    contains
+
+
+        !##########################################################################
+        ! SUBROUTINE sort_simplex
+        !
+        ! Sorts vertices in ascending order of function values (insertion sort,
+        !     ties keep their order).
+        !##########################################################################
+        subroutine sort_simplex()
+
+            implicit none
+
+
+            !##### OTHER VARIABLES ################################################
+
+            integer(int32) :: j, k
+            real(dp) :: ftemp, xtemp(size(x, 1))
+
+
+            !##### ROUTINE CODE ###################################################
+
+            do j = 2, n+1
+                ftemp = fv(j)
+                xtemp(:) = simp(:, j)
+                k = j - 1
+                do while(k >= 1)
+                    if(fv(k) <= ftemp)exit
+                    fv(k+1) = fv(k)
+                    simp(:, k+1) = simp(:, k)
+                    k = k - 1
+                enddo
+                fv(k+1) = ftemp
+                simp(:, k+1) = xtemp(:)
+            enddo
+
+        end subroutine sort_simplex
+
+    end subroutine nelder_mead
 
 
 
