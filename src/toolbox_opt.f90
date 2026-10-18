@@ -854,6 +854,11 @@ contains
     !     number of iterations is the one set with setiter_min times the
     !     number of variables (200*n by default).
     !
+    ! With adaptive = .true. the coefficients depend on the number of variables
+    !     n: expansion 1+2/n, contraction 0.75-1/(2n) and shrinkage 1-1/n
+    !     (Gao & Han, 2012), as scipy's minimize(method='Nelder-Mead',
+    !     options={'adaptive': True}). This performs much better for n > 2.
+    !
     ! PARTS OF THIS PROCEDURE WERE COPIED AND ADAPTED FROM:
     !     Press, W.H., Teukolsky, S.A., Vetterling, W.T. & Flannery, B.P. (2007).
     !     Numerical Recipes: The Art of Scientific Computing, 3rd edition.
@@ -862,8 +867,12 @@ contains
     !     Lagarias, J.C., Reeds, J.A., Wright, M.H. & Wright, P.E. (1998).
     !     Convergence Properties of the Nelder-Mead Simplex Method in Low
     !     Dimensions. SIAM Journal on Optimization, 9(1), 112-147.
+    !
+    !     Gao, F. & Han, L. (2012). Implementing the Nelder-Mead simplex
+    !     algorithm with adaptive parameters. Computational Optimization and
+    !     Applications, 51(1), 259-277.
     !##############################################################################
-    subroutine nelder_mead(x, fret, func, tol, itermax)
+    subroutine nelder_mead(x, fret, func, tol, itermax, adaptive)
 
         implicit none
 
@@ -882,12 +891,14 @@ contains
         ! optional maximum number of iterations
         integer(int32), intent(in), optional :: itermax
 
+        ! optional dimension-dependent coefficients (default .false.)
+        logical, intent(in), optional :: adaptive
+
 
         !##### OTHER VARIABLES ####################################################
 
         ! coefficients of reflection, expansion, contraction and shrinkage
-        real(dp), parameter :: rho = 1.0_dp, chi = 2.0_dp, psi = 0.5_dp, &
-            sigma = 0.5_dp
+        real(dp) :: rho, chi, psi, sigma
 
         ! relative and absolute steps of the initial simplex
         real(dp), parameter :: usual_delta = 0.05_dp
@@ -929,6 +940,19 @@ contains
             max_iter = itermax
         else
             max_iter = tbox_itermax_min*n
+        endif
+
+        ! set coefficients: standard or adaptive (Gao & Han, 2012)
+        rho = 1.0_dp
+        chi = 2.0_dp
+        psi = 0.5_dp
+        sigma = 0.5_dp
+        if(present(adaptive))then
+            if(adaptive)then
+                chi = 1.0_dp + 2.0_dp/real(n, dp)
+                psi = 0.75_dp - 0.5_dp/real(n, dp)
+                sigma = 1.0_dp - 1.0_dp/real(n, dp)
+            endif
         endif
 
         ! set up initial simplex, vertex i+1 moves coordinate i

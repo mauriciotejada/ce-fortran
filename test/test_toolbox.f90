@@ -60,6 +60,14 @@ program test_toolbox
     end if
     print *, "[PASS] Nelder-Mead minimizer verified."
 
+    ! 6. Adaptive Nelder-Mead (dimension-dependent coefficients)
+    x_min = [-1.2_dp, 1.0_dp]
+    call fminsearch(x_min, f_min, rosenbrock, adaptive=.true.)
+    if (maxval(abs(x_min - 1.0_dp)) > 1.0e-5_dp) then
+        error stop "Error in adaptive nelder_mead!"
+    end if
+    print *, "[PASS] Adaptive Nelder-Mead minimizer verified."
+
     ! Stop timer
     call toc(t=t_start, elapsed=elapsed)
     print *, "=========================================="
